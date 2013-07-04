@@ -1,0 +1,158 @@
+<apex:page controller="skyvvasolutions.ReOrder" sidebar="false" showHeader="false" id="page">
+   
+    <apex:form id="frm">
+       <apex:inputhidden value="{!intfIds}" id="intfIds"/>
+       <apex:inputhidden value="{!result}" id="result"/>
+       <apex:actionFunction name="updateReorder" action="{!updateReorder}" oncomplete="updateReorderResult();" status="status" rerender="result"/>
+       <apex:pageBlock >
+          <script>
+          		 
+          
+              function refresh(integrationId){
+                   try{      
+                    
+                    var intfView=document.location.href;
+                    if(intfView.search(/intfView=true/i)>-1){
+                    	var mainId=document.location.href;
+                    	mainId=mainId.substring(mainId.indexOf('&mainId='),mainId.length);
+                    	mainId=mainId.split('=')[1];
+                    	mainId=mainId+'page:frm:refresh';
+                    	window.opener.document.getElementById(mainId).click();
+                    	window.top.close();
+                    }else{
+                    	window.top.close();
+                    	top.opener.location.href='/'+integrationId
+                    }
+              	}catch(e){
+              		window.top.close();
+    				window.opener.location.href='/apex/IntegrationOnDemand?id='+integrationId+'&selTab=Interfaces';
+    			}      
+              }
+              function createCBox(value,item){
+                  var cb=document.getElementById('cbBox');
+                  var store;
+                  store='<select id="select" size="11" style="width:200px">';
+                  for(var i=0;i<item.length;i++){
+                      store+='<option value=\"'+value[i]+'\">'+item[i]+'</option>';
+                  }
+                  store+='</select>';
+                  cb.innerHTML=store;
+              }
+              window.onload=function initPage(){
+                   
+                   var item='{!JSENCODE(interfaceNames)}'; //string format:{interrf1,interf2} //Interface Name
+                   item = item.substring(1, item.length-1); 
+                   item=item.split(',');
+                   var id='{!JSENCODE(ids)}'; //eg {1111111111111,1111111111113} //interface Id
+                   id=id.substring(1, id.length-1);
+                   id=id.split(',');
+                   createCBox(id,item);  
+              }
+              
+              function down(){
+                  var elSel = document.getElementById('select');
+                  if(elSel.length<2){
+                      return;
+                  }
+                  if (elSel.selectedIndex >-1 && elSel.selectedIndex < elSel.length-1) {
+                    var elOptNew = document.createElement('option');
+                    elOptNew.text = elSel.options[elSel.selectedIndex+1].text;                    
+                    elOptNew.value = elSel.options[elSel.selectedIndex+1].value;
+                   var elOptOld = elSel.options[elSel.selectedIndex]; 
+                   try {
+                      elSel.add(elOptNew, elOptOld); 
+                   }catch(ex) {
+	                   //alert(ex.description);
+                      elSel.add(elOptNew, elSel.selectedIndex);
+                   }
+                   elSel.remove(elSel.selectedIndex+1); 
+                   }
+               }
+               function up(){
+                   var elSel = document.getElementById('select');
+                   if(elSel.length<2){
+                       return;
+                   }
+                  if (elSel.selectedIndex > 0) {
+                    var elOptNew = document.createElement('option');
+                    elOptNew.text = elSel.options[elSel.selectedIndex-1].text;                    
+                    elOptNew.value = elSel.options[elSel.selectedIndex-1].value;
+                    var elOptOld = elSel.options[elSel.selectedIndex+1]; 
+                    try{
+                        elSel.add(elOptNew,elOptOld); 
+                    }catch(ex){
+                    	//alert(ex.description);
+                    	
+                        elSel.options.add(elOptNew, elSel.selectedIndex+1);
+                    }    
+                    elSel.remove(elSel.selectedIndex-1);   
+                 }
+               }
+                function cancel(){
+                   window.top.close();
+               }
+               function save(){
+                  var cb=document.getElementById('select');
+                  
+                  var intfIds=document.getElementById('page:frm:intfIds');
+                  intfIds.value="";
+                  for(var i=0;i<cb.length;i++){
+                      intfIds.value+=trim(cb.options[i].value)+",";
+                  }
+                  
+                  if(intfIds.value==',' || intfIds.value==""){
+                  	alert("There are no any Interfaces to be reordered.");
+                  	return;
+                  }
+                  updateReorder();
+               
+				}   
+               function updateReorderResult(){
+               		
+               		var result=document.getElementById("page:frm:result").value;
+                      if (result=="success")
+                      {
+                        refresh('{!URLENCODE(integrationId)}');
+                        
+                      }
+                      else
+                      {
+                        alert(result);
+                      }	
+               }
+          </script>
+          
+          <table align="center">
+	          <tr>
+	          	<td align="left"><H3>Interfaces</H3></td>
+	          	<td></td>
+	          </tr>
+	          <tr>
+	          	<td><div id="cbBox"></div></td>
+	          	<td style="vertical-align: middle">
+	          		<center>
+	          			Up<br/>
+	          			<img onclick="up()" class="upArrowIcon" src="/s.gif"/><br/>
+	          			<img onclick="down()" class="downArrowIcon" src="/s.gif"/><br/>
+	          			Down
+	       			</center>
+	          	</td>
+          	 </tr>
+          	 <tr>
+          	 	<td align="center">
+          	 		<input type="button" class="btn" value="Save" onclick="save()"/>
+         			<input type="button" class="btn" value="cancel" onclick="cancel()"/>
+          	 	</td>
+          	 	<td></td>
+          	 </tr>
+          </table>
+       
+      </apex:pageblock>
+  </apex:form>
+  <apex:actionStatus id="status">
+       <apex:facet name="start">
+           <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+       </apex:facet>
+   </apex:actionStatus>
+  
+</apex:page>

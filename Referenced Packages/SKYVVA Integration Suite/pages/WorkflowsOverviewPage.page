@@ -1,0 +1,73 @@
+<apex:page id="workflowPage" standardcontroller="skyvvasolutions__Integration__c" extensions="skyvvasolutions.WorkflowsOverview" sidebar="true" tabStyle="skyvvasolutions__Integration__c">
+
+<apex:form id="form">
+ 
+    <apex:pageBlock title="{!pluralLabel}" id="pbworkflows">
+        
+        <apex:pageBlockButtons id="pbBtn" location="top">
+            <apex:commandbutton value="New {!singularLabel}" action="{!btnNewWorkflow}" id="newWorkflow"/>
+            <apex:commandButton value="ReOrder" onclick="var left=(window.screen.width-820)/2;var top=(window.screen.height-380)/2;window.open('/apex/ReOrderWorkFlowPage?Id={!URLENCODE(skyvvasolutions__Integration__c.Id)}&mainId=mainPage:workflowsOverview:','_blank','width=820,height=380,left='+left+',top='+top);return false;"/>
+            <apex:commandButton value="Refresh" action="{!loadWorkflows}" style="display:none" status="status" rerender="form" id="btnRefresh"/> 
+        </apex:pageBlockButtons>
+        
+        <center><apex:outputText value="{!errMsg}" id="errMsg" styleClass="pbError"></apex:outputText></center>
+        
+        <apex:pageblocktable id="pbTable" value="{!lstWorkflows}" var="wf" rendered="{!ISNULL(error)}">
+            <apex:column styleClass="actionColumn"><!-- styleClass="actionColumn" -->
+                <apex:facet name="header">Action</apex:facet>
+                <apex:commandLink id="cmlEdit" styleClass="actionLink" action="{!lnkEdit}">Edit
+                   <apex:param name="workflowId" value="{!wf.id}" assignTo="{!workflowId}"/>
+                </apex:commandLink>
+                &nbsp;|&nbsp;
+                <apex:commandLink id="cmlDel" styleClass="actionLink"
+                    onclick="return confirmMsgWorkflow();" action="{!lnkDel}">Del
+                        <apex:param name="workflowId" value="{!wf.id}" assignTo="{!workflowId}"/>
+                    </apex:commandLink> 
+            </apex:column>
+            
+            <apex:column >
+                <apex:facet name="header">ID</apex:facet>
+                <apex:outputLink value="/{!wf.id}" target="_blank" styleClass="actionLink">
+                        {!wf.name}</apex:outputLink>
+            </apex:column>
+            
+            <apex:column >
+                <apex:facet name="header">Interface Source</apex:facet>
+                <apex:outputLink value="/{!wf.skyvvasolutions__InterfaceSourceId__c}" target="_blank" styleClass="actionLink">
+                        {!wf.InterfaceSourceId__r.skyvvasolutions__Name__c}</apex:outputLink>
+            </apex:column>
+            
+            <apex:column value="{!wf.skyvvasolutions__Sequence__c}"/>
+            
+            <apex:column value="{!wf.skyvvasolutions__Condition__c}"/>
+            
+            <apex:column >
+                <apex:facet name="header">Target</apex:facet>
+                <apex:outputLink value="/{!wf.skyvvasolutions__TargetInterfaceId__c}" target="_blank" styleClass="actionLink">
+                        {!wf.TargetInterfaceId__r.skyvvasolutions__Name__c}</apex:outputLink>
+            </apex:column>
+            
+            <apex:column value="{!wf.skyvvasolutions__Operation_Type__c}"/>
+            <apex:column value="{!wf.skyvvasolutions__CheckNext__c}"/>
+            <apex:column value="{!wf.skyvvasolutions__Active__c}"/>
+            <apex:column value="{!wf.skyvvasolutions__Filter_Messages__c}"/>
+      </apex:pageblocktable>
+      <apex:outputText value="{!error}" rendered="{!NOT(ISNULL(error))}"></apex:outputText>
+    </apex:pageBlock>
+    <apex:actionStatus id="status">
+       <apex:facet name="start">
+           <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+       </apex:facet>
+   </apex:actionStatus>
+</apex:form>
+<script>
+       //confirm when delete button click
+       function confirmMsgWorkflow(){
+            if(!confirm('Are you sure?')){
+               return false;
+            }
+            return true;
+        }
+</script>
+
+</apex:page>

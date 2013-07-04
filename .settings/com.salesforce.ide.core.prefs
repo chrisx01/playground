@@ -1,0 +1,25 @@
+#Tue Nov 06 13:21:09 CET 2012
+ExecuteAnonymousApex_code=Debug
+ExecuteAnonymousApex_profiling=Info
+ExecuteAnonymousCallout=Info
+ExecuteAnonymousDb=Info
+ExecuteAnonymousValidation=Info
+ExecuteAnonymousWorkflow=Info
+RunTestApex_code=Debug
+RunTestApex_profiling=Info
+RunTestCallout=Info
+RunTestDb=Info
+RunTestValidation=Info
+RunTestWorkflow=Info
+eclipse.preferences.version=1
+endpointApiVersion=24.0
+endpointEnvironment=Production/Developer Edition
+endpointServer=www.salesforce.com
+httpsProtocol=true
+ideVersion=24.0
+keependpoint=false
+metadataFormatVersion=24.0
+namespacePrefix=
+packageName=unpackaged
+readTimeout=400
+username=ch@clienthouse.com

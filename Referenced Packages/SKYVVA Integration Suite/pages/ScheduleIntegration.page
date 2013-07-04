@@ -1,0 +1,176 @@
+<apex:page standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.clsScheduleIntegration" sidebar="false" showHeader="true" id="page">
+	<apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Integration Job Scheduler"></apex:sectionHeader>
+	<apex:messages style="font-weight:bold; height:45px; overflow:auto;" />
+	<script>
+    	
+    	var bchkEveryDayOfWeek;
+    	
+        function cancel(){
+            window.top.close();
+        }
+        function refreshParent(action){
+	        if(action=='save'){	
+	        	var strAB = document.getElementById('page:frm:strAB').value;
+	        	var intgId = document.getElementById('page:frm:integId').value;
+	        	
+	            if(strAB == '{!JSENCODE(jobName)}'){
+	            	alert(strAB);
+		            window.top.close();
+	            }
+	            //Error
+	            else{
+	            
+					if(strAB.search(/license key/i)!=-1){ 
+					
+						if(confirm(strAB+' \n\nDo you want to request a new license key?')){ 
+							sendLicenseKeyReqMail();
+						} 
+					
+					}else{ 
+						alert(strAB); 
+					} 
+	            	
+	            	//keep select time picklist to be enable or disable after page refresh.
+	            	document.getElementById('page:frm:pBlock:psecAt:selTime').disabled=bchkEveryDayOfWeek;
+	            }
+            }else{
+           		var msgInfo=document.getElementById('page:frm:msgInfo').value;
+            	alert(msgInfo);
+            	if(msgInfo.search(/Error/i)==-1 && msgInfo.search(/Warning/i)==-1)
+            		window.top.close();
+           		
+            }
+        }
+        function sendLicenseKeyReqMailResult(){
+        	var result=document.getElementById('page:frm:result').value;
+        	alert(result);
+			window.top.close()
+        }
+        function deleteScheduler(){
+        	var result=confirm("Are you sure you want to delete Scheduler for this Integration?");
+        	if(result){
+        		abort();
+        	}
+        }
+        function selectAll(){
+        	checkAndUncheckAll(true);
+        }
+        function deSelectAll(){
+        	checkAndUncheckAll(false);
+        }
+        function checkAndUncheckAll(checked){
+        	var f = document.getElementById('{!$Component.frm}');
+			for(var i=0;i<f.elements.length; i++) { 
+				if(f.elements[i].type == 'checkbox'){
+					if(f.elements[i].id.search(/chkEveryHour/i)==-1)
+					f.elements[i].checked=checked;
+				}
+			}
+        }
+    </script>
+    <apex:form id="frm">
+        <apex:inputhidden value="{!integId}" id="integId"/>
+        <apex:inputhidden value="{!strAB}" id="strAB"/>
+        <apex:inputhidden value="{!msgInfo}" id="msgInfo"/>
+        <apex:inputhidden value="{!result}" id="result"/>
+        <apex:actionFunction name="sendLicenseKeyReqMail" action="{!sendLicenseKeyReqMail}" oncomplete="sendLicenseKeyReqMailResult()" status="status" rerender="frm"/>
+        <center><apex:outputText value="{!errLicense}" id="errLicense" rendered="{!NOT(ISNULL(errLicense))}" style="font-weight:bold; color:red;" ></apex:outputText></center>
+        
+        <apex:pageblock id="pBlock" rendered="{!(ISNULL(errLicense))}">
+            <apex:pageblockButtons >
+                <apex:commandButton value="Save" action="{!save}" status="status" rerender="frm" oncomplete="refreshParent('save')"/>
+                <input type="button" class="btn" value="Delete Scheduler" onclick="deleteScheduler()"/>
+                <apex:commandButton value="Cancel" onclick="cancel()"/>
+                <apex:actionfunction name="abort" action="{!abort}" status="status" rerender="frm" oncomplete="refreshParent('delete')"/>
+            </apex:pageblockButtons>
+            
+             <apex:pageblockSection title="Integration">
+                 <table style="padding-left:50px">
+                     <tr>
+                         <td width="150px" align="right"><b>Integration Name</b></td>
+                         <td width="10px"></td>
+                         <td>{!intg.Name}</td>
+                     </tr>
+                     <tr>
+                         <td width="150px" align="right"><b>Description</b></td>
+                         <td width="10px"></td>
+                         <td>{!intg.Description__c}</td>
+                     </tr>
+                     
+                 </table>
+             </apex:pageblockSection>
+                    
+             <apex:pageblocksection title="Every">
+                 <table style="padding-left:50px">
+                 	<tr>
+                     	<td>
+                   			<a href="#" onclick="selectAll()">Select All</a>&nbsp;&nbsp;|&nbsp;&nbsp;
+                     		<a href="#" onclick="deSelectAll()">Deselect All</a>
+                     		<br/>
+                     	</td>
+                     </tr>
+                 </table>
+                 <table style="padding-left:50px">
+                     <tr>
+                         <td width="95px" align="right"><b>Monday</b></td>
+                         <td width="10px"></td>
+                         <apex:inputCheckbox value="{!chkMon}"/>
+                     </tr>
+                     <tr>
+                         <td width="95px" align="right"><b>Tuesday</b></td>
+                         <td width="10px"></td>
+                         <apex:inputCheckbox value="{!chkTue}"/>
+                     </tr>
+                     <tr>
+                         <td width="95px" align="right"><b>Wednesday</b></td>
+                         <td width="10px"></td>
+                        <apex:inputCheckbox value="{!chkWed}"/>
+                     </tr>
+                     <tr>
+                         <td width="95px" align="right"><b>Thursday</b></td>
+                         <td width="10px"></td>
+                         <apex:inputCheckbox value="{!chkThu}"/>
+                     </tr>
+                     <tr>
+                         <td width="95px" align="right"><b>Friday</b></td>
+                         <td width="10px"></td>
+                         <apex:inputCheckbox value="{!chkFri}"/>
+                     </tr>
+                     <tr>
+                         <td width="95px" align="right"><b>Saturday</b></td>
+                         <td width="10px"></td>
+                         <apex:inputCheckbox value="{!chkSat}"/>
+                     </tr>
+                     <tr>
+                         <td width="95px" align="right"><b>Sunday</b></td>
+                         <td width="10px"></td>
+                         <apex:inputCheckbox value="{!chkSun}"/>
+                     </tr>
+                 </table>             
+             
+             </apex:pageblocksection>
+             <apex:pageblocksection title="At" id="psecAt">
+                 <table style="padding-left:50px">
+                     <tr>
+                         <td width="150px" align="right"><b>Time</b></td>
+                         <td width="10px"></td>
+                         <apex:selectList value="{!selTime}" size="1" id="selTime" disabled="{!disabledTime}">
+						 	<apex:selectOptions value="{!selOption}"/>
+						 </apex:selectList>
+                     </tr>
+                     <tr>
+                   		<td width="95px" align="right"><b>Every Hour</b></td>
+                        <td width="10px"></td>
+                        <apex:inputCheckbox id="chkEveryHour" value="{!chkEveryHour}" onchange="if(this.checked){document.getElementById('page:frm:pBlock:psecAt:selTime').disabled=true;bchkEveryDayOfWeek=true;}else{document.getElementById('page:frm:pBlock:psecAt:selTime').disabled=false;bchkEveryDayOfWeek=false;}"/>
+                     </tr>
+                 </table>
+             </apex:pageblocksection>
+             <apex:actionStatus id="status">
+                <apex:facet name="start">
+                    <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+                </apex:facet>
+            </apex:actionStatus>
+        </apex:pageblock>
+        
+    </apex:form>
+</apex:page>

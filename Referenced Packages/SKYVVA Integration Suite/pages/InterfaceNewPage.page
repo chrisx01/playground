@@ -1,0 +1,251 @@
+<apex:page standardcontroller="skyvvasolutions__Integration__c" extensions="skyvvasolutions.InterfacesOverview" showHeader="true" sidebar="false" id="page">
+	<apex:sectionHeader title="Interface New"/>
+	<script>
+		function Map(){
+			var arrkey=new Array();
+			var arrvalue=new Array();
+		
+			this.put=function(key,value){
+				for(var i=0;i<arrkey.length;i++){
+					if(arrkey[i]==key){
+						arrvalue[i] = value;
+						return;
+					}
+				}
+				arrkey.push(key);
+				arrvalue.push(value);
+			}
+
+			this.get=function(key){
+				for(var i=0;i<arrkey.length;i++){
+					if(arrkey[i]==key){
+						return arrvalue[i];
+					}
+				}
+				return null;
+			}
+			this.size=function(){
+				return arrkey.length;
+			}
+
+			this.keyset=function(){
+				return arrkey;
+			}	
+
+			this.values=function(){
+				return arrvalue;
+			}
+
+			this.isempty=function(){
+				if(arrkey.length==0){
+					return true;
+				}else{
+					return false;
+				}
+			}
+
+			this.remove=function(key){
+				for(var i=0;i<arrkey.length;i++){
+					if(arrkey[i]==key){
+						arrkey.splice(i,1);
+						arrvalue.splice(i,1);
+						break;
+					}
+				}
+			}
+
+			this.clear=function(){
+				arrkey.splice(0,arrkey.length);
+				arrvalue.splice(0,arrkey.length);
+			}
+			this.equal=function(key){
+				for(var i=0;i<arrkey.length;i++){
+					if(arrkey[i]==key){
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+	</script>
+	<script>
+		var mIntfInfo=new Map();
+		var bAction=true;//related user hit enter key in some fields.
+		var eventName;//include onchange(Interface Type Event) and onclick(Test SOQL Statement Event)
+		
+		var intfName,intfSName,intfStatus,intfOType,intfSequence,intfAdapter;
+		
+		function createComInstance(){
+			intfName=document.getElementById('page:frm:pb:pbSection:intfName');
+	   		intfSName=document.getElementById('page:frm:pb:pbSection:intfSName');
+	   		intfStatus=document.getElementById('page:frm:pb:pbSection:intfStatus');
+	   		intfOType=document.getElementById('page:frm:pb:pbSection:intfOType');
+	   		intfSequence=document.getElementById('page:frm:pb:pbSection:intfSequence');
+	   		
+	   		intfAdapter=document.getElementById('page:frm:pb:pbSection:pbSItmAdapter:intfAdapter');
+		}
+		
+		function isEnterKey(evt)
+      	{	var theEvent = evt || window.event;
+			var key = theEvent.keyCode || theEvent.which;
+			if(key==13){
+				document.getElementById('page:frm:pb:pbBtn:btnSave').click();
+				bAction=false;
+			}
+			return true;
+	    }
+	    function saveComplete(){
+	    	try{
+		    	if(!validateFields())return;
+	    		var msgErr=document.getElementById('page:frm:msgErr');
+		    	if(msgErr.value!=''){
+		    		alert(msgErr.value);
+		    		return;
+	    		}
+	    		
+	    		var mainId=document.location.href;
+	    		mainId=mainId.substring(mainId.indexOf('&mainId='),mainId.length);
+	    		mainId=mainId.split('=')[1];
+	    		var hNewIntfId=mainId+'page:frm:newIntfId';
+	    		window.opener.document.getElementById(hNewIntfId).value=document.getElementById('page:frm:newIntfId').value;
+	    		var btnRefresh=mainId+'page:frm:refresh';
+	    		window.opener.document.getElementById(btnRefresh).click();
+	    		window.top.close();
+	    		
+	    		
+    		}catch(e){
+    			//alert(e.description);
+    			window.top.close();
+    			window.opener.location.href='/apex/IntegrationOnDemand?id={!URLENCODE(intgId)}&selTab=Interfaces';
+    		}
+    	}
+    	function validateFields(){
+    		createComInstance();
+    		
+    		if(intfName.className=='error' || (intfSName!=null && intfSName.className=='error') || intfStatus.className=='error' || intfOType.className=='error'  
+    		   || intfSequence.className=='error' || intfAdapter.className=='error')
+    		   return false;
+    		return true;	    
+    	}
+    	
+    	function storeIntfInfo(){
+    		try{
+	    		createComInstance();
+	    		mIntfInfo.put('name',intfName.value);
+	    		if(intfSName!=null){
+	    			mIntfInfo.put('sourcename',intfSName.value);
+	    		}
+	    		mIntfInfo.put('status',intfStatus.options[intfStatus.selectedIndex].value);
+	    		
+	    		mIntfInfo.put('sequence',intfSequence.value);
+	    		
+	    		
+	    		//prevent empty with required fields
+	    		preventRequiredFieldEmpty();
+	    		//invoke controller
+	    		if(eventName=='Interface Type')changeIntfType();
+	    	}catch(e){
+    			alert(e);
+    		}
+    	}
+    	function preventRequiredFieldEmpty(){
+    		if(intfName.value=='')intfName.value='.';
+    		if(intfSName!=null){
+	    			if(intfSName.value=='')intfSName.value='.';
+    		}
+    		if(intfStatus.options[intfStatus.selectedIndex].value=='')intfStatus.options[searchIndex(intfStatus,'Development')].selected=true;
+    		if(intfSequence.value=='')intfSequence.value=1;
+    		
+    	}
+    	function restoreIntfInfo(){
+    		try{
+    			createComInstance();
+    			intfName.value=mIntfInfo.get('name');
+	    		if(intfSName!=null && mIntfInfo.get('sourcename')!=null){
+	    			intfSName.value=mIntfInfo.get('sourcename');
+	    		}
+    			intfStatus.options[searchIndex(intfStatus,mIntfInfo.get('status'))].selected=true;
+	    		intfSequence.value=mIntfInfo.get('sequence');
+	    		
+	    		
+    		}catch(e){
+    			alert(e);
+    		}
+    	}
+    	function searchIndex(com,condition){
+    		for(var i=0;i<com.options.length;i++){
+    			if(com.options[i].value==condition)return i;
+    		}
+    		return 0;
+    	}
+    	
+   </script>
+	<apex:form id="frm">
+		<apex:inputhidden value="{!msgErr}" id="msgErr"/>
+		<apex:inputhidden value="{!newIntfId}" id="newIntfId"/>
+		
+		<apex:actionFunction name="changeIntfType" action="{!createParentIntf}" oncomplete="restoreIntfInfo();" rerender="frm" status="status"/>
+		
+		<apex:pageBlock id="pb">
+			<apex:pageBlockButtons id="pbBtn">
+				<apex:commandButton value="Save" action="{!saveIntfNew}" rerender="frm" status="status" oncomplete="saveComplete();" id="btnSave"/>
+				<apex:commandButton value="Cancel" onclick="if(bAction)window.top.close();bAction=true;return false;"/>
+			</apex:pageBlockButtons>	
+			
+			<apex:pageBlockSection id="pbSection">
+				<apex:inputField value="{!intf.skyvvasolutions__Name__c}" required="true" onkeypress="isEnterKey(event);" id="intfName" />
+				<apex:inputField value="{!intf.skyvvasolutions__Source_Name__c}"  required="true" onkeypress="isEnterKey(event);" rendered="{!IF(LOWER(selectedIntfType)=='outbound',true,false)}" id="intfSName"/>
+				<apex:pageBlockSectionItem rendered="{!IF(LOWER(selectedIntfType)=='outbound',false,true)}" id="pbSItmSource">
+					<apex:outputLabel value="Source Name"/>
+					<apex:selectList value="{!sourceName}" size="1" id="intfSName">
+						<apex:selectOptions value="{!intfSourceNames}"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+				<apex:inputField value="{!intf.skyvvasolutions__Status__c}" required="true" onkeypress="isEnterKey(event);bAction=true;" id="intfStatus"/>	
+				<apex:inputField value="{!intf.skyvvasolutions__OperationType__c}" onkeypress="isEnterKey(event);bAction=true;" id="intfOType"/>
+				<apex:inputField value="{!intf.skyvvasolutions__Sequence2__c}" required="true" onkeypress="isEnterKey(event);" id="intfSequence"/>
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Type"/>
+						
+					<apex:selectList value="{!selectedIntfType}" size="1" onchange="eventName='Interface Type';storeIntfInfo();">
+						<apex:selectOptions value="{!intfType}"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+				
+				<apex:pageBlockSectionItem id="pbSItmAdapter">
+				    <apex:outputLabel value="Adapter"/>
+				    <apex:inputField value="{!intf.skyvvasolutions__AdapterId__c}" required="false" onkeypress="isEnterKey(event);" id="intfAdapter"/>
+				</apex:pageBlockSectionItem>
+				
+				<apex:inputField value="{!intf.skyvvasolutions__Connect_with_Middleware__c}" onkeypress="isEnterKey(event);" onclick="eventName='Interface Type';storeIntfInfo()"/>
+				<apex:inputField value="{!intf.skyvvasolutions__IStructure_Repository__c}"/>
+			</apex:pageBlockSection>
+		
+			<apex:pageBlockSection columns="1" rendered="{!intf.skyvvasolutions__Connect_with_Middleware__c}">	
+				<apex:pageblockSectionItem rendered="{!IF(LOWER(selectedIntfType)=='outbound',true,false)}">
+					<apex:outputLabel value="SOQL Statement"/>
+					<apex:panelGrid columns="2">
+						<apex:inputField value="{!intf.skyvvasolutions__Query__c}" style="width:500px"/>
+						<apex:commandButton value="Test" action="{!testQuery}" onclick="eventName='Test SOQL Statement';storeIntfInfo();" oncomplete="restoreIntfInfo();var msgErr=document.getElementById('page:frm:msgErr');alert(msgErr.value);" rerender="frm" status="status"/>
+					</apex:panelGrid>
+				</apex:pageblockSectionItem>
+				<apex:pageblockSectionItem rendered="{!IF(LOWER(selectedIntfType)=='outbound' || LOWER(selectedIntfType)=='inbound',true,false)}">
+					<apex:outputLabel value="Parent Interface"/>
+					<apex:selectList value="{!selectedParentIntf}" size="1">
+						<apex:selectOptions value="{!parentsIntf}"/>
+					</apex:selectList>
+				</apex:pageblockSectionItem>
+				<apex:inputField value="{!intf.skyvvasolutions__PI__c}" rendered="{!IF(LOWER(selectedIntfType)=='inbound',true,false)}"/>
+				<apex:inputField value="{!intf.skyvvasolutions__Mapping_in_SFDC__c}" rendered="{!IF(LOWER(selectedIntfType)=='inbound',true,false)}"/>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+		
+		<apex:actionStatus id="status">
+	        <apex:facet name="start">
+	            <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+	        </apex:facet>
+	    </apex:actionStatus>
+	</apex:form>
+	
+	
+</apex:page>

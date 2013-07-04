@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <content>IMappingPage</content>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <content>IMappingPage</content>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <content>IMappingPage</content>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Used for Integration for the Mapping
+
+PLEASE DO NOT TOUCH</description>
+    <enableActivities>false</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <fields>
+        <fullName>EXT_ID__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>EXT ID</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>InFixToPostFix__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This field stores the expression already parsed</description>
+        <externalId>false</externalId>
+        <label>InFixToPostFix</label>
+        <length>32000</length>
+        <type>LongTextArea</type>
+        <visibleLines>4</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Interface__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Interface</label>
+        <referenceTo>Interfaces__c</referenceTo>
+        <relationshipLabel>IMapping</relationshipLabel>
+        <relationshipName>IMapping</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Sequence__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Sequence</label>
+        <precision>18</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Source2__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Not used: use Source_Long__c instead</description>
+        <externalId>false</externalId>
+        <label>Source</label>
+        <length>1000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Source_Long__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Used in version 1.35 upwards to enable long expression.</description>
+        <externalId>false</externalId>
+        <label>Source</label>
+        <length>3900</length>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Source_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Source Type</label>
+        <length>20</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Source__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Available used in V1.34 downwards
+Since V1.35 upwards, the field Source_Long__c is used instead, to support long text</description>
+        <externalId>false</externalId>
+        <label>Source</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Target_Object__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Target Object</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Target_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Target Type</label>
+        <length>20</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Target__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Target</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Flat</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Formula</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <label>IMapping</label>
+    <nameField>
+        <displayFormat>MP# {00000000}</displayFormat>
+        <label>IMapping Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>IMapping</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <validationRules>
+        <fullName>sourceLongRequired</fullName>
+        <active>true</active>
+        <description>The mapping source is required</description>
+        <errorConditionFormula>LEN( Source_Long__c ) =0</errorConditionFormula>
+        <errorDisplayField>Source_Long__c</errorDisplayField>
+        <errorMessage>The mapping source is required</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>Clear</fullName>
+        <availability>online</availability>
+        <description>clear the selected mappings</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Delete</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/10.0/connection.js&quot;)} 
+{!REQUIRESCRIPT(&quot;/soap/ajax/12.0/apex.js&quot;)} 
+
+var records = {!GETRECORDIDS($ObjectType.IMapping__c)}; 
+var newRecords = []; 
+if (records[0] == null) { 
+	alert(&quot;Please select at least one row&quot;); 
+} 
+else { 
+	//alert(records.length); 
+	if(confirm(&quot;Are you sure you want to delete the selected mappings?&quot;)){ 
+
+               //15022011 regen records in form of 15Ids
+		for(i=0;i&lt;records.length;i++){
+			records[i] = records[i].substr(0,15);
+		}	
+		var interfaceId= &quot;{!Interfaces__c.Id}&quot;; 
+
+		//override the window
+		//window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMapping__c&amp;btn=Clear&amp;par=&quot;+interfaceId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+				
+		// invoke the webservice 
+		var param = {ids:records}; 
+
+		try { 
+		//14022011 let&apos;s try with the web service call, if error API_DISABLED_FOR_ORG, then try with the vf page
+			var result = sforce.apex.execute(&quot;skyvvasolutions.IServices&quot;, &quot;deleteMappings&quot;,param); 
+			top.document.location.href=&quot;/&quot; + interfaceId; 
+		} 
+		catch (e) { 
+			//14022011 PE GE
+			//ERROR {faultcode:&apos;sf:API_DISABLED_FOR_ORG&apos;, faultstring:&apos;API_DISABLED_FOR_ORG: API is not enabled for this //Organization or Partner&apos;, }
+			if(e.faultcode!=null &amp;&amp; e.faultcode.search(/API_DISABLED_FOR_ORG/i)&gt;0){
+				//override the window
+				window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMapping__c&amp;btn=Clear&amp;par=&quot;+interfaceId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+			}
+			else alert(e);
+		} 
+	} 
+
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Export_As_XML</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Export Mapping</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>function popup(url)
+{
+var width = 400;
+var height = 400;
+var left = (screen.width - width)/2;
+var top = (screen.height - height)/2;
+var params = &apos;width=&apos;+width+&apos;, height=&apos;+height;
+params += &apos;, top=&apos;+top+&apos;, left=&apos;+left;
+params += &apos;, directories=no&apos;;
+params += &apos;, location=no&apos;;
+params += &apos;, menubar=no&apos;;
+params += &apos;, resizable=no&apos;;
+params += &apos;, scrollbars=no&apos;;
+params += &apos;, status=no&apos;;
+params += &apos;, toolbar=no&apos;;
+newwin=window.open(url,&apos;windowname5&apos;, params);
+if (window.focus) {newwin.focus()}
+return false;
+}
+
+popup(&apos;/apex/skyvvasolutions__ExportIMappingXML?interfaceId={!Interfaces__c.Id}&amp;typ=m&apos;);</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Import_XML</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Import Mapping</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>window.location.href=&apos;/apex/skyvvasolutions__ImportCSVXMLPage?interfaceId={!Interfaces__c.Id}&amp;type=IMapping&amp;filetype=XML&apos;</url>
+    </webLinks>
+</CustomObject>

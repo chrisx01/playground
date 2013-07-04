@@ -1,0 +1,246 @@
+<apex:page standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.ReOrderWorkFlow" sidebar="false" showHeader="false" id="page">
+    <link rel="stylesheet" type="text/css" href="/EXT/ext-2.2/resources/css/ext-all.css" />
+    <script type="text/javascript" src="/EXT/ext-2.2/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/EXT/ext-2.2/ext.js"></script>
+    <link rel="stylesheet" type="text/css" href="/EXT/shared/examples.css" />
+    <style>
+        .x-grid3-check-col{disable:true}
+        .x-grid3-cc-ext-gen16{disable:true}
+    </style>
+    <apex:form id="frm">
+        <apex:inputHidden value="{!strIWorkflow}" id="strIWorkflow"/>
+        <apex:pageBlock >
+            <table align="center">
+             <tr>
+                <td align="center"><b>Drag and Drop IWorkFlow to reorder</b></td>
+             </tr>
+             <tr>
+                <td><div id="gridWF"></div></td>
+             </tr>
+             <tr>
+                <td align="center">
+                    <apex:commandButton value="Save" action="{!updateWorkFlow}" onclick="createWFIdInOrder();" oncomplete="refresh();" rerender="strIWorkflow" status="status"/>
+                    <input type="button" class="btn" value="cancel" onclick="top.window.close();"/>
+                </td>
+             </tr>
+          </table>
+        </apex:pageBlock>
+        <apex:actionStatus id="status">
+           <apex:facet name="start">
+               <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+           </apex:facet>
+       </apex:actionStatus>
+    </apex:form>
+    <script>
+        var grid;
+        var WF_ID="Id";
+        var INTF_SC="Interface_Source";
+        var INTF_TAG="Target";
+        var INTF_OPTYPE="Operation_Type";
+        var CHK_NEXT="Check_Next";
+        var CONDITION="Condition";
+        var ACTIVE="ACTIVE";
+        
+        var LBL_INTF_SC="Interface Source";
+        var LBL_INTF_TAG="Target";
+        var LBL_INTF_OPTYPE="Operation Type";
+        var LBL_CHK_NEXT="Check Next";
+        var LBL_CONDITION="Condition";
+        var LBL_ACTIVE="WF Criteria Active";
+        
+        
+        // -------- Check Column --------- //
+            Ext.grid.CheckColumn = function(config){
+                Ext.apply(this, config);
+                if(!this.id){
+                    this.id = Ext.id();
+                }
+                this.renderer = this.renderer.createDelegate(this);
+            };
+    
+            Ext.grid.CheckColumn.prototype ={
+                init : function(grid){
+                    this.grid = grid;
+                    this.grid.on('render', function(){
+                        var view = this.grid.getView();
+                        view.mainBody.on('mousedown', this.onMouseDown, this);
+                    }, this);
+                },
+    
+                onMouseDown : function(e, t){
+                    if(t.className && t.className.indexOf('x-grid3-cc-'+this.id) != -1){
+                        e.stopEvent();
+                        var index = this.grid.getView().findRowIndex(t);
+                        var record = this.grid.store.getAt(index);
+                        
+                    }
+                },
+    
+                renderer : function(v, p, record){
+                    p.css+=' x-grid3-check-col-td';
+                    return '<div class="x-grid3-check-col'+(v?'-on':'')+' x-grid3-cc-'+this.id+'">&#160;</div>';
+                }
+            }; //End check Column
+        
+        Ext.onReady(function(){
+            Ext.QuickTips.init();
+            Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+            var colName = [WF_ID,INTF_SC,INTF_TAG,INTF_OPTYPE,CHK_NEXT,CONDITION,ACTIVE];
+            var aColNames = new Array();
+            doAColNames(aColNames,colName);
+            var reader = new Ext.data.ArrayReader({}, aColNames);
+            var store = new Ext.data.Store({reader:reader});
+            var myData=getRecords();
+            if(myData!=null){
+                store.loadData(myData);
+            }
+            var cmm=[];
+            var colId={
+                        id:WF_ID, header:WF_ID, dataIndex:WF_ID,hideable:false,
+                        sortable:false,hidden:true
+                    };
+            var colIntfSc={
+                        id:INTF_SC, header:LBL_INTF_SC, dataIndex:INTF_SC,hideable:false,
+                        sortable:false,width: 250
+                    };
+            var colIntfTag={
+                        id:INTF_TAG, header:LBL_INTF_TAG, dataIndex:INTF_TAG,hideable:false,
+                        sortable:false,width: 250
+                    };    
+            var colIntfOpType={
+                        id:INTF_OPTYPE, header:LBL_INTF_OPTYPE, dataIndex:INTF_OPTYPE,hideable:false,resizable:false,
+                        sortable:false,width: 100
+                    };
+            var colChenkNext = new Ext.grid.CheckColumn({
+                    header:LBL_CHK_NEXT, dataIndex:CHK_NEXT, width:65,hideable:false,resizable:false,
+                        sortable:false
+                });    
+            var colCondition={
+                        id:CONDITION, header:LBL_CONDITION, dataIndex:CONDITION,hideable:false,
+                        sortable:false,width: 250
+                    }; 
+            var colActive=new Ext.grid.CheckColumn({
+                    header:LBL_ACTIVE, dataIndex:ACTIVE, width:100,hideable:false,resizable:false,
+                        sortable:false
+                });    
+            cmm.push(colId);          
+            cmm.push(colIntfSc);
+            cmm.push(colIntfTag);
+            cmm.push(colIntfOpType);
+            cmm.push(colChenkNext);
+            cmm.push(colCondition);
+            cmm.push(colActive);
+            
+            grid = new Ext.grid.EditorGridPanel({
+                    ddGroup: 'gridDDGroup',
+                    region: 'west',
+                    selModel: new Ext.grid.RowSelectionModel({singleSelect : true}),
+                    store:store,
+                    columns:cmm,
+                    enableColumnMove:false,
+                    enableDragDrop:true,
+                    enableHdMenu:false,
+                    stripeRows:true, height:300, width:780,
+                    enableColLock:false, title:'IWorkFlows',
+                    frame:true,
+                    plugins:[colChenkNext,colActive]
+                  });
+            grid.render('gridWF');  
+
+            /****
+            * Setup Drop Targets
+            ***/
+
+            // This will make sure we only drop to the view container
+            var targetGrid =  grid.body.dom;
+        
+            var formPanelDropTarget = new Ext.dd.DropTarget(targetGrid, {
+                ddGroup     : 'gridDDGroup',
+                copy       : true,
+                notifyEnter : function(ddSource, e, data) {
+        
+                    //Add some flare to invite drop.
+                    ddSource.grid.body.stopFx();
+                    ddSource.grid.body.highlight();
+                },
+                notifyDrop  : function(ddSource, e, data){
+                    // Reference the record (single selection) for readability
+                    var selectedRecord = ddSource.dragData.selections[0];
+                    
+                    var targetIndex=grid.getView().findRowIndex(e.target);
+                    if(targetIndex==false && targetIndex==0)
+                        targetIndex=0;
+                    else if(targetIndex==false && targetIndex>=grid.store.getCount())
+                        targetIndex=grid.store.getCount()-1;
+                    // Delete record from the grid.  not really required.
+                    ddSource.grid.store.remove(selectedRecord);
+                    // Load the record into the form
+                    ddSource.grid.getStore().insert(targetIndex,selectedRecord);
+        
+                    
+                    
+                    return(true);
+                }
+             });                             
+        });
+        
+        function doAColNames(aColNames,colName){
+            for(var i=0; i<colName.length; i++){
+                aColNames.push({name: colName[i]});
+            }
+        }
+        function getRecords(){
+            var strIWorkflow="{!JSENCODE(strIWorkflow)}";
+            //console.log(strIWorkflow);
+            var allRecords=[];
+            
+            if(strIWorkflow.length>0){
+                strIWorkflow=strIWorkflow.replace(/\r\n\r\n/g,'\n\n');//IE
+                strIWorkflow=strIWorkflow.replace(/\r\n/g,'\n');//IE
+                var records = strIWorkflow.split('\n\n');
+                
+                for(var rec  in records){
+                    if(records[rec].constructor==Function || records[rec]=='')continue;
+                    var onerecord=records[rec].split('\n');
+                    for(var rec1 in onerecord){
+                        if(onerecord[rec1].constructor==Function || onerecord[rec1]=='')continue;
+                        onerecord[rec1]=onerecord[rec1].replace(/<\/br\/><\/br\/>/g,'\n');
+                        if(onerecord[rec1]=='true'){
+                            onerecord[rec1]=true;
+                        }else if(onerecord[rec1]=='false'){
+                            onerecord[rec1]=false;
+                        }
+                    }
+                    allRecords.push(onerecord); 
+                }
+            }
+            
+            if(allRecords.length==0)return null;
+            return allRecords;
+        }
+        function createWFIdInOrder(){
+            var strIWorkflow=document.getElementById('page:frm:strIWorkflow');
+            strIWorkflow.value='';
+            for(var i=0;i<grid.store.getCount();i++){
+                strIWorkflow.value+=grid.store.getAt(i).get(WF_ID)+'\n';
+            }
+        }
+        
+        //refresh parent
+        function refresh(){
+            try{
+                var mainId=document.location.href;
+                mainId=mainId.substring(mainId.indexOf('&mainId='),mainId.length);
+                mainId=mainId.split('=')[1];
+                var btnRefresh=mainId+'workflowPage:form:pbworkflows:pbBtn:btnRefresh';
+                window.opener.document.getElementById(btnRefresh).click();
+                top.window.close();
+            }catch(e){
+                window.top.close();
+                window.opener.location.href='/apex/IntegrationOnDemand?id={!URLENCODE($Request.Id)}&selTab=Workflows';
+            }
+        }
+        
+    </script>
+    
+</apex:page>

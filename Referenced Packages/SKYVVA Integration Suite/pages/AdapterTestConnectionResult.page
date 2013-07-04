@@ -1,0 +1,15 @@
+<apex:page id="vf" standardController="skyvvasolutions__Adapter__c" extensions="skyvvasolutions.AdapterTestConnection" 
+sidebar="false" showHeader="false" title="Test Connection Result">
+
+<div id="result">
+</div>
+
+<script type="text/javascript">
+window.onload = function() {
+document.getElementById("result").innerHTML="{!JSENCODE(result)}";
+}
+</script>
+
+<br/>
+<b>User Name: <apex:OutputText value=" {!username}"/></b>
+</apex:page>

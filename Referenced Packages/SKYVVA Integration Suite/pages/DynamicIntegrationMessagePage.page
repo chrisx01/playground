@@ -1,0 +1,1071 @@
+<apex:page id="page" standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.DynamicIntegrationMessageInfo" sidebar="true" tabStyle="skyvvasolutions__Integration__c">
+
+    <apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Messages Board" rendered="{!showHeader}"></apex:sectionHeader>
+   
+    <!-- script use for fixed header -->    
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__jss, 'jquery-latest.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__jss, 'fixedheader.js')}"/>
+    
+    <script type="text/javascript" src="/soap/ajax/24.0/connection.js"></script>
+    
+    <style>
+    
+        #close {
+            float: right;
+        }
+        .lblCol{
+            color:#333333;
+            font-size:91%;
+            font-weight:bold;
+            padding:2px 10px 2px 2px;
+            text-align:right;
+        }
+        
+         .lblCol2{
+           
+        }
+        .divWidth{
+            width: 900px;
+        }
+    
+        .floatingStyle_Firefox
+        {
+            position:relative;
+            background: url("/img/alohaSkin/grid_headerbg.gif") repeat-x scroll 0 bottom #FFFFFF;
+            text-align: center;
+            vertical-align:middle;
+            
+            line-height:22px;
+            border-left: 1px solid #CCCCCC;
+            border-bottom: 2px solid #CCCCCC;
+            border-top: 1px solid #CCCCCC;
+            height: 22px;
+        }
+        
+    </style>
+   
+    <script>
+    
+    	sforce.connection.sessionId = '{!$Api.Session_ID}';
+    	var ns="{!ns}";
+    	var isPE;
+    	
+    	function doExportCSV(){
+    		try{
+    			var csvContent=document.getElementById(showHeader()+'page:frm:csvContent');
+				var exportName=document.getElementById(showHeader()+'page:frm:exportName');
+				var intfId=document.getElementById(showHeader()+'page:frm:pbFilter:filter:txtIName');
+				exportName.value=intfId.options[intfId.selectedIndex].text;
+				
+				///isPE=true;//simulate test for PE
+				if(isPE){
+					exportCSVPE();
+					return false;
+				}
+				var query='select Name,'+ns+'Name2__c,'+ns+'Status__c,'+ns+'Comment__c,'+
+						  '(select '+ns+'Name__c,'+ns+'Value__c,'+ns+'Value2__c from '+ns+'Data__r order by '+ns+'Name__c) '+
+						  'from '+ns+'IMessage__c where '+ns+'Interface__c=\''+intfId.options[intfId.selectedIndex].value+'\' and '+
+						  ns+'Status__c=\'Failed\'';
+				var result=sforce.connection.query(query);
+				//var records = result.getArray('records');
+				if(result.getArray('records').length==0){
+					alert('No proper messages are available to be exported.\n\nNote: only those failed messages will be exported.');
+					return false;
+				}
+				
+				var recordHeader='"Message Name","Status","Comment",';
+				
+				var queryMore = true;
+				var doHeader=true;
+				var def_header=recordHeader.substring(0,recordHeader.length-1);//cut out ,
+				var msgsNoData = [];//cache messages have no idata
+				var dataCol=0;//column data of message,
+				
+				while(queryMore){
+					var records = result.getArray('records');
+					for(var i=0;i<records.length;i++){
+					    
+						var recordContent=preventDoubleQuote(records[i].get(ns+'Name2__c')==null || records[i].get(ns+'Name2__c')=='' ? records[i].Name : records[i].get(ns+'Name2__c'))
+						              +','+preventDoubleQuote(records[i].get(ns+'Status__c'))+','+
+								   preventDoubleQuote(records[i].get(ns+('Comment__c')))+',';
+								   
+						
+                        if(records[i].get(ns+'Data__r')==null){
+                            msgsNoData.push(recordContent);//cach message info has no idata, the string end with ,
+                            continue;
+                        }
+                        
+						var arrSObj=records[i].get(ns+'Data__r').getArray('records');
+						
+                        if(dataCol==0){
+                            dataCol=arrSObj.length;//assume that each message the same idatas size
+                        }
+						
+						for(var j=0;j<arrSObj.length;j++){
+							if(doHeader==true){
+								recordHeader+=preventDoubleQuote(arrSObj[j].get(ns+'Name__c'))+',';//column header of csv
+							}
+							var value=arrSObj[j].get(ns+'Value__c')==null || arrSObj[j].get(ns+'Value__c')==''?arrSObj[j].get(ns+'Value2__c'):arrSObj[j].get(ns+'Value__c');
+							recordContent+=preventDoubleQuote(value)+','; //column data of csv
+						}
+						if(doHeader==true){
+							recordHeader=recordHeader.substring(0,recordHeader.length-1);
+							recordHeader+='\n';
+							csvContent.value=recordHeader;//record header
+						}
+						//here csv has already header, so we don't need append any header
+						doHeader=false;
+						
+						recordContent=recordContent.substring(0,recordContent.length-1);
+						recordContent+='\n';
+						
+						csvContent.value+=recordContent;//record content
+						
+					}
+					
+					if (result.getBoolean("done")) {
+						queryMore = false;
+					} else {
+						result = sforce.connection.queryMore(result.queryLocator);
+					}					
+				}
+				
+				if(msgsNoData!=null && msgsNoData.length>0){
+					for(var i=0;i<msgsNoData.length;i++){
+					   var csvCont=msgsNoData[i];
+					   for(var j=1;j<=dataCol;j++){//default dataCol=0
+					       csvCont+=',';
+					   }
+					   //cut out (,) then append \n
+					   csvCont=csvCont.substring(0,csvCont.length-1)+'\n';
+					   csvContent.value+=csvCont;
+					}
+					if(csvContent.value.search(def_header)==-1){//case all message have no idata
+					   csvContent.value=def_header+'\n'+csvContent.value;
+					}
+				}
+				
+				return true;
+				
+			}catch(e){
+				alert(e);
+				return false;
+			}
+    	}
+    	function exportCSVPEResult(){
+    		var errMsg=document.getElementById(showHeader()+'page:frm:msgPB:errMsg').innerHTML;
+    		var csvContent=document.getElementById(showHeader()+'page:frm:csvContent');
+    		if(errMsg!='') {
+    			alert(errMsg);
+    		}
+    		else {
+    			csvContent.value=csvContent.value.replace(/<\/br\/>/g,'\n');
+    			var exportName=document.getElementById(showHeader()+'page:frm:exportName');
+                var intfId=document.getElementById(showHeader()+'page:frm:pbFilter:filter:txtIName');
+                exportName.value=intfId.options[intfId.selectedIndex].text;
+    			exportCSV();	
+    		}
+    	}
+    	
+    	function preventDoubleQuote(value){
+    		try{
+	    		if(value==null || value=='null')return '';
+	    		value=value+'';
+	    		if(value.indexOf('"')>-1){
+	    			value=value.replace(/"/g,'""');
+	    		}
+	    		return '"'+value+'"';
+    		}catch(e){
+    			alert(e);
+    		}
+    	}
+    </script>
+    
+    <script>
+    
+        function popupComment(comId,txtComment,appearence){
+	        try {
+	        	var divMain = document.getElementById('InlineEditDialog1');
+	            if(appearence=='hidden'){
+	       			divMain.style.visibility=appearence;
+	       			return;
+	       		}
+	       		divMain.style.position='absolute';
+	            
+	            var currentComPossition=ObjectPosition(comId);            
+	            var curTop=currentComPossition.top;
+	            var curLeft=currentComPossition.left;
+	            
+	            divMain.style.top=curTop+'px';
+	            divMain.style.left=curLeft+'px';
+	            
+	            var divComment = document.getElementById('divComment1');            
+	            divComment.innerHTML=txtComment;
+	            //show component 
+	            divMain.style.visibility=appearence;
+            }catch(ex){
+            	alert('popupComment ERROR:'+ex);
+            }
+        }
+        
+        var objName;
+        var appearence;
+        var divMain;
+        var objId;
+        var field;
+        function popupRelatedTo(comId,objName,objId,appearence){
+        	try{
+        		this.objName=objName;
+        		this.appearence=appearence;
+				this.divMain = document.getElementById('header');
+				this.objId=objId;
+	        		
+        		if(appearence=='hidden'){
+        			divMain.style.visibility=appearence;
+        			return;
+        		}
+        	
+	        	divMain.style.position='absolute';
+	            
+	            var currentComPossition=ObjectPosition(comId);
+	            var curTop=currentComPossition.top;
+	            var curLeft=currentComPossition.left;
+	            
+	            divMain.style.top=curTop+'px';
+	            divMain.style.left=curLeft+'px';
+	            
+	            clearAll();//clear old data
+	            
+	            var obName=objName.toLowerCase();
+	            if(obName=='task' || obName=='event'){
+	               field='Subject';
+	            }
+	            else if(obName=='note'){
+	               field='Title';
+	            }
+	            else if(obName=='opportunitylineitem'){
+	               field='PricebookEntry.Name';
+	            }
+	            else{
+	               field='Name';
+	            }
+	            
+	            document.getElementById(showHeader()+'page:frm:relatedToName').value=field;
+	            if(isPE){
+		            document.getElementById(showHeader()+'page:frm:strQuery').value=("select "+field+" from "+objName);
+		            document.getElementById(showHeader()+'page:frm:strCondition').value=objId;
+		            executeQuery();
+	            }else{
+	            	
+		            var result=sforce.connection.query("select "+field+" from "+objName+" where Id='"+objId+"'");
+					var records=result.getArray('records');
+		            if(records==null || records.length==0){//in case without header
+		            	
+		            	document.getElementById('msgErr').innerHTML='Record deleted.';
+		            	document.getElementById('sectionHeader').style.display='none';
+		            }else{//in case with header
+			            //show data header
+			            document.getElementById('headername').innerHTML=objName;
+			            //show object name
+			            document.getElementById('objName').innerHTML=(obName=='opportunitylineitem'? 'Product' : objName+' '+field);//objName+' '+field;
+			            //show object value
+			            document.getElementById('objValue').innerHTML=(obName=='opportunitylineitem'? records[0].PricebookEntry.Name : records[0].get(field));//records[0].get(field)
+			            //store object id for view and edit
+			            document.getElementById('objId').innerHTML=objId;
+		            }
+		            
+		            //show component 
+	           		divMain.style.visibility=appearence;
+           		}
+            }catch(ex){
+            	alert('popupRelatedTo ERROR:'+ex);
+            }
+        }
+        function popupRelatedToResult(){
+        
+        	var relatedToName=document.getElementById(showHeader()+'page:frm:relatedToName').value;
+        	
+            if(relatedToName==''){//in case without header
+            	
+            	document.getElementById('msgErr').innerHTML='Record deleted.';
+            	document.getElementById('sectionHeader').style.display='none';
+            }else{//in case with header
+	            //show data header
+	            document.getElementById('headername').innerHTML=objName;
+	            //show object name
+	            document.getElementById('objName').innerHTML=objName+' '+field;
+	            //show object value
+	            document.getElementById('objValue').innerHTML=relatedToName;
+	            //store object id for view and edit
+	            document.getElementById('objId').innerHTML=objId;
+            }
+            //show component 
+            divMain.style.visibility=appearence;
+        }
+       
+		function getOffet(obj) {
+			var curleft = 0;
+	        var curtop = 0;
+	          if (obj.offsetParent) {
+	                do {
+	                      curleft+=obj.offsetLeft;
+	                      curtop+=obj.offsetTop;
+	                } while (obj=obj.offsetParent);
+	          }
+	          return {left:curleft,top:curtop};
+		}
+        function ObjectPosition(obj) {
+        	var o = findNumTopLeft();
+        	var divResult = document.getElementById('divResult');
+        	
+        	var tl = getOffet(obj);
+	        var curleft = tl.left;
+	        var curtop = tl.top;
+            curtop = curtop - divResult.scrollTop - o.numTop ;
+            curleft = curleft - divResult.scrollLeft - o.numLeft; // - document.body.scrollLeft;	          
+	        
+            return {left:curleft,top:curtop};
+	    }
+	     
+        /**
+		 * Lookup hover detail object.
+		 */
+		 LookupHoverDetail.prototype.position =function() {
+		 	var lookup=getElementByIdCS(this.id); //this.lookup
+		    var lookupX =getObjX(lookup);
+		    var lookupY =getObjY(lookup);
+		    var lookupW =lookup.offsetWidth;
+		    var lookupH =lookup.offsetHeight;
+			var winX =getScrollX();
+			var winY =getScrollY();
+			var winWidth =getWindowWidth();
+			var winHeight =getWindowHeight();
+		    var bubbleClass =this.originalClass + " ";
+		    var hoverX, hoverY;
+		    if (lookupY + lookupH + this.height < winY + winHeight) {
+		    	bubbleClass +="top";
+		    	hoverY =lookupY + lookupH;
+		    } else {
+		    	bubbleClass +="bottom";
+		    	hoverY =lookupY - this.height;
+		    }
+		    if (lookupX + lookupW - this.bubbleOffset + this.width < winX + winWidth) {
+		    	bubbleClass +="Left";
+		    	hoverX =lookupX + lookupW / 2 - this.bubbleOffset;
+		    } else {
+		    	bubbleClass +="Right";
+		    	hoverX =lookupX + lookupW / 2 - this.width; 
+		    }
+		    
+		    var divResult = document.getElementById('divResult');
+			
+		    this.hover.setStyle("left", (hoverX - divResult.scrollLeft) + "px");
+		    this.hover.setStyle("top", (hoverY - divResult.scrollTop) + "px");
+		    if(this.hover.div && this.hover.div.firstChild) this.hover.div.firstChild.className=bubbleClass;
+		}
+		function getHover(id, url) {		
+			
+			var hover = LookupHoverDetail.getHover(id,url);						
+	        //var obj	= document.getElementById(id);
+			//var tl = getOffet(obj);			
+			hover.show();			
+		}
+		
+    	function clearAll(){
+    		document.getElementById('sectionHeader').style.display='block';
+    		document.getElementById('msgErr').innerHTML='';
+    		
+    		document.getElementById('headername').innerHTML='';
+            document.getElementById('objName').innerHTML='';
+            document.getElementById('objValue').innerHTML='';
+            document.getElementById('objId').innerHTML='';
+        }
+        
+        function findNumTopLeft() {
+		
+			var numTop = 150;
+        	var numLeft = 10;
+        	
+        	var ua = navigator.userAgent;
+        	if(ua.search(/MSIE/i)>0){
+        		numTop = 250;
+        		numLeft = 200;
+        	}
+        	else if(ua.search(/Chrome/i)>0 || ua.search(/Safari/i)>0){
+        		numTop = 230;
+        		numLeft = 200;
+        	}
+        	else if(ua.search(/Firefox/i)>0){
+        		numTop = 150;
+        		numLeft=-20;
+        	}
+        	return {numTop:numTop,numLeft:numLeft};
+		}
+    
+    	
+    	function interfaceChange(){
+    		var intfId=document.getElementById(showHeader()+'page:frm:pbFilter:filter:txtIName');
+    		var btnExportCSV=document.getElementById(showHeader()+'page:frm:msgPB:msgPBtns:btnExportCSV');
+    		
+    		if(intfId.options[intfId.selectedIndex].value=='all'){
+    			btnExportCSV.style.display='none';
+    		}else{
+    			btnExportCSV.style.display='inline';
+    		}
+    	}
+    
+    </script>
+      
+    <apex:form id="frm">
+    
+    <apex:actionFunction name="exportCSVPE" action="{!exportCSVPE}" oncomplete="exportCSVPEResult()" status="status" rerender="frm"/>
+    <apex:actionFunction name="exportCSV" action="{!exportCSV}"/>
+    <apex:actionFunction name="updateTotalNbRecordsCon" action="{!updateTotalNbRecordsCon}" oncomplete="recallTotalNbRecords()" status="status" rerender="frm"/>
+    
+    <apex:actionFunction name="searchComplete" action="{!searchComplete}" rerender="sortBy, keepTotalPages, btnNextTop,btnLastTop,btnNextBottom,btnLastBottom"/>
+     
+    <apex:actionStatus id="status">
+        <apex:facet name="start">
+            <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+        </apex:facet>
+    </apex:actionStatus>
+            <apex:outputPanel id="pnlHiddenText">
+                <!-- relId for assing to get/set relId for link Related To -->
+                <apex:inputhidden value="{!relId}" id="relId"/>
+            	<apex:inputhidden value="{!csvContent}" id="csvContent"/>
+            	<apex:inputhidden value="{!exportName}" id="exportName"/>
+	            <apex:inputHidden id="keepNbRecords" value="{!keepNbRecords}"/>
+	            <apex:inputHidden id="keepTotalPages" value="{!totalPages}"/>
+	            <apex:inputHidden id="sqlFilter" value="{!sqlFilter}"/>
+	            <apex:inputHidden id="maxRec" value="{!maxRec}"/>
+	            <apex:inputHidden id="nbMsg" value="{!nbMsg}"/>
+	            <apex:inputHidden id="msgId" value="{!msgIdEdit}"/>
+	            <apex:inputHidden id="strQuery" value="{!strQuery}"/>
+	            <apex:inputHidden id="strCondition" value="{!strCondition}"/>
+	            <apex:inputHidden id="relatedToName" value="{!relatedToName}"/>
+	            
+	            <apex:actionFunction name="executeQuery" action="{!executeQuery}" oncomplete="popupRelatedToResult();" rerender="relatedToName,errMsg"/>
+            </apex:outputPanel>
+            
+            <apex:outputText value="{!errNoInteg}" style="font-weight:bold; color:red;" rendered="{!NOT(ISNULL(errNoInteg))}"></apex:outputText>
+            
+            <apex:pageBlock id="pbFilter" rendered="{!ISNULL(errNoInteg)}">
+                    <apex:pageblockButtons id="btnFilter">                        
+                        <input type="button" class="btn" id="btnBack" style="display:{!if(showHeader=true,'inline','none')}" onclick="top.document.location.href='/{!URLENCODE(firstIntgId)}';" value="Back" title="Back to Integration"/>
+                         
+                         <apex:commandButton id="btnSearch" disabled="{!hasInterface}"  value="Search" title="Search" status="status" 
+                                    action="{!search}" oncomplete="updateTotalNbRecords();recallTotalNbRecords(); searchComplete(); reStyleFixedTableHeader();" 
+                                    reRender="pnlHiddenText,pbFilter,msgPB"/>
+   
+                        <!-- if integration have no interface disable button -->
+                        <input id="btnReset" type="button" class="{!if(hasInterface=true,'btnDisabled','btn')}" 
+                            onclick="if({!hasInterface}==true)return;var pn;if({!showHeader}==true)pn='DynamicIntegrationMessagePage';else pn='IntegrationOnDemand';top.document.location.href='/apex/'+pn+'?id={!URLENCODE(firstIntgId)}&selTab=Messages';"
+                            value="Reset" title="Reset"/>                        
+                    </apex:pageblockButtons>
+                    
+                     <apex:pageBlockSection title="Filters" id="filter" columns="1">                 
+                                
+                                <apex:panelgrid columns="4" columnClasses="lblCol,lblCol2,lblCol,lblCol2" id="pnlGrid">
+                                    <apex:outputLabel value="Integration Name"></apex:outputLabel>
+                                    <apex:selectList size="1" value="{!integId}" id="txtItgName" style="focus:true">
+                                    
+                                   <apex:selectOptions value="{!listIntgName}"/>
+                                        <apex:actionSupport event="onchange" action="{!doChangeIntegration}" oncomplete="updateTotalNbRecords();recallTotalNbRecords();" status="status" reRender="frm"/>                                       
+                                    </apex:selectList>
+                                    
+                                    <apex:outputLabel value="Date"></apex:outputLabel>
+                                    <apex:selectList size="1" value="{!selDate}" id="txtDropDownDate">
+                                        <apex:selectOptions value="{!selOptionDates}"/>                             
+                                    </apex:selectList>
+                                    
+                                    <apex:outputLabel value="Interface Name" id="infName"></apex:outputLabel>
+                                    <apex:selectList size="1" value="{!interfId}" onchange="interfaceChange();" id="txtIName" style="focus:true">
+                                        <apex:selectOptions value="{!listInfName}"/>                                            
+                                    </apex:selectList> 
+                                    
+                                    <apex:outputLabel value="From" ></apex:outputLabel>
+                                    <apex:inputField value="{!ObjDate.skyvvasolutions__Creation_Date__c}" id="dFrom"/>
+                                    
+                                    <apex:outputLabel value="Message Name"/>
+                                    <apex:inputtext id="txtMsgName" value="{!msgName}" />
+                                           
+                                    <apex:outputLabel value="To"></apex:outputLabel>
+                                    <apex:inputField value="{!ObjDate.skyvvasolutions__Modification_Date__c}" id="dTo" />
+                                    
+                                    <apex:outputLabel value="Message Status"></apex:outputLabel>
+                                    <apex:inputField id="txtStatus" value="{!ObjDate.skyvvasolutions__Status__c}"/>
+                                    
+                                    <apex:outputLabel value="Sort By" id="sortBy"></apex:outputLabel>
+                                    <apex:pageBlockSectionItem id="pbBOrderBy">
+	                                    <apex:selectList size="1" value="{!sortBy}" id="txtSortBy">
+	                                        <apex:selectOptions value="{!selOptionSortBy}"/>
+	                                        <apex:actionSupport event="onchange" rerender="txtOrderBy" status="status"/>                                  
+	                                    </apex:selectList>
+	                                    <apex:selectList size="1" value="{!orderBy}" id="txtOrderBy" disabled="{!NOT(enableOrderBy)}" style="margin-left:2px;">
+	                                        <apex:selectOptions value="{!selOptionOrderBy}"/>                                            
+	                                    </apex:selectList>
+                                    </apex:pageBlockSectionItem>
+                            </apex:panelgrid>
+                        </apex:pageBlockSection>
+            </apex:pageBlock>
+        
+        <apex:pageBlock id="msgPB" rendered="{!ISNULL(errNoInteg)}"> <!-- title="{!integ.Name}: Message List" rendered="{!ISNULL(errNoInteg)}"> -->
+            
+            <apex:pageBlockButtons id="msgPBtns" >
+            
+                <apex:commandButton value="Select All" disabled="{!hasInterface}" action="{!selectAll}" title="Select all the filter messages" 
+                    oncomplete="updateTotalNbRecords();recallTotalNbRecords(); reStyleFixedTableHeader();" status="status" rerender="sqlFilter,maxRec,nbMsg,pbFilter,msgPB"/>&nbsp;
+                <input type="button" class="{!if(hasInterface=true,'btnDisabled','btn')}" id="btnDeselectAll" value="Deselect All" title="Deselect all the filter messages" onclick="if('{!hasInterface}'=='true')return;confirmMsg('DeselectAll');"/>
+                <apex:actionFunction name="deselectAll" action="{!deSelectAll}" 
+                    oncomplete="updateTotalNbRecords();recallTotalNbRecords(); reStyleFixedTableHeader();" status="status" rerender="pnlHiddenText,pbFilter,msgPB"/> 
+                 
+                <input type="button" class="{!if(hasInterface=true,'btnDisabled','btn')}" id="btnProcess" value="Reprocess" title="Process the selected message(s)" onclick="if('{!hasInterface}'=='true')return;confirmMsg('process');"/>
+                <apex:actionFunction name="process" action="{!doProcessWS}" rerender="pnlHiddenText,pbFilter,msgPB" 
+                    oncomplete="updateTotalNbRecords();recallTotalNbRecords();searchComplete(); reStyleFixedTableHeader();" status="status"/>    
+                <input type="button" class="{!if(hasInterface=true,'btnDisabled','btn')}" id="btnClear" value="Delete"  title="Delete the selected message(s)" onclick="if('{!hasInterface}'=='true')return;confirmMsg('delete');"/>                                                          
+                <apex:actionFunction name="clear" action="{!doClearWS}" rerender="pnlHiddenText,pbFilter,msgPB" 
+                    oncomplete="updateTotalNbRecords();recallTotalNbRecords();searchComplete(); reStyleFixedTableHeader();" status="status"/>
+                <input type="button" id="btnClearAll" value="Delete All" title="Delete all messages based on the selected filter"
+                        class="{!if(hasInterface=true,'btnDisabled','btn')}"          
+                        onclick="return confirmMsgDelAll();"/>
+                <apex:actionFunction name="deleteAll" action="{!deleteAllMessages}" rerender="msgPB" status="status"/>
+                <apex:commandButton value="Export Data" action="{!exportCSV}" onclick="return doExportCSV();" style="display:{!IF(interfId='all','none','inline')}" id="btnExportCSV"/>
+                
+            </apex:pageBlockButtons>
+            
+            <center><apex:outputText value="{!errMsg}" id="errMsg" styleClass="pbError"></apex:outputText></center>
+            
+            <apex:pageBlockSection title="Messages" id="pbSecMsg" columns="1">
+                <apex:outputPanel id="pnlResult">
+                    <div><apex:outputText id="tNoMsg" value="{!NO_MSG}" rendered="{!ISNULL(displayMessages)}" style="font-weight:bold;"></apex:outputText></div>
+                    <center>
+                    	<b>
+                    		<!-- display if user process all status message(completed,failed,pending) -->
+	                    	<apex:outputtext value="{!infoMsg}" style="color:green;font-size:14px;" rendered="{!isCompleted==false}"/>
+	                    	<!-- display if user process completed message -->
+	                    	<apex:outputText value="{!infoMsg}" style="color:red;font-size:14px;" rendered="{!isCompleted}"/>
+	                    	
+                    	</b>
+                    </center><br/>
+                    
+                    <div align="left" id="sel" style="display:{!IF(NOT(ISNULL(displayMessages)),'block','none')}">                        
+                        <span style="font-weight:bold;">Total Number of Records: <span id="totalNbRecs"></span></span>&nbsp;&nbsp;
+                        <span style="background-color: rgb(255, 227, 36);">Number of records selected: <span id="nbChecked">{!nbChecked}</span></span>
+                    </div>
+                    
+                    <div id="divNavTop" align="right" style="display:{!IF(NOT(ISNULL(displayMessages)),'block','none')};" class="divWidth">
+                        Page&nbsp;<apex:outputLabel value="{!PageNumber}"/><span id="totalPages"></span>&nbsp;&nbsp;                        
+                        <apex:commandButton value="First" action="{!firstBtnClick}" disabled="{!previousButtonEnabled}" oncomplete="recallTotalNbRecords(); reStyleFixedTableHeader();" status="status" rerender="msgPB"/>                        
+                        <apex:commandButton value="Previous" action="{!previousBtnClick}" disabled="{!previousButtonEnabled}" oncomplete="recallTotalNbRecords(); reStyleFixedTableHeader();" status="status" rerender="msgPB"></apex:commandButton>
+                        <apex:commandButton id="btnNextTop" value="Next" action="{!nextBtnClick}" disabled="{!nextButtonDisabled}" oncomplete="recallTotalNbRecords(); reStyleFixedTableHeader();" status="status" rerender="msgPB"></apex:commandButton>
+                        <apex:commandButton id="btnLastTop" value="Last" action="{!lastBtnClick}" disabled="{!nextButtonDisabled}" oncomplete="recallTotalNbRecords(); reStyleFixedTableHeader();" status="status" rerender="msgPB"/>
+                    </div>
+                    <div style="height:500px;overflow:auto;display:{!IF(NOT(ISNULL(displayMessages)),'block','none')}" id="divResult" class="divWidth">
+                         <!-- popup comment -->
+                        <div id="InlineEditDialog1" class="overlayDialog inlineEditDialog" style="width:30%; vertical-align:middle; top:25%; display: block; visibility: hidden;margin-top:50px">
+                            <div class="topRight">
+                                <div class="topLeft">
+                                    <img id="InlineEditDialogX" class="dialogClose" src="/s.gif" onclick="document.getElementById('InlineEditDialog').style.visibility='hidden';" onmouseout="this.className = 'dialogClose'" onmouseover="this.className = 'dialogCloseOn'"/>
+                                    <h2 id="InlineEditDialogTitle">Comment</h2>
+                                </div>
+                            </div>
+                            <div class="middle">
+                                <div id="InlineEditDialogContent" class="innerContent">
+                                    <div class="activeField">
+                                        <div class="inlineEditCompoundDiv" align="center">
+                                            <div align="justify" style="border:0px solid #888888;height:70px;" id="divComment1">
+                                                
+                                            </div> 
+                                        </div>
+                                    </div>
+                                    <div style="display: none;"></div>
+                                    
+                                </div>
+                                <div class="bottomRight">
+                                    <div class="bottomLeft"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- footer -->
+                        <div id="overlayBackground" class="overlayBackground" style="width:100%; height: 820px;display: none; left: 0; top: 0px"></div>
+                        <!-- end popup comment -->
+                        
+                        <!-- popup related -->
+                        <div id="header" class="overlayDialog inlineEditDialog" style="width:30%; vertical-align:middle; top:25%; display: block; visibility: hidden;margin-top:50px" onmouseout="this.style.visibility = 'hidden'" onmouseover="this.style.visibility = 'visible'">
+                            <div class="topRight" id="sectionHeader">
+                                <div class="topLeft">
+                                    <img id="InlineEditDialogX" class="dialogClose" src="/s.gif" onclick="document.getElementById('header').style.visibility='hidden';" onmouseout="this.className = 'dialogClose'" onmouseover="this.className = 'dialogCloseOn'"/>
+                                    <h2 id="headername"></h2>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                    <input type="button" class="btn" value="View" onclick="var objId=document.getElementById('objId').innerHTML;window.open('/'+objId);"/>
+                                	<input type="button" class="btn" value="Edit" onclick="var objId=document.getElementById('objId').innerHTML;window.open('/'+objId+'/e');"/>
+                                </div>
+                            </div>
+                            <div class="middle">
+                                <div id="content" class="innerContent">
+                                    <div class="activeField">
+                                        <div class="inlineEditCompoundDiv" align="center">
+                                            <div align="left" style="border:0px solid #888888;height:70px;" id="divDetail">
+                                            	<span id="objName" style="font-weight:bold;"></span>&nbsp;&nbsp;&nbsp;&nbsp;<span id="objValue"></span> 
+                                            	<span id="objId" style="display:none;"></span>
+                                            	<span id="msgErr" style="font-weight: bold; font-size: 12pt;"></span>
+                                            </div> 
+                                        </div>
+                                    </div>
+                                    <div style="display: none;"></div>
+                                </div>
+                                <div class="bottomRight">
+                                    <div class="bottomLeft"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- footer -->
+                        <div id="footer" class="overlayBackground" style="width:100%; height: 820px;display: none; left: 0; top: 0px"></div>
+                        <!-- end popup related -->
+                        
+                        <div onscroll="changeFloatingHeaderPosition(this, 'idHeader' );" style="height:500px;overflow:auto;" class="floatingContainer">
+                        <table id="theTbl" class="list" cellspacing="0" cellpadding="0" border="0">
+                            <thead id="idHeader" class="floatingHeader">                   
+                           <apex:repeat id="theTHead" value="{!displayHeaders}" var="col">
+                                <tr class="headerRow">
+                                    <th class="actionColumn" scope="col">
+                                        <div>
+	                                        <apex:inputCheckbox id="allBox" value="{!pgChecked}" style="margin-top: 4px;" title="Select all rows for this page"                                      
+	                                                    onclick="selAllOrNoneByCheckbox(this);"/>
+	                                        <apex:outputLabel >Action</apex:outputLabel>
+                                        </div>
+                                    </th>
+                                    <apex:repeat id="theTH" value="{!col.cells}" var="c">
+                                        <th scope="col">
+                                            <div>
+	                                            <!--<apex:inputCheckbox id="col_ids" value="{!c.isChecked}"/>-->
+	                                            <apex:outputtext value="{!c.value}"/>
+                                            </div>
+                                        </th>
+                                    </apex:repeat>    
+                                </tr>               
+                           </apex:repeat>
+                           </thead>
+                           <apex:repeat value="{!displayMessages}" var="rec" id="records">
+                               <tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+                                   <td class="actionColumn" scope="row" style="vertical-align:middle;">
+                                        <apex:inputCheckbox value="{!rec.isChecked}" id="row_ids"
+                                            onclick="javascript:updateToggleAllBox(this.form,'row_ids',this.checked);"/>
+                                          <!-- Display button Edit for failed message -->
+                                   		<apex:commandLink id="cmlEdit" title="Edit message with id {!rec.id}" onclick="popupEditMessageData(this.title);" rerender="infName" rendered="{!rec.status=='Failed'}">Edit</apex:commandLink>
+                                   </td>
+                                   
+                                   <apex:repeat value="{!rec.cells}" var="cell" id="record">
+                                       <td class="dataCell" scope="row" style="vertical-align:middle;">
+                                       		
+                                       		<!-- MessageName; MessageStatus; RelatedTo; MessageComment -->
+                                      		<apex:outputtext value="{!cell.value}" 
+                                      		rendered="{!IF(CONTAINS(cell.col,'MessageName') || CONTAINS(cell.col,'MessageStatus') || CONTAINS(cell.col,'RelatedTo') || CONTAINS(cell.col,'MessageComment'),false,true)}"/>
+                                       		
+                                    		<apex:outputLink value="/{!rec.id}" target="_blank" styleClass="actionLink" 
+                                    		 			rendered="{!IF(CONTAINS(cell.col,'MessageName'),true,false)}">{!cell.value}</apex:outputLink>
+                                    		
+                                       		 <apex:image value="{!IF(cell.value='Completed','/img/samples/color_green.gif',IF(cell.value='Failed','/img/samples/color_red.gif','/img/samples/color_yellow.gif'))}"
+                                    		 			height="15" width="25" style="border:0;" alt="{!cell.value}"
+                                    		 			rendered="{!IF(CONTAINS(cell.col,'MessageStatus'),true,false)}"/>                                    		 
+                                    		 
+                                    		 <!-- in case Asset -->
+                                    		 <apex:commandLink onclick="var relId=document.getElementById(showHeader()+'page:frm:relId').value; if('{!JSENCODE(cell.value)}'!='') window.open('/'+relId); return false;" 
+                                    		 		value="Related To"
+                                    		 		onmouseover="document.getElementById(showHeader()+'page:frm:relId').value='{!JSENCODE(cell.value)}'; if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Asset','{!JSENCODE(cell.value)}','visible');" 
+			                                        onmouseout="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Asset','{!JSENCODE(cell.value)}','hidden');"  
+			                                        onfocus="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Asset','{!JSENCODE(cell.value)}','visible');" 
+			                                        onblur="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Asset','{!JSENCODE(cell.value)}','hidden');"                                    		 		
+                                    		 			rendered="{!IF(CONTAINS(cell.col,'RelatedTo') && BEGINS(cell.value,'02i'),true,false)}"/>
+                                    		 <!-- in case Attachment -->
+                                    		 <apex:commandLink onclick="var relId=document.getElementById(showHeader()+'page:frm:relId').value; if('{!JSENCODE(cell.value)}'!='') window.open('/'+relId); return false;" 
+                                    		 		value="Related To"
+                                    		 		onmouseover="document.getElementById(showHeader()+'page:frm:relId').value='{!JSENCODE(cell.value)}'; if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Attachment','{!JSENCODE(cell.value)}','visible');" 
+			                                        onmouseout="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Attachment','{!JSENCODE(cell.value)}','hidden');"  
+			                                        onfocus="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Attachment','{!JSENCODE(cell.value)}','visible');" 
+			                                        onblur="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Attachment','{!JSENCODE(cell.value)}','hidden');"                                    		 		
+                                    		 			rendered="{!IF(CONTAINS(cell.col,'RelatedTo') && BEGINS(cell.value,'00P'),true,false)}"/>			
+                                    		 <!-- in case Task -->
+                                    		 <apex:commandLink onclick="var relId=document.getElementById(showHeader()+'page:frm:relId').value; if('{!JSENCODE(cell.value)}'!='') window.open('/'+relId); return false;" 
+                                    		 		value="Related To"
+                                    		 		onmouseover="document.getElementById(showHeader()+'page:frm:relId').value='{!JSENCODE(cell.value)}'; if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Task','{!JSENCODE(cell.value)}','visible');" 
+			                                        onmouseout="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Task','{!JSENCODE(cell.value)}','hidden');"  
+			                                        onfocus="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Task','{!JSENCODE(cell.value)}','visible');" 
+			                                        onblur="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Task','{!JSENCODE(cell.value)}','hidden');"                                    		 		
+                                    		 			rendered="{!IF(CONTAINS(cell.col,'RelatedTo') && BEGINS(cell.value,'00T'),true,false)}"/>
+                                    		 
+                                    		 <!-- in case Pricebook2 -->
+                                             <apex:commandLink onclick="var relId=document.getElementById(showHeader()+'page:frm:relId').value; if('{!JSENCODE(cell.value)}'!='') window.open('/'+relId); return false;"  
+                                                    value="Related To"
+                                                    onmouseover="document.getElementById(showHeader()+'page:frm:relId').value='{!JSENCODE(cell.value)}'; if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Pricebook2','{!JSENCODE(cell.value)}','visible');" 
+                                                    onmouseout="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Pricebook2','{!JSENCODE(cell.value)}','hidden');"  
+                                                    onfocus="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Pricebook2','{!JSENCODE(cell.value)}','visible');" 
+                                                    onblur="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Pricebook2','{!JSENCODE(cell.value)}','hidden');"                                                  
+                                                        rendered="{!IF(CONTAINS(cell.col,'RelatedTo') && BEGINS(cell.value,'01s'),true,false)}"/>
+                                                        
+                                             <!-- in case PricebookEntry -->
+                                             <apex:commandLink onclick="var relId=document.getElementById(showHeader()+'page:frm:relId').value; if('{!JSENCODE(cell.value)}'!='') window.open('/'+relId); return false;" 
+                                                    value="Related To"
+                                                    onmouseover="document.getElementById(showHeader()+'page:frm:relId').value='{!JSENCODE(cell.value)}'; if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'PricebookEntry','{!JSENCODE(cell.value)}','visible');" 
+                                                    onmouseout="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'PricebookEntry','{!JSENCODE(cell.value)}','hidden');"  
+                                                    onfocus="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'PricebookEntry','{!JSENCODE(cell.value)}','visible');" 
+                                                    onblur="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'PricebookEntry','{!JSENCODE(cell.value)}','hidden');"                                                  
+                                                        rendered="{!IF(CONTAINS(cell.col,'RelatedTo') && BEGINS(cell.value,'01u'),true,false)}"/>
+                                                        
+                                             <!-- in case Event -->
+                                             <apex:commandLink onclick="var relId=document.getElementById(showHeader()+'page:frm:relId').value; if('{!JSENCODE(cell.value)}'!='') window.open('/'+relId); return false;" 
+                                                    value="Related To"
+                                                    onmouseover="document.getElementById(showHeader()+'page:frm:relId').value='{!JSENCODE(cell.value)}'; if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Event','{!JSENCODE(cell.value)}','visible');" 
+                                                    onmouseout="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Event','{!JSENCODE(cell.value)}','hidden');"  
+                                                    onfocus="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Event','{!JSENCODE(cell.value)}','visible');" 
+                                                    onblur="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Event','{!JSENCODE(cell.value)}','hidden');"                                                  
+                                                        rendered="{!IF(CONTAINS(cell.col,'RelatedTo') && BEGINS(cell.value,'00U'),true,false)}"/>
+                                                        
+                                             <!-- in case  Note -->
+                                             <apex:commandLink onclick="var relId=document.getElementById(showHeader()+'page:frm:relId').value; if('{!JSENCODE(cell.value)}'!='') window.open('/'+relId); return false;" 
+                                                    value="Related To"
+                                                    onmouseover="document.getElementById(showHeader()+'page:frm:relId').value='{!JSENCODE(cell.value)}'; if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Note','{!JSENCODE(cell.value)}','visible');" 
+                                                    onmouseout="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Note','{!JSENCODE(cell.value)}','hidden');"  
+                                                    onfocus="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Note','{!JSENCODE(cell.value)}','visible');" 
+                                                    onblur="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'Note','{!JSENCODE(cell.value)}','hidden');"                                                  
+                                                        rendered="{!IF(CONTAINS(cell.col,'RelatedTo') && BEGINS(cell.value,'002'),true,false)}"/>
+                                                        
+                                             <!-- in case  OpportunityLineItem -->
+                                             <apex:commandLink onclick="var relId=document.getElementById(showHeader()+'page:frm:relId').value; if('{!JSENCODE(cell.value)}'!='') window.open('/'+relId); return false;" 
+                                                    value="Related To"
+                                                    onmouseover="document.getElementById(showHeader()+'page:frm:relId').value='{!JSENCODE(cell.value)}'; if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'OpportunityLineItem','{!JSENCODE(cell.value)}','visible');" 
+                                                    onmouseout="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'OpportunityLineItem','{!JSENCODE(cell.value)}','hidden');"  
+                                                    onfocus="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'OpportunityLineItem','{!JSENCODE(cell.value)}','visible');" 
+                                                    onblur="if('{!JSENCODE(cell.value)}'!='') popupRelatedTo(this,'OpportunityLineItem','{!JSENCODE(cell.value)}','hidden');"                                                  
+                                                        rendered="{!IF(CONTAINS(cell.col,'RelatedTo') && BEGINS(cell.value,'00k'),true,false)}"/>
+                                                        
+                                    		 			
+                                    		 <apex:commandLink id="lookup" 
+                                    		 		onclick="var relId=document.getElementById(showHeader()+'page:frm:relId').value; if('{!JSENCODE(cell.value)}'!='') window.open('/'+relId); return false;" 
+                                    		 		value="Related To"
+                                    		 		onmouseover="document.getElementById(showHeader()+'page:frm:relId').value='{!JSENCODE(cell.value)}'; if('{!JSENCODE(cell.value)}'!='') getHover(this.id,'/{!JSENCODE(cell.value)}/m?isAjaxRequest=1&nocache=1272600290236');" 
+                                    		 		onmouseout="if('{!JSENCODE(cell.value)}'!='') LookupHoverDetail.getHover(this.id).hide();" 
+                                    		 		onfocus="if('{!JSENCODE(cell.value)}'!='') getHover(this.id,'/{!JSENCODE(cell.value)}/m?isAjaxRequest=1&nocache=1272600290236');" 
+                                    		 		onblur="if('{!JSENCODE(cell.value)}'!='') LookupHoverDetail.getHover(this.id).hide();" 
+                                    		 			rendered="{!IF(CONTAINS(cell.col,'RelatedTo') && NOT(BEGINS(cell.value,'00k')) && NOT(BEGINS(cell.value,'002')) && NOT(BEGINS(cell.value,'00U')) && NOT(BEGINS(cell.value,'01s')) && NOT(BEGINS(cell.value,'01u')) && NOT(BEGINS(cell.value,'02i')) && NOT(BEGINS(cell.value,'00P')) && NOT(BEGINS(cell.value,'00T')),true,false)}">
+                                    		</apex:commandLink>
+                                    		
+                                       		<!-- for all interface comment is normal text -->
+                                    		 <apex:outputtext value="{!cell.value}" rendered="{!IF(CONTAINS(cell.col,'MessageComment') && CONTAINS(interfId,'all'),true,false)}" />
+
+                                    		 <apex:outputPanel layout="block" rendered="{!IF(CONTAINS(cell.col,'MessageComment') && NOT(CONTAINS(interfId,'all')),true,false)}">
+                                    		 	<apex:outputLink title="{!cell.value}" 
+                                    		 		onmouseover="popupComment(this.parentNode,this.title,'visible');" 
+	                                    		 	onmouseout="popupComment(this.parentNode,'','hidden');" 
+	                                    		 	onfocus="popupComment(this.parentNode,this.title,'visible');" 
+	                                    		 	onblur="popupComment(this.parentNode,'','hidden');" 
+                                    		 		onmousedown="return false;" 
+                                    		 		onmouseup="return false;" 
+                                    		 		onclick="return false;"
+                                    		 		onmousemove="return false;">Comment</apex:outputLink>
+                                    		 </apex:outputPanel>	
+                                       		
+                                       </td>
+                                   </apex:repeat>    
+                               </tr>
+                           </apex:repeat>
+                         </table>
+                     </div>
+                     </div>
+                     
+                     <div id="divNavBottom" align="right" style="display:{!IF(NOT(ISNULL(displayMessages)),'block','none')};" class="divWidth">                        
+                        Page&nbsp;<apex:outputLabel value="{!PageNumber}"/><span id="totalPagesBottom"></span>&nbsp;&nbsp;
+                        <apex:commandButton value="First" action="{!firstBtnClick}" disabled="{!previousButtonEnabled}" oncomplete="recallTotalNbRecords(); reStyleFixedTableHeader();" status="status" rerender="msgPB"/>
+                        <apex:commandButton value="Previous" action="{!previousBtnClick}" disabled="{!previousButtonEnabled}" oncomplete="recallTotalNbRecords(); reStyleFixedTableHeader();" status="status" rerender="msgPB"></apex:commandButton>
+                        <apex:commandButton id="btnNextBottom" value="Next" action="{!nextBtnClick}" disabled="{!nextButtonDisabled}" oncomplete="recallTotalNbRecords(); reStyleFixedTableHeader();" status="status" rerender="msgPB"></apex:commandButton>
+                        <apex:commandButton id="btnLastBottom" value="Last" action="{!lastBtnClick}" disabled="{!nextButtonDisabled}" oncomplete="recallTotalNbRecords(); reStyleFixedTableHeader();" status="status" rerender="msgPB"/>
+                    </div>
+                </apex:outputPanel> 
+            </apex:pageBlockSection>
+            </apex:pageBlock>
+				
+		</apex:form>
+		
+    <script type="text/javascript">
+        
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        window.onload = function() {
+            try{
+            
+                initializeFilter();
+            
+	            isPE=false;//default
+	            //Count message of integration that have interface
+	            if("{!hasInterface}"=='false') {//mean have interface, true/false for enabled(false)/disabled(true) apx button
+	            	updateTotalNbRecords();
+	            	
+	            	searchComplete();
+            	}
+            	
+                handleCkhAllStyle();
+	            	
+            }catch(e){
+            	alert("window.onload Error:" + e);
+            }
+        }
+        function updateTotalNbRecords() {
+            //formatDate
+            var dFrom=document.getElementById(showHeader()+'page:frm:pbFilter:filter:dFrom');
+            var dTo=document.getElementById(showHeader()+'page:frm:pbFilter:filter:dTo');
+            //validate Datetime condition
+            if( (dFrom && dFrom.className=='error') || (dTo && dTo.className=='error') )return;
+
+            if(isPE==false){
+	            var n = getCount(ns);            
+	            var tr=document.getElementById('totalNbRecs');
+	            tr.innerHTML=n;
+	            document.getElementById(showHeader()+'page:frm:keepNbRecords').value = Number(n);
+	            
+	            document.getElementById(showHeader()+'page:frm:keepTotalPages').value = (n==0 ? n : Math.ceil(n/{!pageSize}));
+	               
+                if(isPE)updateTotalNbRecordsCon();
+           }else{
+           		updateTotalNbRecordsCon();
+           } 
+           
+           setTotalPages();
+
+        }    
+        
+        function initializeFilter() {
+            var dFrom=document.getElementById(showHeader()+'page:frm:pbFilter:filter:dFrom');
+            var dTo=document.getElementById(showHeader()+'page:frm:pbFilter:filter:dTo');
+            var cStatus=document.getElementById(showHeader()+'page:frm:pbFilter:filter:txtStatus');
+            if(dFrom) dFrom.value='';
+            if(dTo) dTo.value='';
+            if(cStatus) cStatus.value='';
+        }
+        
+        function recallTotalNbRecords(){
+            var tr=document.getElementById('totalNbRecs');
+            tr.innerHTML=document.getElementById(showHeader()+'page:frm:keepNbRecords').value;
+            
+            setTotalPages();
+        }
+        
+        function setTotalPages() {
+            var tr=document.getElementById('totalNbRecs');
+            var totalPages = document.getElementById('totalPages');
+            var totalPagesBottom = document.getElementById('totalPagesBottom');
+               
+            if(tr && tr.innerHTML.length>0) {
+                totalPages.innerHTML = '&nbsp;of ' + Math.ceil(new Number(tr.innerHTML)/{!pageSize});
+                totalPagesBottom.innerHTML = '&nbsp;of ' + Math.ceil(new Number(tr.innerHTML)/{!pageSize});
+            }
+            else {
+                totalPages.innerHTML = '';
+                totalPagesBottom.innerHTML = '';
+            }
+        }
+        
+        function reStyleFixedTableHeader() {
+            addHeaderTableStyle(); 
+            handleCkhAllStyle();
+        }
+        
+        function allChecked(form, element_name) {
+            var i = 0;
+        
+            for (i = 0; i < form.elements.length; i++) {
+                var el = form.elements[i];
+                if (el.name.search(element_name)!=-1 && el.type=="checkbox" && el.checked == false) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        function selAllOrNoneByCheckbox(obj){
+            try{
+            
+                nbChk=document.getElementById('nbChecked');
+                var nb=Number(nbChk.innerHTML);  
+                
+                var rowId = document.getElementById(showHeader()+'page:frm:msgPB:pbSecMsg:theTHead:0:allBox');
+                var form = document.forms[showHeader()+'page:frm'];         
+                
+                var value = rowId.checked;
+                for (i = 0; i < form.elements.length; i++) {
+                    var el = form.elements[i];
+                    if (el.type=="checkbox") {
+                        if((value==true && el.checked==true) || (value==false && el.checked==false)){
+                            el.checked = value; 
+                            continue;
+                        }            
+                       el.checked = value;       
+                       if(el.checked==true){
+                            nb++;
+                       }
+                       else{
+                            nb--;
+                       }
+                    }
+                }
+                
+                if(nb<0) nb=0;
+                nbChk.innerHTML=nb;   
+                
+            }catch(ex){
+                alert(ex);
+            }
+        }
+      
+    </script>
+    <script>            
+        function confirmMsg(obj){
+            try{
+                var nbChk=document.getElementById('nbChecked');
+                var b = false;
+                if(nbChk.innerHTML == -1 && (obj == 'delete' || obj == 'process')){
+                    if(obj == 'delete')obj = 'delet';
+                    alert('No messages are available to be '+obj+'ed');
+                }else if(nbChk.innerHTML == 0 && (obj=='delete' || obj=='process')){
+                    if(obj == 'delete')obj = obj.substring(0,obj.length-1);
+                    alert('Please select at least one row to be '+obj+'ed');
+                  //Deselect All  
+                }else if((nbChk.innerHTML == -1 || nbChk.innerHTML == 0) && obj == 'DeselectAll'){
+                    alert('No message selected');
+                //
+                }else{
+                    var msg="";
+                    if(obj=='delete' || obj=='process')
+                        msg=nbChk.innerHTML+" selected message(s)?";
+                    //Deselect
+                    else if(obj == 'DeselectAll'){
+                        deselectAll();//Action Function name
+                        return true;
+                    }
+                    //
+                    else
+                        msg=" messages?";   
+                    if(confirm('Are you sure you want to '+obj+' the '+msg))
+                        if(obj == 'delete'){
+                            clear();
+                        }
+                        else if(obj == 'process'){
+                            process();
+                        }
+                        else if(obj == 'delete all'){
+                            clearAll();
+                        }
+                        else if(obj == 'process all'){
+                            processAll();       
+                        }
+                        b = true;
+                        
+                       
+                }
+                return b;
+            }catch(ex){
+                alert(ex);
+            }
+        }
+        
+        //confirmation for delete all message base on filter
+        function confirmMsgDelAll(){
+            if(confirm('Are you sure?')){
+                deleteAll();
+                return true;
+            }
+            return false;
+        }
+    </script>
+    <script>
+        function updateToggleAllBox(form, element_name, val) {
+            
+            // Can be undefined when 0 items in list:
+            
+            allBox = document.getElementById(showHeader()+'page:frm:msgPB:pbSecMsg:theTHead:0:allBox');
+            if (allBox) {
+                allBox.checked = allChecked(form, element_name);
+            }
+            
+            nbChk=document.getElementById('nbChecked');
+            var nb=Number(nbChk.innerHTML);
+            if(val==true)
+                nb++;
+             else
+                nb--;
+             if(nb<0) nb=0;
+            nbChk.innerHTML=nb;
+        }
+    </script>
+    <script>
+        
+        var ns="{!ns}";//namespace
+        
+        function showHeader(){
+            var comCont="";
+            var shHeader="{!showHeader}";
+            if(shHeader=="false")
+                comCont="mainPage:msgBoard:";
+            return comCont; 
+        }
+       
+        function getCount(){
+            try{
+            /**If user select or deselect check the number of record, if less then max limit retun**/
+                var maxRec=document.getElementById(showHeader()+'page:frm:maxRec').value;
+                var nbChecked=document.getElementById(showHeader()+'page:frm:nbMsg').value;//number of message base on select and deSelect buton
+                
+                if(maxRec != null && maxRec != '' && nbChecked != null && nbChecked != ''){
+                    var n=Number(nbChecked);//max number of record
+                    if(n < Number(maxRec))
+                        return n;//no need to query to sf,if nuber of record selected< max limit
+                }
+	            //get sql filter from controller
+	            var sql="select id from "+ns+"IMessage__c"+document.getElementById(showHeader()+'page:frm:sqlFilter').value;
+	            //Count all message if number of check>= maxlimit
+	            var count = 0;
+	            var result = sforce.connection.query(sql);
+	            var queryMore = true;
+	            while (queryMore) {
+	                var records = result.getArray("records");
+	                count += records.length;            
+	                if (result.getBoolean("done")) {
+	                  queryMore = false;
+	                } else {
+	                  result = sforce.connection.queryMore(result.queryLocator);
+	                }        
+	            }
+	           // alert('Count:'+count);
+	           isPE=false;
+	            return count;
+            }catch(e){
+                if(e.faultcode!=null && e.faultcode.search(/API_DISABLED_FOR_ORG/i)>0){
+                	isPE=true;
+            	}else{
+            		alert(e);
+            		isPE=false;
+            	}
+            }
+        }
+        function openCenteredWindow(msgId,header){
+		    var width =650;
+		    var height = 470;
+		    var left = parseInt((screen.availWidth/2) - (width/2));
+		    var top = parseInt((screen.availHeight/2) - (height/2));
+		    
+		    var windowFeatures = "width=" + width + ", height=" + height + ", status=no, menubar=no, resizable=no, scrollbars=no, toolbar=no, location=no, directories=no, left=" + left + ", top=" + top + ", screenX=" + left + ", screenY=" + top;
+		    var win=window.open("/apex/EditMessageData?msgId="+msgId+"&header="+header,this.target,windowFeatures);
+		    win.focus();
+		}
+       
+       	//POPUP new Page for Edit IData of one message when user click "Edit"
+        function popupEditMessageData(msgId){//msgId=title="message with id a08900000051cs2"
+            msgId=msgId.substring(msgId.length-15);
+			//Store message Id to update message on list
+        	document.getElementById(showHeader()+'page:frm:msgId').value=msgId;
+        	var header='1';// mean: mainPage:msgBoard:
+        	if(showHeader() == ''){
+        		header='0';
+        	}
+        	openCenteredWindow(msgId,header);
+        }
+       
+    </script>
+
+</apex:page>

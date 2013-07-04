@@ -1,0 +1,80 @@
+<apex:page standardController="skyvvasolutions__Interfaces__c" extensions="skyvvasolutions.CreateIStructureFromRepository" id="page">
+	<apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Create IStructure From Repository"></apex:sectionHeader>
+	<apex:form id="frm">
+		<apex:pageBlock id="pb">
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Create IStructure From Repository" title="Create IStructure from selected Repository" action="{!updateInterface}" onclick="if(checkForOnlyOneChecked()==false)return false;" oncomplete="if('{!JSENCODE(errMsg)}'!=''){alert('{!JSENCODE(errMsg)}');return;}document.location.href='/{!URLENCODE($Request.id)}';" status="status" rerender="frm" disabled="{!NOT(hasIStrucRepo)}"/>
+				<apex:commandButton value="Cancel" title="Back to Interface" onclick="window.location.href='/{!URLENCODE($Request.id)}';return false;"/>
+			</apex:pageBlockButtons>
+			<apex:pageBlockSection columns="1">
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Interface Name"/>
+					<apex:outputField value="{!intf.skyvvasolutions__Name__c}"/>
+				</apex:pageBlockSectionItem>
+			</apex:pageBlockSection>
+			<apex:pageBlock title="IStructure Repositories">
+				<apex:pageBlockButtons location="top">
+					<apex:commandButton value="New IStructure Repository" title="New IStructure Repository" onclick="document.location.href='{!URLFOR($Action.IStructure_Repository__c.New)}';return false;"/>
+				</apex:pageBlockButtons>
+				<apex:outputText styleClass="pbError" rendered="{!NOT(hasIStrucRepo)}">
+					No records to display	
+				</apex:outputText>
+			
+				<div style="width:850px;height:500px;overflow:auto;display:{!IF(hasIStrucRepo=true,'block','none')}">
+					<apex:pageBlockTable value="{!dtoIstrucRepo}" var="dto">
+						<apex:column >
+							<apex:facet name="header">
+								<apex:outputLabel value="Action"/>
+							</apex:facet>
+							<apex:inputCheckBox value="{!dto.isCheck}"/>
+						</apex:column>
+						<apex:column >
+							<apex:facet name="header">
+								<apex:outputLabel value="Name"/>
+							</apex:facet>
+							<apex:outputLink value="/{!dto.istrucRepo.Id}" target="_blank">{!dto.istrucRepo.Name}</apex:outputLink>
+						</apex:column>
+						<apex:column value="{!dto.istrucRepo.skyvvasolutions__Description__c}"/>
+						<apex:column value="{!dto.istrucRepo.skyvvasolutions__Repository_ID__c}"/>
+						<apex:column >
+							<apex:facet name="header">
+								<apex:outputLabel value="Update Interfaces Structrues"/>
+							</apex:facet>
+							<img src="{!IF(dto.istrucRepo.Update_Interfaces_Structrues__c=true,'/img/checkbox_checked.gif','/img/checkbox_unchecked.gif')}" width="21" height="16"/>
+						</apex:column>
+					</apex:pageBlockTable>
+	            </div>
+            </apex:pageBlock>
+		</apex:pageBlock>
+		<apex:actionStatus id="status">
+	       <apex:facet name="start">
+	           <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+	       </apex:facet>
+	   </apex:actionStatus>
+	</apex:form>
+	<script>
+		function checkForOnlyOneChecked(){
+			try{
+				var numChecked = 0;
+				var form=document.getElementById('page:frm');
+	            for (var i = 0; i < form.elements.length; i++) {
+	                var el = form.elements[i];
+	                if (el.type=="checkbox" && el.checked == true) {
+	                    numChecked++;
+	                }
+	            }
+	            if(numChecked>1){
+	            	alert('Please select only one IStructure Repository to create Interface IStructure.');
+	            	return false;
+	            }else if(numChecked==0){
+	            	alert('Please select an IStructure Repository to create Interface IStructure.');
+	            	return false;
+	            }
+	            return true;
+            }catch(e){
+            	alert(e);
+            	return false;
+            }
+		}
+	</script>
+</apex:page>

@@ -1,0 +1,25 @@
+<apex:page controller="StarbucksController">
+	<apex:form >
+
+<apex:pageBlock title="Coffee">
+	<apex:pageBlockButtons >
+		<apex:commandButton action="{!printMsg}" value="call" />
+	</apex:pageBlockButtons>
+
+	<apex:pageBlockTable value="{!stores}" var="store">
+		<apex:column headerValue="Selected">
+		<apex:inputCheckbox value="{!store.selected}" />
+		</apex:column>
+		
+		<apex:column headerValue="Store Name">
+		{!store.data.StoreName__c}
+		</apex:column>
+			<apex:column headerValue="Store Type">
+		{!store.data.StoreType__c}
+		</apex:column>
+	</apex:pageBlockTable>
+
+	</apex:pageBlock>
+			
+	</apex:form>
+</apex:page>

@@ -1,0 +1,75 @@
+<apex:page controller="ContactController" showHeader="false" sidebar="false" >
+ 	<script type="text/javascript" charset="utf-8" src="http://cdn.sencha.io/ext-4.0.7-gpl/ext-all.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://cdn.sencha.io/ext-4.0.7-gpl/resources/css/ext-all.css" />
+    <apex:form >
+        <div id="gridSpace"></div> 
+    </apex:form>
+        <script type="text/javascript" >
+Ext.require([
+    'Ext.form.*',
+    'Ext.layout.container.Column',
+    'Ext.tab.Panel'
+]);
+
+
+
+Ext.onReady(function(){
+
+    Ext.QuickTips.init();
+
+    var bd = Ext.getBody();
+
+    /*
+     * ================  Simple form  =======================
+     */
+   
+
+
+    var simple = Ext.create('Ext.form.Panel', {
+        url:'save',
+        frame:true,
+        title: 'Contact Form',
+        bodyStyle:'padding:5px 5px 0',
+        width: 350,
+        fieldDefaults: {
+            msgTarget: 'side',
+            labelWidth: 75
+        },
+        defaultType: 'textfield',
+        defaults: {
+            anchor: '100%'
+        },
+
+        items: [{
+            fieldLabel: 'First Name',
+            name: 'first',
+            allowBlank:false
+        },{
+            fieldLabel: 'Last Name',
+            name: 'last'
+        },{
+            fieldLabel: 'Company',
+            name: 'company'
+        }, {
+            fieldLabel: 'Email',
+            name: 'email',
+            vtype:'email'
+        }, {
+            xtype: 'timefield',
+            fieldLabel: 'Time',
+            name: 'time',
+            minValue: '8:00am',
+            maxValue: '6:00pm'
+        }],
+
+        buttons: [{
+            text: 'Save'
+        },{
+            text: 'Cancel'
+        }]
+    });
+
+    simple.render(document.body);
+});   
+</script>
+</apex:page>

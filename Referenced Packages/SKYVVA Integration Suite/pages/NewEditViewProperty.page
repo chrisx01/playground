@@ -1,0 +1,78 @@
+<apex:page id="property" standardController="skyvvasolutions__Property__c" extensions="skyvvasolutions.ClsNewEditViewProperty">
+
+<apex:form id="frmProperty">
+  
+    <apex:pageBlock id="pbEdit_New" title="Property" mode="edit" rendered="{!NOT(view)}">
+                <center><apex:outputText id="txtError" value="{!error}" rendered="{!NOT(ISNULL(error))}" styleClass="pbError"></apex:outputText></center>
+                <apex:pageBlockSection id="pbsPropertyData" columns="1">
+                          <apex:inputField id="propName" value="{!p.skyvvasolutions__Name__c}" required="true"/>
+                          <apex:inputField id="propValue2" value="{!p.skyvvasolutions__Value2__c}" />
+                          <apex:inputField id="propadapter" value="{!p.skyvvasolutions__Adapter__c}" required="true"/>
+                </apex:pageBlockSection>
+                
+            <apex:pageBlockButtons id="pbBBEdit_New">
+	            <apex:commandButton id="btnSave" value="Save" onclick="saveData();return false;"/>
+	            <apex:actionFunction name="saveData" action="{!save}" oncomplete="if('{!error}'=='')navigate2RUL('{!URLENCODE(p.skyvvasolutions__Adapter__c)}');" rerender="pbEdit_New" status="status"/>
+	            <apex:commandButton id="btnSaveAndNew" action="{!btnSaveAndNew}" value="Save & New" reRender="pbEdit_New" status="status"/>
+	            <apex:commandButton id="btnCancel" action="{!cancel}"  value="Cancel"/>
+            </apex:pageBlockButtons>
+            
+    </apex:pageBlock>
+    
+    <apex:pageBlock id="pbPropertyView" title="Property Detail" mode="detail" rendered="{!view}">
+    
+        <apex:pageBlockSection id="pbsPropertyDataView" columns="1">
+	           <apex:outputField id="name" value="{!p.skyvvasolutions__Name__c}"/>
+	           <apex:outputField id="value" value="{!p.skyvvasolutions__Value2__c}"/>
+	           <apex:outputField id="adapter" value="{!p.skyvvasolutions__Adapter__c}"/>
+        </apex:pageBlockSection>
+        
+        <apex:pageBlockButtons id="pbBBEdit_Delte">
+            <apex:commandButton id="btnEdit" action="{!btnEdit}" value="Edit" rerender="frmProperty" status="status"/>
+            <apex:commandButton id="btnDelet" value="Delete" onclick="return confirmMsg();" action="{!btnDel}"/>
+            <apex:commandButton id="btnClone" action="{!btnClone}" value="Clone" rerender="frmProperty" status="status"/>
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+    
+    <apex:actionStatus id="status">
+        <apex:facet name="start">
+        <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+        </apex:facet>
+    </apex:actionStatus>
+    
+</apex:form>
+<script>
+       //confirm when delete button click
+       var id='property:frmProperty:pbEdit_New:';
+       
+       function confirmMsg(){
+            if(!confirm('Are you sure?')){
+               return false;
+            }
+            return true;
+        }
+        
+        function navigate2RUL(adpId){
+            var pname=document.getElementById(id+'pbsPropertyData:propName');
+            var pAdp=document.getElementById(id+'pbsPropertyData:propadapter');
+            //Error: Multiple items found. Select from drop-down or click icon to refine search.=> lookup will be changed  type(text) to hidden
+            if((pname.className!='error' && pAdp.className!='error') && pAdp.type=='text'){ 
+                document.location.href='/'+adpId;
+            }
+        }
+        
+        //When user press Enter save data
+        function pressEnter(e){
+            try{
+                var evtobj=window.event? event : e;
+                var unicode=evtobj.charCode? evtobj.charCode : evtobj.keyCode;
+                if(unicode=='13'){
+                    document.getElementById(id+'pbBBEdit_New:btnSave').click();
+                }
+            }catch(ex){
+                alert('Error: '+ex);
+            }
+        }
+        
+</script>
+</apex:page>

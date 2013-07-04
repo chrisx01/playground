@@ -1,0 +1,51 @@
+<apex:page id="plistData" standardController="skyvvasolutions__IMessage__c" extensions="skyvvasolutions.ClsNewEditViewData">
+<apex:form id="frmListData">
+  
+  <apex:pageblock id="pbLData" title="Data" helpTitle="Data Help" helpUrl="/help/doc/user_ed.jsp?loc=help&target=co_relatedlist.htm&section=CustomObjects">
+  <apex:pageblocksection id="pbsResult" columns="1">
+      <apex:pageblocktable id="pbTable" value="{!datas}" var="d"  rendered="{!ISNULL(error)}">
+            <apex:column styleClass="actionColumn">
+                <apex:facet name="header">Action</apex:facet>
+                <apex:commandLink styleClass="actionLink" id="cmlEdit" action="{!lnkEdit}">Edit
+                    <apex:param name="dataId" value="{!d.id}" assignTo="{!dataId}"/>
+                </apex:commandLink>
+                &nbsp;|&nbsp;
+                <apex:commandLink styleClass="actionLink" id="cmlDelete" onclick="return confirmMsg();" action="{!lnkDel}">Del
+                    <apex:param name="dataId" value="{!d.id}" assignTo="{!dataId}"/>
+                </apex:commandLink>
+            </apex:column>
+                
+          <apex:column >
+                <apex:facet name="header">ID</apex:facet>
+                <apex:commandLink id="cmlName" action="{!lnkView}">{!d.Name}
+                    <apex:param name="dataId" value="{!d.id}" assignTo="{!dataId}"/>
+                </apex:commandLink>
+            </apex:column>
+            
+            <apex:column value="{!d.skyvvasolutions__Name__c}"/>
+            
+            <apex:column value="{!d.skyvvasolutions__Value2__c}"/>
+            
+            <apex:column value="{!d.CreatedDate}"/>
+            
+            <apex:column value="{!d.LastModifiedDate}"/>
+            
+      </apex:pageblocktable>
+      
+  </apex:pageblocksection>
+  
+  <apex:outputText value="{!error}" rendered="{!NOT(ISNULL(error))}"></apex:outputText>
+  
+  </apex:pageblock>
+</apex:form> 
+ <script>
+       //confirm when delete button click
+       function confirmMsg(){
+            if(!confirm('Are you sure?')){
+               return false;
+            }
+            return true;
+        }
+</script>
+
+</apex:page>

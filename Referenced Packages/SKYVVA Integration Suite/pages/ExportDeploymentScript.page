@@ -1,0 +1,4 @@
+<apex:page contentType="text/xml#{!exportName}.xml; charset=UTF-8" standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.GenerateDeploymentScript">
+<!-- XML Content -->
+{!scr}
+</apex:page>

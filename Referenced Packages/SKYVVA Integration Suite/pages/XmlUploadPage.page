@@ -1,0 +1,93 @@
+<apex:page id="thePage" standardController="skyvvasolutions__Interfaces__c" extensions="skyvvasolutions.XmlFileUploadController" showHeader="false" sidebar="false">
+    
+    <style>
+     .lblCol{
+	        color:#333333;
+	        font-size:91%;
+	        font-weight:bold;
+	        padding:2px 10px 2px 2px;
+	        text-align:right; 
+	    }
+	    .lblCol2{}
+	    
+	    </style>
+    
+    <apex:form id="theForm">
+      <!--10022011 manage in case No interface given for the URL page-->
+      <apex:outputText value="{!errNoInterf}" style="font-weight:bold; color:red;" rendered="{!NOT(ISNULL(errNoInterf))}"></apex:outputText>
+      <apex:pageBlock id="theBlock" rendered="{!ISNULL(errNoInterf)}" >
+
+          <apex:pageBlockSection id="theSection" columns="3" >
+                
+		            <apex:outputlabel styleClass="lblCol">XML/CSV File</apex:outputlabel>
+	                <apex:inputFile id="theFile" size="50" value="{!document.body}" filename="{!document.name}" contentType="{!document.contentType}"
+                    	onchange="document.getElementById(getMainPage()+'thePage:theForm:theBlock:theSection:upl').click();"/>
+                
+                <apex:panelGrid columns="2">
+                
+                    <apex:commandButton disabled="{!NOT(isXml)}" value="Save" onclick="saveWS();return false;"/>
+                    <apex:commandButton action="{!doUploadData}" id="upl" style="display:none;"/>
+                </apex:panelGrid>
+                
+                
+                <apex:panelGrid columns="2" columnClasses="lblCol,lblCol2">
+	                <apex:outputLabel >CSV Separator (for CSV file)</apex:outputLabel>
+	                <apex:selectList value="{!selCSVSep}" size="1" style="width:48px;">
+		                <apex:selectOptions value="{!CSVSepItems}"/>
+		            </apex:selectList>          
+	            </apex:panelGrid>
+	              <apex:outputLabel />
+	              <apex:outputLabel />
+          </apex:pageBlockSection>
+		  
+          <span style="font-weight:bold; height:45px; overflow:auto;"><apex:outputField value="{!tmpIMap.skyvvasolutions__Source_Long__c}"/></span>
+          
+       </apex:pageBlock>  
+    </apex:form>
+    <apex:form id="frm">
+    	<apex:inputHidden value="{!result}" id="result"/>
+    	<apex:actionFunction name="saveWS" action="{!saveWS}" oncomplete="saveWSResult();" status="status" rerender="frm"/>
+    	<apex:actionStatus id="status">
+	       <apex:facet name="start">
+	           <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+	       </apex:facet>
+	   </apex:actionStatus>
+    </apex:form>
+    <script>        
+    
+        function refresh(){
+            try {
+             
+                  if (window.top!=window.self) {
+                  	window.top.location.href="/{!URLENCODE(interfaceId)}"
+                  }
+            }catch(e){
+                alert('Failure when refresh page caused by:' + e);
+            }
+        }
+        
+        function saveWSResult(){            
+         	try{    
+	             var r=document.getElementById(getMainPage()+'thePage:frm:result').value;
+	             if(r==''){
+	             	alert('IStructures saved successfully');
+	             	refresh();
+	             }
+	             else {
+	             	alert(r);
+	             }                
+          }catch(e){
+              alert('Failure when saving Structures, by '  + e);
+          }
+        }
+        function getMainPage(){
+        	var mainPage=document.getElementById('thePage:theForm');
+        	if(mainPage==null){
+        		return 'page:pbv:pbsecVXUP:xupage:';
+        	}
+       		return '';
+        }
+        
+    </script>
+    
+</apex:page>

@@ -1,0 +1,52 @@
+<apex:page id="page" controller="skyvvasolutions.LicenseKeyRequestMail">
+<apex:messages style="font-weight:bold; height:45px; overflow:auto;" />
+
+<apex:form id="frm">
+
+	<apex:actionStatus id="status">
+	    <apex:facet name="start">
+	        <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+	    </apex:facet>
+	</apex:actionStatus>
+	<apex:inputhidden value="{!result}" id="result"/>
+	<apex:inputhidden value="{!isOk}" id="isOk"/>
+
+	<apex:actionfunction name="retURL" action="{!retURL}" />
+	<apex:actionfunction name="sendLicenseKeyReqMail" action="{!sendLicenseKeyReqMail}" 
+			oncomplete="sendLicenseKeyReqMailResult()" status="status" rerender="frm"/>
+			
+</apex:form>
+
+<script>
+	function sendLicenseKeyReqMailResult(){
+       	var result = document.getElementById('page:frm:result').value;
+       	alert(result);
+       	retURL();
+       	
+    }
+    
+    window.onload = function() {
+	    try {
+		    var isOk = document.getElementById('page:frm:isOk').value;
+		    //check validate param par and res, OK
+		    if(isOk=='true'){
+		    	//result here is the result of RunBatchInterface, if error License key, then send request
+		    	var result = document.getElementById('page:frm:result').value;
+		    	if(result.search(/license key/i)!=-1){
+			    	if(confirm('This functionality requires a valid license key. Do you want to contact customer support from SKYVVA and request a valid license key for your organization (OrgName/ OrgNr)?')){
+						result = sendLicenseKeyReqMail();
+					}
+					else retURL();
+				}
+				//other error like no batch source adapter found, ...
+				else {
+					alert(result);
+					retURL();
+				}
+			}
+		}catch(e){alert(e);}
+    }
+    
+</script>
+
+</apex:page>

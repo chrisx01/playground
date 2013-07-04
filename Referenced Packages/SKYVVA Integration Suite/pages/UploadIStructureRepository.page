@@ -1,0 +1,41 @@
+<apex:page standardController="skyvvasolutions__IStructure_Repository__c" extensions="skyvvasolutions.UploadIStructureRepository" id="page">
+	<apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Upload IStructure For Repository"></apex:sectionHeader>
+	<apex:form id="frm">
+		<apex:actionFunction name="doUploadData" action="{!doUploadData}"/>
+		<apex:pageBlock id="pb">
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Save" disabled="{!NOT(isXML)}" onclick="saveIStructure();return false;"/>
+				<input type="Button" class="btn" value="Cancel" onclick="document.location.href='/{!URLENCODE($Request.id)}';"/>
+			</apex:pageBlockButtons>
+	        <apex:pageBlockSection >
+	        	<apex:pageBlockSectionItem >
+	        		<apex:outputLabel value="IStructure Repository Name"/>
+	        		<apex:outputField value="{!skyvvasolutions__IStructure_Repository__c.Name}"/>
+	        	</apex:pageBlockSectionItem>
+	        </apex:pageBlockSection>
+	        <br/>
+	        <apex:pageBlockSection >
+	        	<apex:pageBlockSectionItem >
+	        		<apex:outputLabel >CSV Separator (for CSV file)</apex:outputLabel>
+			        <apex:selectList value="{!selCSVSep}" size="1" style="width:48px;">
+		                <apex:selectOptions value="{!CSVSepItems}"/>
+		            </apex:selectList>	
+	        	</apex:pageBlockSectionItem>
+	        	<apex:pageBlockSectionItem >
+	        		<apex:outputlabel styleClass="lblCol">XML/CSV File</apex:outputlabel>
+               		<apex:inputFile id="theFile" size="50" value="{!doc.body}" filename="{!doc.name}" contentType="{!doc.contentType}"
+                   		onchange="doUploadData();"/>	
+	        	</apex:pageBlockSectionItem>
+	        </apex:pageBlockSection>
+				<span style="font-weight:bold; height:45px; overflow:auto;"><apex:outputField value="{!im.skyvvasolutions__Source_Long__c}"/></span>
+	    </apex:pageBlock>
+	</apex:form>
+	<apex:form id="frm2">
+		<apex:actionFunction name="saveIStructure" action="{!saveIStructure}" oncomplete="if('{!JSENCODE(errMsg)}'!=''){alert('{!JSENCODE(errMsg)}');return;}document.location.href='/{!URLENCODE($Request.id)}'" status="status" rerender="frm2"/>
+		<apex:actionStatus id="status">
+	       <apex:facet name="start">
+	           <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+	       </apex:facet>
+	   </apex:actionStatus>
+	</apex:form>
+</apex:page>

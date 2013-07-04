@@ -1,0 +1,5 @@
+<apex:page standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.DynamicIntegrationMessageInfo" cache="true" contenttype="text/csv#{!exportName}.csv" id="page">
+    
+        <apex:outputtext value="{!csvContent}" />
+    
+</apex:page>

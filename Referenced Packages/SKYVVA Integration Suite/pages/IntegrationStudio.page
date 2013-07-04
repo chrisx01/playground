@@ -1,0 +1,4016 @@
+<apex:page sidebar="false" showHeader="false"  standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.IntegrationStudioController" id="page1">
+<apex:sectionHeader title="Integration Studio"></apex:sectionHeader>
+
+<!-- common, all times required, imports -->
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'wz_jsgraphics.js')}"/>    
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'mootools.js')}"/>    
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'moocanvas.js')}"/>    
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'draw2d.js')}"/>            
+    
+<!-- demo specific imports -->
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/ConnectionInterface.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/MyInputPort.js')}"/>  
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/MyOutputPort.js')}"/>
+
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/ConnectionFields.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/FieldsInputPort.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/FieldsOutputPort.js')}"/>
+
+
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/Field.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/FieldDialog.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/FormulaDialog.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/FornulaExpressionDialog.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/Label.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/Mapping.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/SF.js')}"/>  
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/SAP.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/RIGHT90.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/XML.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/CSV.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/SFDialog.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/IntergrationDialog.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/IntergrationDialogSetting.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/MappingSettingDialog.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/ConnectionMappingFieldDialog.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/WarningDialog.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/Tooltip.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/ConfirmDeleteDialog.js')}"/>
+
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/ChainedInterface.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/ConnectionChildInterface.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/ConnectionParentInterface.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/SequenceDialog.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/OkDialog.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/InformationDialog.js')}"/>
+<!-- toolpainter imports -->
+    
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/dialog/RectangleDialog.js')}"/>   
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/dialog/SequenceFlowchartDialog.js')}"/>       
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/dialog/ConfirmDeleteFlowchartDialog.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/dialog/ConfirmDeleteFlowchartDialog1.js')}"/>       
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/FlowChartOutputPort.js')}"/>      
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/FlowChartInputPort.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/FlowChartInputPortCheckNext.js')}"/>       
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ConnectionFlowChart.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ConnectionFlowChartCheckNext.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ConnectionFlowChartSequence.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/IWorkFlow.js')}"/>
+    
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/GUIPalette.js')}"/>
+    
+    
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/GroupFigure.js')}"/>  
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ToolGroup.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/StartFigure.js')}"/>  
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ToolStartFigure.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ToolFlowChart.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ConditionIFFigure.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ToolConditionIF.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ToolRectangle.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/RectangleFigure.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ToolRectangle.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/EndFigure.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ToolEndFigure.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/toolpainter/ToolPainterParthImage.js')}"/>
+    
+    
+
+<!----------------- import jquery  ---------------------------------------------->
+
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/adapter/jquery/jquery-1.3.2.min.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/adapter/jquery/jquery.contextmenu.js')}"/>
+<apex:stylesheet value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/css/jquery.contextmenu.css')}"/>
+   
+
+<!--use this imports if you whant the ExtJs native implementation-->    
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/adapter/ext/ext-base.js')}"/>
+<apex:includeScript value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/adapter/ext/ext-all.js')}"/>
+<apex:stylesheet value="{!URLFOR($Resource.skyvvasolutions__IntegrationStudio, 'Integration/css_ext/ext-all.css')}"/>
+
+ <!-- Library to call webservice frm ajax -->
+    <script type="text/javascript" src="/soap/ajax/24.0/connection.js"></script>
+    <script type="text/javascript" src="/soap/ajax/24.0/apex.js"></script>
+
+ 
+  <style type="text/css">  
+       .button-save{
+            margin-right:20px;
+            cursor:pointer;
+            vertical-align: -3px;
+            float : right;
+       }
+       .button{
+            /* margin-right:20px; */
+            margin-left:200px;
+            cursor:pointer;         
+            white-space:pre;
+            /* vertical-align: -3px; */
+            /* float : right; */
+       }
+        .button-workspace{
+            margin-left:10px;           
+       }
+    /*----------css of object field -----------------*/
+        .field-img {
+                /*width:88px; */
+                height:18px;
+                 background-image: url({!URLFOR($Resource.IntegrationStudio, 'Integration/Field-bg.png')});
+                cursor: move; 
+                border:1px;
+                font-size: 10pt;
+                font-family :tahoma,arial,verdana,sans-serif;
+                color:#15428B;
+                text-align:center;
+                padding-top:1px;
+                /*border-top="1px solid #4da34d";*/
+                border-top-width:1px;
+                border-top-style:solid;
+                border-top-color:#bdc8e9;
+                
+            /*  border-Bottom="2px solid #808080";*/
+                border-Bottom-width:2px;
+                border-Bottom-style:solid;
+                border-Bottom-color:#bdc8e9;
+                
+            /*  border-Left="1px solid #4da34d"; */
+                border-Left-width:1px;
+                border-Left-style:solid;
+                border-Left-color:#bdc8e9;
+                
+            /*  border-Right="2px solid #808080"; */
+                
+                border-Right-width:2px;
+                border-Right-style:solid;
+                border-Right-color:#bdc8e9;
+            }
+            
+        /* ----------------- accordion in tab1 ---------------------*/
+            .settings {
+                     background-image:url({!URLFOR($Resource.IntegrationStudio, 'Integration/images/icons/fam/folder_wrench.png')});
+                      border:0 none;
+                     }
+            .nav {
+                     background-image:url({!URLFOR($Resource.IntegrationStudio, 'Integration/images/icons/fam/folder_go.png')});
+                      border:0 none;
+                     }
+    </style>      
+    
+    
+    
+<!-- --------------------------------- tab1 --------------------------------------------------------------------->
+          <apex:form >
+          <apex:actionStatus id="status">
+            <apex:facet name="start">
+            <c:Load BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+        </apex:facet>
+        </apex:actionStatus>
+        
+        
+            <apex:pageBlock title="" id="pageBlock">
+            
+            <div id="west-1">
+                <center>                       
+                  <br/>
+                  <img src="{!URLFOR($Resource.IntegrationStudio, 'Integration/SAP.png')}"   id="dragSAP" title ="SAP Connector" style="cursor:move;"/>
+                  <br/>
+                  <br/>
+                  <img src="{!URLFOR($Resource.IntegrationStudio, 'Integration/RIGHT90.png')}"   id="dragRIGHT90" title ="RIGHT90 Connector" style="cursor:move;"/>
+                  <br/>
+                  <br/>
+                  <img src="{!URLFOR($Resource.IntegrationStudio, 'Integration/SF.png')}" id="dragSF" title ="SF Connector" style="cursor:move;" />
+                  <br/>                
+                  <br/>
+                  <img src="{!URLFOR($Resource.IntegrationStudio, 'Integration/XML.png')}"   id="dragXML" title ="SXML Connector"  style="cursor:move;"/>
+                  <br/>
+                  <br/>
+                  <img src="{!URLFOR($Resource.IntegrationStudio, 'Integration/CSV.png')}" id="dragCSV" title ="CSV Connector" style="cursor:move;" />
+                  
+                </center>
+            </div>
+            <div id="west-2">
+                <center>
+                    <br/>
+                    <img src="{!URLFOR($Resource.IntegrationStudio, 'Integration/Mapping.png')}" id="dragMapping" title="Mapping Engine" style="cursor:move;"/>         
+                     <br/>
+                     <br/>
+                    <img src="{!URLFOR($Resource.IntegrationStudio, 'Integration/ChainedInterface.png')}" id="dragChainedInterface" title="ChainedInterface Engine" style="cursor:move;"/>         
+                 </center>
+            </div>
+          
+          <div id="center1"  class="x-layout-active-content" >
+              <div id="paintarea" style="position:relative;width:3000px;height:3000px;"> </div>
+          </div>
+         
+    <!-- -------------------------------- tab2----------------------------- -->
+      <div id ="addNewTabs"></div>
+       <!-- -------------------------------- Flowchart tabs ------------------ -->
+      <div id ="addNewFlowchartTabs"></div>  
+      
+            
+      </apex:pageBlock>
+            </apex:form>
+        
+        <script type="text/javascript">
+        
+        
+    var NAMESPACE="skyvvasolutions.";
+    var FLOWCHARTTAB = "addNewFlowchartTabs";
+    
+    sforce.connection.sessionId = '{!$Api.Session_ID}';
+    // var intId = getURL("intgId");
+    var intId = '{!intfId}';
+    var listMapHasChained;   
+    var dataHasSaved,showMessage;   
+    var mainTab = true;
+    
+      
+          
+    // function save integration ...........        
+    function saveIntegration(){
+                 	     	    
+        dataHasSaved = false;  
+        showMessage = true;                                                                              
+        listMapHasChained = new Array();        
+        // alert("mapId Out : " + currentMappingId);
+        if(currentMappingId == "interfacesTab"){                                   
+            for (var key in interfaceMap){           
+                var interfaceObj = interfaceMap[key];               
+                if(!checkDataBeforeSave(interfaceObj,key)){
+                    return;                 
+                }                                                   
+            }                           
+            for (var key in interfaceMap){
+                var interfaceObj = interfaceMap[key];
+                saveDataInteg(key,false,interfaceObj);                                    
+            }               
+            for(var i = 0; i < listMapHasChained.length; i++){
+                var key = listMapHasChained[i];
+                var interfaceObj = interfaceMap[key];
+                saveDataInteg(key,false,interfaceObj);
+            }                                       
+            if(dataHasSaved && showMessage){
+                alert("Modification Saved !");
+                window.location.reload();
+            }                                                               
+        }else{                      
+            if(currentMappingId){
+                var interfaceObj = interfaceMap[currentMappingId];
+                if(checkDataBeforeSave(interfaceObj,currentMappingId)){                  
+                                       
+                    // saveDataInteg(currentMappingId,true);
+                    saveDataInteg(currentMappingId,true,interfaceObj);
+                    
+                }else{
+                    return;
+                }               
+            }  
+                    
+        } 
+        if(!dataHasSaved && showMessage){                   
+            alert("nothing to save.");
+        }                                                                                                                                                                                                                              
+    } // end function saveIntegration..
+    
+        
+    //function checkDataBeforeSave(key){
+    //  var interfaceObj = interfaceMap[key];
+    function checkDataBeforeSave(interfaceObj,idMap){
+        if(interfaceObj){
+            var sfName;
+            var interface1 = interfaceObj.mapping;      
+            var inputPortConn = interfaceObj.inputPort;
+            var outputPortConn = interfaceObj.outputPort;
+            var input = getinPortoutPutObject(inputPortConn);   
+            var output = getinPortoutPutObject(outputPortConn);                                               
+            if(input && output){          
+                if(input instanceof draw2d.SF && !(output instanceof draw2d.SF) ){                                             
+                    //xmlObj = output;
+                    sfName = input.getName();                                         
+                } else if (output instanceof draw2d.SF && !(input instanceof draw2d.SF) ){                                                                       
+                    //xmlObj = input;
+                    sfName = output.getName();                                      
+                }                         
+            }     
+			var workflows = getIFlowchartList(idMap);
+            if(interface1.getName()==''){
+                alert("Interface Name,this field is Mandatory.");showMessage=false;
+                return false;
+            }else if(!sfName || sfName==''){
+                alert("Source Name,this field is Mandatory.");showMessage=false;
+                return false;
+            }else if(workflows=='ExprestionMissing'){
+            	alert("Expression,this field is Mandatory.");showMessage=false;
+                return false;
+            }               
+                                                                                      
+            if(interface1.getIChained()){                       
+                // check on chain interface.            
+               var childInterfaceList = interface1.getIChained().getChildInterfaceList();
+                for(var i =0; i < childInterfaceList.getSize(); i++){                               
+                    var connChild = childInterfaceList.get(i);
+                    var childInterface = connChild.getChildInterface();                             
+                    //if(childInterface.getObjectInterface().id){
+                        if(!connChild.getSequence()){                                       
+                            alert("chained Interface name :'" + childInterface.getObjectInterface().name + "',need to input sequence number first");                                        
+                            return false;                                                                       
+                        }                                                                                                   
+                    //}
+                    /*else{                                 
+                        alert("Interface name :'" + interface1.getObjectInterface().name + "',need to save All chainded Interfaces first");                                     
+                        return false;      
+                                                    
+                    }*/
+                }                   
+            }                      
+       } 
+       return true;   
+    }
+    
+    var saveStatus;
+    //function saveDataInteg(idMap,saveCurrent){
+    //  var interfaceObj = interfaceMap[idMap]; 
+    function saveDataInteg(idMap,saveCurrent,interfaceObj){   
+        if(interfaceObj){
+                var sfName;
+                var xmlObj;
+                saveStatus=false;
+                var listStructure;
+                var listAdapterProperty;
+                var adapter = "SAP";                               
+                var inputPortConn = interfaceObj.inputPort;
+                var outputPortConn = interfaceObj.outputPort;
+                var mapping = interfaceObj.mapping;
+                var input = getinPortoutPutObject(inputPortConn);   
+                var output = getinPortoutPutObject(outputPortConn);                                               
+                if(input && output){          
+                    if(input instanceof draw2d.SF && !(output instanceof draw2d.SF) ){                                             
+                        xmlObj = output;
+                        sfName = input.getName();                                         
+                    } else if (output instanceof draw2d.SF && !(input instanceof draw2d.SF) ){                                                                       
+                        xmlObj = input;
+                        sfName = output.getName();                                      
+                    }                         
+                }          
+                
+                // adapterId = 'a008000000DITRw'
+                if(xmlObj instanceof draw2d.SAP){      
+                    adapter = "SAP";
+                    listAdapterProperty = xmlObj.getAdapterList(); 
+                }else if(xmlObj instanceof draw2d.RIGHT90){
+                	adapter = "RIGHT90";
+                	listAdapterProperty = xmlObj.getAdapterList();
+                } 
+                else if(xmlObj instanceof draw2d.XML){ adapter = "Xml"; }
+                else if(xmlObj instanceof draw2d.CSV){ adapter = "Xml"; }                                                                                                   
+                listStructure = xmlObj.getDataList();                   
+                
+                // alert(listAdapter);                          
+                var listMapField = new Array();
+                var listChain = new Array();
+                var listChain;
+                if(mapping){                                                                
+                    try{
+                        
+                        var inteMap = new sforce.Xml("ObjectInterface");                                                                    
+                        inteMap.id = mapping.getObjectInterface().id;                          
+                        inteMap.name = mapping.getName();           
+                        inteMap.description = mapping.getDescription();
+                        inteMap.status = mapping.getStatus();           
+                        inteMap.initialization = mapping.getInitialization();
+                        inteMap.operationType = mapping.getOperationType();
+                        inteMap.sequence2 = mapping.getSequence();
+                        inteMap.interfaceType = mapping.getType();                      
+                        inteMap.markStatus = mapping.getMarkStatus();                       
+                        inteMap.adapterId = '';                                                                 
+                        if(!(inteMap.markStatus=='edit')){
+                            saveStatus = true;
+                        }                       
+                        inteMap.integrationId = intId;          
+                        inteMap.sourceName = sfName;
+                        if(!inteMap.description){inteMap.description='';}                                               
+                        if(inteMap.interfaceType=="OutBound"){                                                 
+                           var adapterId = sforce.apex.execute(NAMESPACE + "IntegrationStudioController", "getAdapterId", {adapterType:adapter});
+                           inteMap.adapterId = adapterId;
+                           // alert(adapter + "--> " + inteMap.adapterId);                       
+                        }                                               
+                        var interface1 = mapping;   
+                        var notSave = false;                                                           
+                        if(interface1.getIChained()){                                                                                                             
+                            var childInterfaceList = interface1.getIChained().getChildInterfaceList();                                                      
+                            for(var i =0; i < childInterfaceList.getSize(); i++){
+                                var objChainInterface = new sforce.Xml("ObjectChainedInterface");
+                                var connChild = childInterfaceList.get(i);
+                                var childInterface = connChild.getChildInterface();                                               
+                                if(childInterface.getObjectInterface().id){
+                                    objChainInterface.id='';
+                                    if(connChild.getIChainedId()){
+                                        objChainInterface.id=connChild.getIChainedId();                                     
+                                    }                                           
+                                            
+                                    // alert("Name : " + childInterface.getObjectInterface().name + " Id : " + childInterface.getObjectInterface().id);                                                     
+                                    objChainInterface.chainType = interface1.getObjectInterface().interfaceType;
+                                    objChainInterface.chainSequence = connChild.getSequence();
+                                    objChainInterface.initOperation = connChild.getInitOperation();
+                                    objChainInterface.chainParentInterfaceId = interface1.getObjectInterface().id;
+                                    objChainInterface.chainInterfaceName = interface1.getObjectInterface().name;
+                                    objChainInterface.chainChildInterfaceId = childInterface.getObjectInterface().id;      
+                                    objChainInterface.markStatus = connChild.getMarkStatus();  // connChild.getMarkStatus();
+                                    // alert("connChild : " + connChild.getMarkStatus() + "childInterface : " + interface1.getIChained().getMarkStatus() + "");
+                                    if(!(objChainInterface.markStatus=='edit')){
+                                        saveStatus = true;
+                                    }                       
+                                    listChain[i] = objChainInterface;
+                                }else{
+                                    notSave = true;    // mean need to save all chained inteface first                          
+                                }
+                            }    
+                            
+                            
+                            if(notSave && !saveCurrent){
+                                // alert(listMapHasChained.length);                             
+                                listMapHasChained[listMapHasChained.length] = idMap;
+                                notSave = true;
+                                return;
+                            }                                                              
+                        }
+                                                                                                
+                        inteMap.structures = getIstructureList(xmlObj.getDataList(),sfName);   
+                        inteMap.mappings = mapping.getMappingFieldsList();                                 
+                        inteMap.chainInterfaces = listChain;                        
+                                            
+                        // inteMap.adapterProperties = getIAdapterProperties(listAdapterProperty,adapter,inteMap.adapterId);                        
+                        // alert("adapterProperties : " + inteMap.adapterProperties);                       
+                        // return;                              
+                        var strListMaps = inteMap.mappings + "";                                                                            
+                        if(strListMaps.indexOf('new')>-1 
+                            || strListMaps.indexOf('deleted')>-1
+                            || strListMaps.indexOf('updated')>-1){                          
+                            saveStatus = true;
+                        }
+                        
+                        inteMap.workflows = getIFlowchartList(idMap);  
+                                                                      
+                        if(inteMap.structures+""==''){ inteMap.structures[0]= 'null'; }
+                        if(inteMap.mappings+""=='')  { inteMap.mappings[0]= 'null'; }
+                        if(inteMap.chainInterfaces+""=='')  { inteMap.chainInterfaces[0]= 'null'; }
+                        if(inteMap.workflows+""=='')  { inteMap.workflows[0]= 'null'; }                                                                                                                   
+                        listMapField[0] = inteMap;
+                        
+                        
+                        
+                        //  alert("structures : " + inteMap.structures);
+                        //  alert("mappings : " + inteMap.mappings);
+                        //  alert("chainInterfaces : " + inteMap.chainInterfaces);
+                        //  alert("workflows : " + inteMap.workflows);
+                        // return;                   
+                    }catch(e){
+                        alert('Error at: createObjectInterface:\n'+e);
+                    }                                                                       
+                }                
+                // start save Inteface
+                if(!saveStatus) return;
+                
+                if(intId && sfName && listMapField){
+                    var strMessage;
+                    try{
+                        strMessage = "Save Data";
+                        // alert("listMapField : " + listMapField);
+                        // alert("save data !!!");                                       
+                        sforce.apex.execute(NAMESPACE + "IntegrationStudioController", "saveInterface", {interfaces:listMapField,structures:inteMap.structures,mappings:inteMap.mappings,chainedInterfaces:inteMap.chainInterfaces,workflows:inteMap.workflows});                                   
+                        dataHasSaved = true;                        
+                        // after save, get data back from SF
+                        strMessage = "Load Data Back from SF";
+                        if(saveCurrent){                                                                    
+                            alert("Modification Saved !");
+                            var interfaceBack = sforce.apex.execute(NAMESPACE  + "IntegrationStudioController", "getInterfaceByName", {integrationId:intId,interfaceName:inteMap.name});
+                            if(interfaceBack){
+                                    var iStrutureList = interfaceBack[0].structures;
+                                    var mappingList = interfaceBack[0].mappings;
+                                    var chainInterfaces = interfaceBack[0].chainInterfaces;
+                                    var workflows = interfaceBack[0].workflows;
+                                                                        
+                                    mapping.setObjectInterface(interfaceBack[0]);                                                                                                                                                                                               
+                                    if(iStrutureList && !iStrutureList.length){                                     
+                                        if((iStrutureList+"").length>10){                                                                               
+                                            iStrutureList[0] = iStrutureList;
+                                            iStrutureList.length = 1;
+                                        }
+                                    }
+                                    if(mappingList && !mappingList.length){
+                                        if((mappingList+"").length>10){                                         
+                                            mappingList[0] = mappingList;
+                                            mappingList.length = 1;
+                                        }
+                                    }
+                                    if(workflows && ! workflows.length){
+                                        if((workflows+"").length>10){                                         
+                                            workflows[0] = workflows;
+                                            workflows.length = 1;
+                                        }
+                                    }
+                                    if(chainInterfaces && !chainInterfaces.length){
+                                        if(chainInterfaces.id){                                         
+                                            chainInterfaces[0] = chainInterfaces;
+                                            chainInterfaces.length = 1;
+                                        }
+                                    }
+                                    if(chainInterfaces){
+                                        var interface1 = mapping;                                                              
+                                        if(interface1.getIChained()){                                                                         
+                                            var childInterfaceList = interface1.getIChained().getChildInterfaceList();
+                                            for(var i =0; i < childInterfaceList.getSize(); i++){
+                                                var connChild = childInterfaceList.get(i);
+                                                // var childInterface = connChild.getChildInterface();                                              
+                                                connChild.setIChainedId(chainInterfaces[i].id);
+                                                connChild.setMarkStatus("edit");                
+                                                connChild.getChildInterface().setMarkStatus("edit");                                                                                        
+                                                                                
+                                                if(childInterface.getObjectInterface().id){
+                                                    if(connChild.getIChainedId()){objChainInterface.id=connChild.getIChainedId();}                                                                                                                                                      
+                                                }
+                                            }                                                                  
+                                        }                                       
+                                    }
+                                    
+                                    if(!iStrutureList){iStrutureList = new Array(); }                                                                      
+                                    
+                                    xmlObj.setRefreshDataList(iStrutureList);
+                                    refreshMappingFields(idMap,mappingList);
+                                    refreshFlowchart(idMap,workflows);                                                                                                                	                            
+     								
+                                }   
+                        } // end of If(saveCurrent)..
+                        else{
+                            if(!(inteMap.markStatus=='deleted')){                               
+                                var interfaceBack = sforce.apex.execute(NAMESPACE  + "IntegrationStudioController", "getInterfaceByName", {integrationId:intId,interfaceName:inteMap.name});
+                                if(interfaceBack){
+                                    // alert(interfaceBack);
+                                    var iStrutureList = interfaceBack[0].structures;
+                                    var mappingList = interfaceBack[0].mappings;
+                                    var chainInterfaces = interfaceBack[0].chainInterfaces;                                                                     
+                                    mapping.setObjectInterface(interfaceBack[0]);
+                                }
+                            }                                                       
+                        } 
+                    }catch(e){
+                            alert('Error at: ' + strMessage + ':\n'+e);showMessage=false;
+                        }                                              
+                }else {
+                    alert("Data not enough to save yet.<br>" + strMe);showMessage=false;
+                }                                       
+            }
+    }
+     
+     // get istructure SF object list
+    function getIstructureList(listStructure,sfName){       
+        try{                
+            var listStructureOSF = new Array();
+            if(listStructure){                                
+                for ( var i = 0; i < listStructure.length; i++ ){
+                    var iStructure=new sforce.Xml("ObjectIStructure");
+                    iStructure.id = listStructure[i].id;                                   
+                    iStructure.name = listStructure[i].name;
+                    iStructure.source = sfName; 
+                    iStructure.structureType = listStructure[i].structureType;                                          
+                    iStructure.interfaceId = listStructure[i].interfaceId;
+                    iStructure.markStatus = listStructure[i].markStatus;
+                    if(!(iStructure.markStatus=='edit')){
+                        saveStatus = true;
+                    }
+                    // if(!iStructure.interfaceId) { iStructure.interfaceId = '#'; }
+                    listStructureOSF[i] = iStructure;                   
+                }                                                                                   
+            }
+            return listStructureOSF;                    
+        }catch(e){
+            alert('Error at: createObjectIStructure:\n'+e);
+            return null;
+        }   
+    } 
+    
+     function getIFlowchartList(currentMappingId){
+      	// save(); 
+     	try{
+     		// var flowchartID =  "Flowchart"+currentMappingId;
+     	// alert(workFlowMap[flowchartID].tabType);
+     	var interfaceFlowchart = getInterface(currentMappingId).mapping;     	
+	   	// var listFlowchart = interfaceFlowchart.getIWorkFlowList();
+	  	var listFlowchart = interfaceFlowchart.getReorderSequenceInIWorkFlowList();
+	   	var listFlowchartObj = new Array();
+	   	for(var i=0; i < listFlowchart.getSize(); i++){
+	   	   var flowchart = listFlowchart.get(i);
+	   	   var rectTrue = flowchart.getRectangleFigureTrue();
+	   	   // var rectFalse = flowchart.getRectangleFigureFalse();
+	   	   var ifFigure = flowchart.getConditionIFFigure();	   	  
+	   	       
+            var flowChartObj = new sforce.Xml("ObjectWorkFlow");                                                                    
+            flowChartObj.id = '';
+            if(flowchart.getId()!=null) flowChartObj.id = flowchart.getId(); 
+            flowChartObj.sequence = flowchart.getSequence();
+            flowChartObj.interfaceSource = flowchart.getInterfaceSource().getObjectInterface().id;
+            flowChartObj.condition = escape(ifFigure.getCondition());
+            if(flowChartObj.condition==null || flowChartObj.condition==''){            	
+            	return 'ExprestionMissing';
+            }
+            if(rectTrue.getTargets()){
+            	flowChartObj.interfaceTarget = rectTrue.getTargets().getObjectInterface().id;
+            }else{
+            	flowChartObj.interfaceTarget = '-None-';
+            }            
+            flowChartObj.operationType = rectTrue.getOperationType();
+            flowChartObj.message = rectTrue.getMessage(); 
+            flowChartObj.description = rectTrue.getDescription();
+            
+            
+            if(!flowchart.getCheckNext()){
+            	flowchart.setCheckNext('false')
+            }            
+            flowChartObj.checkNext = flowchart.getCheckNext();
+            
+            
+            flowChartObj.markStatus = flowchart.getMarkStatus();
+             if(!(flowChartObj.markStatus=='edit')){
+               saveStatus = true;
+             }
+            
+            listFlowchartObj[i] = flowChartObj;                        
+            // alert(listFlowchartObj);                                                          
+	   	}    
+	   	return listFlowchartObj; 
+     	}catch(e){
+            alert('Error at: createObjectIWorkFlow:\n'+e);
+            return null;
+        }   
+     	
+     }
+    
+    function saveAdapterProperties(listProperty,adapter) {
+        if(listProperty){
+            var listAdapterProperty = getIAdapterProperties(listProperty,adapter);
+            try{
+                sforce.apex.execute(NAMESPACE + "IntegrationStudioController", "saveAdapterProperty", {adapterProperties:listAdapterProperty});
+                alert("Modefication Saved !");
+            }catch(e){
+                alert('Error at: save adapter properties :\n'+e);
+            }       
+        }       
+    }   
+    
+    function getIAdapterProperties(listProperty,adapter){       
+        try{                
+            var listPropertyOSF = new Array();
+            if(listProperty){ 
+                var adapterId = sforce.apex.execute(NAMESPACE + "IntegrationStudioController", "getAdapterId", {adapterType:adapter});                                            
+                for ( var i = 0; i < listProperty.length; i++ ){
+                    var propterty=new sforce.Xml("AdapterProperty");
+                    propterty.id = listProperty[i].id;                                   
+                    propterty.name = listProperty[i].name;
+                    propterty.value = listProperty[i].value;                                                               
+                    propterty.adapterId = adapterId;
+                    propterty.adapterType = adapter;
+                    propterty.markStatus = listProperty[i].markStatus;
+                    if(!(propterty.markStatus=='edit')){                        
+                    }
+                    listPropertyOSF[i] = propterty;                   
+                }                                                                                   
+            }
+            return listPropertyOSF;                    
+        }catch(e){
+            alert('Error at: createAdapterProperty:\n'+e);
+            return null;
+        }   
+    } 
+     
+    function getURL(str2split){         
+        var strReturn = "";
+        var strHref = document.location.href;
+        
+        if ( strHref.indexOf("?") > -1 ){
+            var strQueryString = strHref.substr(strHref.indexOf("?"));
+            var aQueryString = strQueryString.split("&");
+            for ( var iParam = 0; iParam < aQueryString.length; iParam++ ){
+                if (aQueryString[iParam].indexOf(str2split) > -1 ){
+                    var aParam = aQueryString[iParam].split("=");
+                    strReturn = aParam[1];
+                    break;
+                }
+            }
+        }
+        var aid = unescape(strReturn)+'';
+        return aid;
+    }
+     
+   
+
+</script>   
+         
+         
+  
+  
+ <script type="text/javascript">
+
+/*------------------------------- override methods of IntergrationDialog.js -------------------------------------- */
+
+// ---------------------- override method createPlusMinusButton()->for loading image with salesforce ------------------
+function createPlusMinusButton(status){
+var html = "";
+    if(status=="plusImg"){
+         html = '<img id = "plusImg" src =\"{!URLFOR($Resource.IntegrationStudio,'Integration/plus.gif')}\" style="cursor:pointer;"'
+                 + ' onclick = "addFields()"' 
+                 + '/>';
+    }
+    else if (status=="minusImg"){             
+        //-------------------------------------------------- minus image -------------------------------------  
+          html = '<img id ="minusImg" src = \"{!URLFOR($Resource.IntegrationStudio, 'Integration/minus.gif')}\" style="cursor:pointer;"'                 
+                 + '/>';
+    }                              
+return html
+}
+function createPlusMinusButton1(status){
+var html = "";
+    if(status=="plusImg1"){
+         html = '<img id = "plusImg" src =\"{!URLFOR($Resource.IntegrationStudio,'Integration/plus.gif')}\" style="cursor:pointer;"'
+                 + ' onclick = "addFields1()"' 
+                 + '/>';
+    }
+    else if (status=="minusImg1"){             
+        //-------------------------------------------------- minus image -------------------------------------  
+          html = '<img id ="minusImg" src = \"{!URLFOR($Resource.IntegrationStudio, 'Integration/minus.gif')}\" style="cursor:pointer;"'                 
+                 + '/>';
+    }                              
+return html
+}
+
+draw2d.Field.prototype.createHTMLElement=function(){
+    this.item = document.createElement('div');
+    this.item.id        = this.id;
+    this.item.style.position="absolute";
+    this.item.style.left   = this.x+"px";
+    this.item.style.top    = this.y+"px";
+    this.item.style.height = this.width+"px";
+    this.item.style.width  = this.height+"px";
+    this.item.style.margin = "0px";
+    this.item.style.padding= "0px";
+    this.item.style.outline= "none";
+    this.item.style.zIndex = ""+draw2d.Figure.ZOrderBaseIndex;
+ 
+    this.textarea = document.createElement('div');
+    this.textarea.style.position="absolute";
+    this.textarea.style.margin = "1px 0px 0px 0px";
+    this.textarea.style.left="0px";
+    this.textarea.style.top=(this.cornerHeight-1)+"px";
+    this.textarea.style.backgroundColor="#ece7ec";
+    this.textarea.style.backgroundImage="url({!URLFOR($Resource.IntegrationStudio, 'Integration/Field-bg.png')})";
+    this.textarea.style.borderTop="1px solid #bdc8e9";    
+    
+    this.textarea.style.borderBottom = "2px solid #bdc8e9";
+    this.textarea.style.borderLeft = "1px solid #bdc8e9";
+    this.textarea.style.borderRight="2px solid #bdc8e9";
+     
+    this.textarea.align = "center";
+    this.textarea.style.overflow="auto";
+    this.textarea.style.fontSize="10pt";
+    this.textarea.style.fontFamily = "tahoma,arial,verdana,sans-serif";
+    this.textarea.style.color = "#15428B";
+    this.textarea.style.padding = "1 0 0 0";    
+    this.disableTextSelection(this.textarea);
+    
+    this.imgFormula = document.createElement('div');
+    this.imgFormula.style.position="absolute";
+    this.imgFormula.style.margin = "2px 0px 0px -15px";
+    //this.imgFormula.style.cssFloat = "left";    
+    this.item.appendChild(this.imgFormula);
+    
+    this.imgKey = document.createElement('div');
+    this.imgKey.style.position="absolute";
+    this.imgKey.style.margin = "0px 0px 0px -3px";
+    this.imgKey.style.left = "1px";    
+    
+    this.textarea.appendChild(this.imgKey);
+    this.label = document.createElement('div');
+    this.label.style.position="absolute";
+    this.label.style.left = "2px";   
+         
+    this.setName(this.fieldName);
+    this.textarea.appendChild(this.label);
+    this.item.appendChild(this.textarea);
+
+    return this.item;
+}
+
+draw2d.Field.prototype.setKeyImage=function(/*boolean*/value){
+    if(value){
+        this.imgKey.innerHTML ='<img src=\"{!URLFOR($Resource.IntegrationStudio, 'Integration/Key.png')}\"/>';
+        this.label.style.left = "13px";
+        this.setDimension(this.width+6,50); 
+    }else{
+        this.imgKey.innerHTML ="";
+        this.label.style.left = "2px";      
+        this.setDimension(this.width-6,50);
+    }
+}
+draw2d.Field.prototype.setFormulaImage=function(/*boolean*/value){
+    if(value){
+        this.imgFormula.innerHTML ='<img src=\"{!URLFOR($Resource.IntegrationStudio, 'Integration/Formula.png')}\"/>';
+    }else{
+        this.imgFormula.innerHTML ="";
+    }
+}
+
+</script>
+        
+<script type="text/javascript">
+/*-----------------------------------------  ovrride method onDoubleClick of SF.js ---------------------------------   */
+
+ function getMappingSFObject(portConn,sf){
+    var objMappingSF = {};
+    if(portConn){
+          var source = portConn.getSource().parentNode;
+          var target = portConn.getTarget().parentNode;
+          if(source instanceof draw2d.SF && target instanceof draw2d.Mapping ){
+               
+               var hasCurrentMappingFields = target.getHasCurrentMappingFields()
+               
+               if(source == sf && hasCurrentMappingFields){
+                   
+                   objMappingSF.objSF = source;
+                   objMappingSF.objMapping = target;
+               }
+          }
+          else if(target instanceof draw2d.SF && source instanceof draw2d.Mapping){
+               
+               var hasCurrentMappingFields = source.getHasCurrentMappingFields()
+
+               if(target == sf && hasCurrentMappingFields){
+
+                   objMappingSF.objSF = target;
+                   objMappingSF.objMapping = source;
+               }
+          }
+    }
+    return objMappingSF;        
+}
+//----------------------------- get  sobj from salesforce ---------------------
+function getSObjectList(){
+
+    var listSObj = new Array();
+     <apex:repeat value="{!ListSObject}" var="listSOb" id="lst">
+        listSObj.push("{!listSOb}");
+    </apex:repeat>  
+    
+ return listSObj;
+}
+
+
+ draw2d.SF.prototype.onDoubleClick=function()
+{   
+  var lines = workflow.getLines();
+  var isMappingExsting = false;
+  var size=lines.getSize();
+  for(var i=0;i< size;i++)
+  {
+    var connection = lines.get(i);
+    if(connection instanceof draw2d.ConnectionInterface)
+    {
+       var connField = connection;
+       var objMappingSF = getMappingSFObject(connField,this);       
+       if(objMappingSF.objSF){
+        isMappingExsting = true;
+       }     
+       if(objMappingSF.objMapping){
+            this.setMapId(objMappingSF.objMapping.getId());
+       }
+    } 
+   }
+   if(isMappingExsting){
+         var warning = "Are you sure you want to change, all your existing mapping will be lost.";
+         var dialog = new draw2d.WarningDialog(this,warning);    
+         this.workflow.showDialog(dialog,this.getX(),this.getY());      
+   }
+   else{
+        var dialog = new draw2d.SFDialog(this,getSObjectList());        
+        this.workflow.showDialog(dialog,this.getX(),this.getY());
+   } 
+   
+}
+//----------------------------------------- WarningDialog.js -------------------
+draw2d.WarningDialog.prototype.onOk=function()
+{
+   var dialog = new draw2d.SFDialog(this.sf,getSObjectList());     
+   this.workflow.showDialog(dialog,this.getX(),this.getY());
+   this.workflow.removeFigure(this);
+}
+
+draw2d.SFDialog.prototype.onOk=function(){ 
+    var name = this.sf.getName();
+    var currentName =  this.selector.value;
+    if(name == currentName){
+         this.sf.setIsNameChanged(false);
+    }else{
+        this.sf.setIsNameChanged(true);
+        var mapId = this.sf.getMapId();
+        var interface1 = interfaceMap[mapId];
+        if(interface1){
+            var mapping = interface1.mapping;
+            if(mapping){
+                mapping.setMarkStatus("updated");
+                mapping.getObjectInterface().markStatus="updated";
+            }
+        }   
+        //alert(mapId);
+        clearWorkspace(this.sf);
+    }
+    this.sf.setName(currentName);
+    this.sf.setMarkStatus("updated");    
+    this.workflow.removeFigure(this);
+}
+
+//----------------- clear figure from workflow when name of salesforec was changed --------------
+function clearWorkspace(sf){
+    var isNameChanged = sf.getIsNameChanged();
+    if(isNameChanged){
+       var mapId = sf.getMapId();
+        //alert("Workspace is refreshed" + mapId);
+        var workflowField = workFlowMap[mapId];         
+        var mapFieldDataRemoveList = mappingFieldDataMap[mapId];
+        if(workflowField){
+            //alert("workflow"+workflow);           
+            var cnnFieldList = workflowField.getLines();
+            //var cnnFieldList = mapFieldDataRemoveList;
+            var ind = 0;            
+              while(ind < cnnFieldList.getSize()){              
+                var cnnField = cnnFieldList.get(ind);
+                if(cnnField instanceof draw2d.ConnectionFields){
+                    var source =    cnnField.getSource().parentNode;
+                    var target =    cnnField.getTarget().parentNode;
+                    
+                    addRemoveMappingFieldsObject2List(cnnField,mapId);
+                    
+                    if(mapFieldDataRemoveList){
+                        mapFieldDataRemoveList.remove(cnnField);
+                    }
+                    
+                    workflowField.removeFigure(source);
+                    workflowField.removeFigure(target);
+                    workflowField.removeFigure(cnnField);               
+                }
+            } 
+        }
+        else{
+            var interfaces = interfaceMap[mapId];
+            if(interfaces){
+                var mapping = interfaces.mapping;
+                if(mapping){
+                    var loadingList = mapping.getLoadingMappingFieldsList();
+                    if(loadingList){
+                        var removeList = getRemoveMappingFieldData(mapId);
+                        for(var k = 0; k < loadingList.length; k++){
+                            var objMapping = loadingList[k];                         
+                             objMapping.markStatus = "deleted";
+                             removeList.add(objMapping);
+                        }
+                        mapping.setLoadingMappingFieldsList(new Array());
+                    }
+                }
+            }
+            
+        }
+    }       
+}
+
+// store interface objects  by id mapping->id interface
+var interfaceMap = {};
+/**
+ *  Interface object: 
+ *  There are three properties -> inputPort,outputPort,mapping 
+*/
+function getInterface(mapId){
+  var interface1 = interfaceMap[mapId]; 
+  if(!interface1){
+    interface1 = {}; 
+    //interface1.inputPort
+    //interface1.outputPort  
+     //interface1.mapping   
+    interfaceMap[mapId]=interface1;
+    //alert("new");
+  }
+  
+  return interface1;
+}
+draw2d.MyInputPort.prototype.onDrop=function(port){
+
+  if(port.getMaxFanOut && port.getMaxFanOut()<= port.getFanOut())
+    return;
+
+  if(this.parentNode.id == port.parentNode.id)
+  {
+    // same parent node -> do nothing
+  }
+   if(this.parentNode instanceof draw2d.Mapping && port.parentNode instanceof draw2d.Mapping ){
+  
+    // same Mapping object  -> do nothing
+  }
+  else if(port instanceof draw2d.OutputPort)
+  {
+    // "port" is an OutputPort => Create a Command which creates a connection [port ---> this]
+    // This is the different to the OutputPort implementation of onDrop.
+    //
+    if(this.parentNode instanceof draw2d.Mapping || port.parentNode instanceof draw2d.Mapping ){
+    
+        if((port.parentNode instanceof draw2d.Mapping && this.parentNode instanceof draw2d.ChainedInterface)
+               || (this.parentNode instanceof draw2d.Mapping && port.parentNode instanceof draw2d.ChainedInterface) ){
+               
+               // draw2d.Mapping  with draw2d.ChainedInterface ---> nothing to do
+               return ;
+        }
+        var idInterface;
+        
+        
+        var output = false;
+        var input = false;
+         
+        if(port.parentNode instanceof draw2d.Mapping ){
+            idInterface = port.parentNode.getId();
+            
+            output = true;
+        }
+        else if(this.parentNode instanceof draw2d.Mapping){
+            idInterface = this.parentNode.getId();
+            input = true;
+        }
+        if(idInterface){
+            if(output){
+                var isAvailable = checkInterfaceCreation(port.parentNode,this.parentNode);
+                if(!isAvailable){
+                    return;
+                }    
+            }
+            else if(input){
+                var isAvailable =checkInterfaceCreation(this.parentNode,port.parentNode);
+                if(!isAvailable){
+                    return;
+                }
+            }
+            var command = new draw2d.CommandConnect(this.parentNode.workflow,port,this);
+            var conn = new draw2d.ConnectionInterface();
+            conn.setMapId(idInterface);
+            command.setConnection(conn);  
+            this.parentNode.workflow.getCommandStack().execute(command);    
+            //inputMap1[this.parentNode.id] = port.parentNode;
+            //inputMap2[port.parentNode.id] = this.parentNode;
+            var interface1 = getInterface(idInterface);
+            var adapterNode = port.parentNode;          
+            if(output){
+                interface1.outputPort = conn ;
+                interface1.mapping = port.parentNode;
+                (this.parentNode).setMapId(idInterface);
+                adapterNode = this.parentNode;              
+            }
+            else if(input){             
+                interface1.inputPort = conn ;
+                interface1.mapping = this.parentNode;
+                (port.parentNode).setMapId(idInterface);
+            }
+             if(adapterNode instanceof draw2d.SF){
+                if(output){ interface1.mapping.setType("InBound"); }
+                else if(input){ interface1.mapping.setType("OutBound"); }
+            }
+            
+        }
+    }else if(this.parentNode instanceof draw2d.ChainedInterface || port.parentNode instanceof draw2d.ChainedInterface  ){
+        var output = false;
+        var input = false;
+        if(port.parentNode instanceof draw2d.ChainedInterface ){
+            output = true;
+        }else if(this.parentNode instanceof draw2d.ChainedInterface){
+            input = true;
+        }
+        if(output){
+            if(this.parentNode instanceof draw2d.XML || this.parentNode instanceof draw2d.SAP || this.parentNode instanceof draw2d.CSV){
+                
+                 var iChained = port.parentNode;            
+                 var node = this.parentNode;
+                
+                 addIChainedInputPort(iChained,node,port,this,"input");
+                 
+            }else if(this.parentNode instanceof draw2d.Mapping){
+                //---nothing to do
+            }         
+        }
+        else if(input){
+            
+            var iChained = this.parentNode;
+            var node = port.parentNode ;
+            addIChainedOutputPort(iChained,node,port,this,"output")
+        }
+    }
+  }
+};
+
+draw2d.MyOutputPort.prototype.onDrop=function(port){
+
+  if(this.getMaxFanOut()<=this.getFanOut())
+    return;
+
+  if(this.parentNode.id == port.parentNode.id)
+  {
+    // same parentNode -> do nothing
+  }
+  else if(port.parentNode instanceof draw2d.Mapping && this.parentNode instanceof draw2d.Mapping){
+  
+    // same Mapping object  -> do nothing
+  }
+  else if(port instanceof draw2d.InputPort)
+  {
+    // "port" is an InputPort => Create a Command which creates a connection [this ---> port]
+    // This is the different to the InputPort implementation of onDrop.
+    //
+    //alert("InputPort");
+    if(port.parentNode instanceof draw2d.Mapping || this.parentNode instanceof draw2d.Mapping){
+            if((port.parentNode instanceof draw2d.Mapping && this.parentNode instanceof draw2d.ChainedInterface)
+               || (this.parentNode instanceof draw2d.Mapping && port.parentNode instanceof draw2d.ChainedInterface) ){
+               
+               //nothing to do
+               return ;
+            }
+            var idInterface;  
+            var adapterNode = port.parentNode;                              
+            var output = false;
+            var input = false;               
+            if(port.parentNode instanceof draw2d.Mapping ){
+                idInterface = port.parentNode.getId();
+                input = true;
+            }
+            else if(this.parentNode instanceof draw2d.Mapping){
+                idInterface = this.parentNode.getId();
+                output = true;
+                
+            }
+            if(idInterface){
+                if(input){
+                    var isAvailable = checkInterfaceCreation(port.parentNode,this.parentNode);
+                    if(!isAvailable){
+                        return;
+                    }                   
+                }
+                else if (output){
+                    var isAvailable = checkInterfaceCreation(this.parentNode,port.parentNode);
+                    if(!isAvailable){
+                        return;
+                    }
+                }
+                var command = new draw2d.CommandConnect(this.parentNode.workflow,this, port); 
+                var conn = new draw2d.ConnectionInterface();
+                conn.setMapId(idInterface);
+                command.setConnection(conn);    
+                this.parentNode.workflow.getCommandStack().execute(command);   
+                //outputMap1[this.parentNode.id] = port.parentNode;
+                //outputMap2[port.parentNode.id] = this.parentNode;
+                var interface1 = getInterface(idInterface);
+                var adapterNode = port.parentNode;
+                if(input){                
+                    interface1.inputPort = conn ;
+                    interface1.mapping = port.parentNode;
+                    (this.parentNode).setMapId(idInterface);
+                    adapterNode = this.parentNode;
+                }
+                else if (output){                   
+                    interface1.outputPort = conn ;
+                    interface1.mapping = this.parentNode;
+                    (port.parentNode).setMapId(idInterface);
+                }
+                if(adapterNode instanceof draw2d.SF){
+                    if(output){ interface1.mapping.setType("InBound"); }
+                    else if(input){ interface1.mapping.setType("OutBound"); }
+                }
+            }
+        
+    }else if (port.parentNode instanceof draw2d.ChainedInterface || this.parentNode instanceof draw2d.ChainedInterface){
+        var output = false;
+        var input = false;
+        if(port.parentNode instanceof draw2d.ChainedInterface ){
+            output = true;
+        }else if(this.parentNode instanceof draw2d.ChainedInterface){
+            input = true;
+        }
+        if(output){
+            if(this.parentNode instanceof draw2d.XML || this.parentNode instanceof draw2d.SAP || this.parentNode instanceof draw2d.CSV){
+                 var iChained = port.parentNode;            
+                 var node = this.parentNode;                 
+                 addIChainedOutputPort(iChained,node,port,this,"output");
+                 
+            }else if(this.parentNode instanceof draw2d.Mapping){
+                //--- nothing to do 
+            }         
+        }
+        else if(input){         
+            if(port.parentNode instanceof draw2d.XML || port.parentNode instanceof draw2d.SAP || port.parentNode instanceof draw2d.CSV){
+                 var iChained = this.parentNode;            
+                 var node = port.parentNode;
+                 addIChainedInputPort(iChained,node,port,this,"input");
+                //alert("output");
+            }
+        }
+    }
+  }
+
+};
+function checkInterfaceCreation(mappingNode,connectorNode){
+     var isAvailable = true;
+     var interfaceNode = getInterface(mappingNode.getId());
+     var inputConn = interfaceNode.inputPort;
+     var outputConn = interfaceNode.outputPort;
+     
+     var inputNode = getinPortoutPutObject(inputConn);
+     var outputNode = getinPortoutPutObject(outputConn)
+     
+     var inputNodeFigureList = connectorNode.getInputNodeFigureList();
+     var outputNodefigureList = connectorNode.getOutputNodeFigureList();
+     /*
+     if(mappingNode.getInputPortConnections().getSize() > 0){
+        return false;
+     }
+      if(mappingNode.getOutputPortConnections().getSize() > 0){
+        return false;
+     }
+     */
+     for(var i =0; i< inputNodeFigureList.getSize(); i++ ){
+        var inputNodeFigure = inputNodeFigureList.get(i);
+        if(inputNodeFigure instanceof draw2d.Mapping){
+            return false;
+        }       
+     }
+     for(var k =0; k< outputNodefigureList.getSize(); k++ ){
+        var outputNodeFigure = outputNodefigureList.get(k);
+        if(outputNodeFigure instanceof draw2d.Mapping){
+            return false;
+        }
+     }
+     
+     if(inputNode && outputNode){
+        //alert("inputNode && outputNode");
+        return false; ;
+     }else{
+        if(inputNode){
+            //alert("inputNode");
+            if(inputNode instanceof draw2d.SF && connectorNode instanceof draw2d.SF){
+                return false;
+            }
+            else if(!(inputNode instanceof draw2d.SF) && !(connectorNode instanceof draw2d.SF)){
+                return  false;
+            }
+        }else if(outputNode){
+            //alert("outputNode");
+            if(outputNode instanceof draw2d.SF && connectorNode instanceof draw2d.SF){
+                return false;
+            }
+            else if(!(outputNode instanceof draw2d.SF) && !(connectorNode instanceof draw2d.SF)){
+                return  false;
+            }
+        }       
+     }
+    // alert(isAvailable);
+    return isAvailable;
+}
+function showInformationDialog(msg,width,height,oThis){
+    var dialog = new draw2d.InformationDialog(msg);
+    dialog.setDimension(width,height);  
+    oThis.workflow.showDialog(dialog,oThis.getX(),oThis.getY());
+}
+function addIChainedInputPort(iChained,node,port,oThis,namePort){
+ var isChecked = false;
+ var existingNode = checkExistingNodeFigure(node);
+                 if(existingNode){
+                     //alert("MapId = "+node.getMapId());
+                     var inputPort = node.getPort(namePort);
+                     var connChain = inputPort.getConnections();
+                     //alert("inputpoet "+ inputPort + "   connChain ==" + connChain.getSize());
+                     if(connChain.getSize() <= 0){
+                         var parentInterface = iChained.getParentInterface();
+                         if(!parentInterface){                          
+                            showInformationDialog("please, select parent interface.",190,80,iChained);
+                            return
+                         }  
+                         if(parentInterface.getId() == node.getMapId()){
+                            //-------- same mapId 
+                            return;
+                         }                   
+                         //var interfaces = interfaceMap[chainedMapId];                      
+                         var mappingChild = interfaceMap[node.getMapId()].mapping;                       
+                         if(!mappingChild){return;}
+                         if(mappingChild.getIChained()){                            
+                            if(mappingChild.getIChained().getMarkStatus != "deleted"){
+                                return;
+                            }                        
+                         }
+                         //var mappingChained = interfaces.mapping;
+                         if(mappingChild.getObjectInterface().interfaceType != parentInterface.getObjectInterface().interfaceType){
+                             //alert("interfaceType is defference");
+                             showInformationDialog("InterfaceType is defference.",180,80,iChained);
+                             return;
+                         } 
+                         var chainedList = parentInterface.getIChained().getChildInterfaceList();
+                         //chainedList.add(mappingChild);                        
+                         
+                        var command = new draw2d.CommandConnect(oThis.parentNode.workflow,oThis, port); 
+                        //var conn = new draw2d.ConnectionInterface();
+                        var conn = new draw2d.ConnectionChildInterface();
+                        //conn.setMapId(mapId);                    
+                        conn.setMarkStatus("new");
+                        command.setConnection(conn);    
+                        oThis.parentNode.workflow.getCommandStack().execute(command);                    
+                        
+                        chainedList.add(conn);                        
+                        isChecked = true;
+                        
+                     }
+                     else{
+                        //alert("select parent111111111");
+                        addIChainedOutputPort(iChained,node,port,oThis,namePort);
+                     }
+                 } 
+    return isChecked ;              
+}
+function addIChainedOutputPort(iChained,node,port,oThis,namePort){
+  var isChecked = false;    
+  var existingNode = checkExistingNodeFigure(node);
+               //  alert("existingNode "+existingNode);
+                 if(existingNode){
+                     var mapId = node.getMapId();
+                     //alert("MapId = "+mapId);
+                     var inputPort = node.getPort(namePort);
+                     var connInterfaceList = inputPort.getConnections();
+                     //alert("inputpoet "+ inputPort + "   connChain ==" + connChain.getSize());
+                     if(connInterfaceList.getSize() > 0){
+                         //alert(iChained.getParentInterface());
+                         //---- no chained interface ---------------------------
+                         if(node.getInputPortConnections().getSize()>0 && node.getOutputPortConnections().getSize()>0){
+                            return;
+                         }
+                         var isAvailableSetParent = isAvailableSetParentInterface(connInterfaceList);
+                         if(!isAvailableSetParent){
+                            //alert("This port can not be allowed.");
+                            showInformationDialog("This port can not be allowed.",180,80,iChained);
+                            return ;
+                         }
+                        
+                         if(iChained.getParentInterface()){
+                            //alert("parent interface already existed.");
+                            showInformationDialog("parent interface already existed.",200,80,iChained);
+                            return;
+                         }//else{
+                            //mapId = iChained.getMapId();
+                        // }
+                        var interfaces = interfaceMap[mapId];
+                        var mapping = interfaces.mapping;
+                         
+                        // var ichainedList = mapping.getIChained().getChildInterfaceList();
+                         //if(!ichainedList.isEmpty()){     
+                            // alert("parent interface already existed.");
+                             //return;
+                         //}                                     
+                         //alert("mapId== "+ mapId);
+                         iChained.setMarkStatus("new");
+                         mapping.setIChained(iChained);
+                         //iChained.setParentInterface(mapping);
+                         isChecked = true;
+                        var command = new draw2d.CommandConnect(oThis.parentNode.workflow,oThis, port); 
+                        var conn = new draw2d.ConnectionParentInterface();
+                        // conn.setMapId(idInterface);
+                        command.setConnection(conn);    
+                       oThis.parentNode.workflow.getCommandStack().execute(command);
+                     }
+                     else{
+                        //alert("select parent 1222222");
+                        addIChainedInputPort(iChained,node,port,oThis,namePort);
+                     }
+                 }      
+        return  isChecked ;                     
+}
+
+draw2d.ConnectionChildInterface.prototype.getChildInterface = function(){
+    var source = this.getSource().parentNode;
+    var target = this.getTarget().parentNode;
+    if(source instanceof draw2d.ChainedInterface){
+        this.childInterface =   interfaceMap[target.getMapId()].mapping;
+    }
+    else if(target instanceof draw2d.ChainedInterface){
+        this.childInterface =   interfaceMap[source.getMapId()].mapping;
+    }
+    return this.childInterface;
+}
+function isAvailableSetParentInterface(connInterfaceList){
+    var isAvailableSetParent = false;
+    for(var i =0; i < connInterfaceList.getSize(); i++){
+        var connInterface = connInterfaceList.get(i);
+        
+        var source = connInterface.getSource().parentNode;
+        var target = connInterface.getTarget().parentNode;
+        if(source instanceof draw2d.Mapping){
+            isAvailableSetParent = true;
+            break;
+        }
+        else if(target instanceof draw2d.Mapping){
+            isAvailableSetParent = true;
+            break;
+        }
+    
+    }
+    return isAvailableSetParent;
+}
+function checkExistingNodeFigure(node){
+   var existingNode = false;
+   for (var key in interfaceMap){
+        var interfaces = interfaceMap[key];          
+        if(interfaces){
+            //alert("mapFieldDataRemoveList" + mapFieldDataRemoveList.getSize());
+            var inputPortConn = interfaces.inputPort
+            var outputPortConn = interfaces.outputPort  
+            if(inputPortConn && outputPortConn){
+                var inputNode = getinPortoutPutObject(inputPortConn);   
+                var outputNode = getinPortoutPutObject(outputPortConn);
+                if(inputNode == node){
+                    existingNode = true;
+                    break;
+                }else if(outputNode == node){
+                    existingNode = true;
+                    break;
+                }
+            }                                       
+         }
+   }
+  return existingNode;
+}
+/*-----------------------------------overrride methode of RectangleFigure.js ----------------------*/
+draw2d.RectangleFigure.prototype.getTargetsList=function(){
+    var targetsList = new draw2d.ArrayList();
+    for(var key in interfaceMap){        
+        var interfaces = getInterface(key).mapping;
+        //Add all interfaces of integration 
+        //if(this.mapping.getId() != interfaces.getId()){
+            targetsList.add(interfaces);
+        //}
+    }
+    return targetsList;
+}
+//------------------------------  override methode of Mapping.js ----------------
+draw2d.Mapping.prototype.flowChart=function()
+{ 
+   var idMap = this.getId();   
+   var interface1 = interfaceMap[idMap];
+	 if(this.getName()==""){
+			   //alert("Please input interface Name first.");
+			   showInformationDialog("Please input interface Name first.",200,80,this);
+			   return;
+	 }	   
+	 	
+  if(interface1){
+       var inputPortConn = interface1.inputPort;
+	   var outputPortConn = interface1.outputPort;
+	   var mapping = interface1.mapping;	       
+	   	  var input = getinPortoutPutObject(inputPortConn);   
+	   	  var output = getinPortoutPutObject(outputPortConn);   
+	   	  if(input && output){
+	   	  	   	  
+			 var idFlowchart = "Flowchart"+idMap; 
+			 var center = "centerFlowchart" + idMap;
+			 var isExistingFlowchartTab = false;
+			 var flowchartName = '<img src=\"{!URLFOR($Resource.IntegrationStudio, 'Integration/toolpainter/ToolFlowChart.png')}\" style="width:12px;padding-right:3px;"/>' + this.getName();
+			  if(!mapTabs[idFlowchart]){
+			 	createNewLayoutHTML4Flowchart(this);
+			 	
+			    var tabFlowchart = new Ext.Panel({
+										            title: flowchartName,
+										            autoScroll:true,
+										            scrollable:true,
+										            layout:'border',
+										            //height:550,
+										             height:screen.height-100,
+										            
+										            items:[/*{
+										              title: "objectType1",
+										              region:'west',
+										              collapsible: true,
+										              split:true,
+										              scrollable:true,
+										              autoScroll: true,							            
+										              width:120,
+										              items:[{						              		
+										              		contentEl: west,
+										              		border :false
+										              		
+										              }]
+										            },{
+										              title: "objectType2",
+										              region:'east',
+										              collapsible: true,
+										              split:true,
+										              scrollable:true,
+										              autoScroll: true,
+										              width:120,
+										              items:[{
+										              		contentEl: east,
+										              		border :false
+										              		
+										              }]
+										            },*/
+										            {
+										              title: saveworkspace,
+										              region:'center',
+										              height:screen.height-100,
+										              layout: 'fit',							             
+										              items: [{
+								                          contentEl: center,
+								                          autoScroll:true
+								                        }]		
+										            }]
+										            ,listeners: {activate: onClickTabs}});
+							var tabPanel = tabs.add(tabFlowchart);						
+							 tabPanel.tabType = "addNewFlowchartTabs";
+							handleActivateTabsMap[tabPanel.id] = idMap;	
+							mapTabs[idFlowchart] =tabPanel.show();
+							
+			  }else{
+			     var panelTab = mapTabs[idFlowchart];
+			     panelTab.setTitle(flowchartName);
+			     panelTab.show();
+			     isExistingFlowchartTab = true;
+			  }
+			  //--------------------------- generate flowchart for each interface on the first loading flowchart tab -------------------------------------
+			 
+			   var workFlowchart = workFlowMap[idFlowchart];
+			   if(workFlowchart && !isExistingFlowchartTab){
+			   		generateFlowchart(this,workFlowchart);
+			   } 
+  
+	   	  }
+	}
+
+ 
+}
+/**** getLoadingIWorkFlowList store object --->
+*
+*	id:'a0R80000000sW42EAE',
+*	interfaceSource:'a0A80000006ytItEAI', //interface or mapping 
+*	interfaceTarget:,
+*	operationType:'-None-', 
+*	sequence:'1',
+*   checkNext:'false', condition:'test', 
+*	description:'description1', 
+*	message:'message1', 
+*	markStatus:'edit',
+*/
+function generateFlowchart(interface4Flowchart,workFlowchart){
+
+	var flowchartList = interface4Flowchart.getLoadingIWorkFlowList();// Array()
+	if(flowchartList){
+		this.iworkFlowList = interface4Flowchart.getIWorkFlowList();
+		var maxsequence = 0;
+		for(var i = 0; i < flowchartList.length; i++){
+		//for(var i = 0; i < 1; i++){
+			var flowchar = flowchartList[i];
+			var target = flowchar.interfaceTarget;
+			var sequence = flowchar.sequence;
+			if(maxsequence < sequence ){
+				maxsequence = sequence;
+			}
+			var operationType = flowchar.operationType;
+		    var mappingTarget = "";
+			if(target){
+				for(var key in interfaceMap){        
+			     	var mapping = getInterface(key).mapping;     	
+			     	if(mapping){
+			     	    var interfaceID = mapping.getObjectInterface().id;			     	    
+			     		if(interfaceID == target){
+			     		   mappingTarget = mapping;
+			     		   break;			     			
+			     		}
+			     	}
+			    }
+			}
+			
+			var x = (3*i+1)*70+i*100 ;
+			var y = 200;
+			var xx = 70;
+			
+			var groupBox = new draw2d.GroupFigure();
+			groupBox.setDimension(200, 300);
+			var starFigure = new draw2d.StartFigure(interface4Flowchart.getName());	
+			var ifFigure= new draw2d.ConditionIFFigure(interface4Flowchart);
+			var rectTrue = new draw2d.RectangleFigure(mappingTarget,operationType,"-None-",interface4Flowchart);
+			var endFigure = new draw2d.EndFigure();
+					
+			workFlowchart.addFigure(groupBox,y-50,x-10);		
+			workFlowchart.addFigure(starFigure,y,x);
+			workFlowchart.addFigure(ifFigure,y+35,x+xx);
+			workFlowchart.addFigure(rectTrue,y-34 + 100,x+(xx*2));
+			workFlowchart.addFigure(endFigure,y+35,x+(xx*3)+40);
+			
+			groupBox.addChild(starFigure);
+			groupBox.addChild(ifFigure);
+			groupBox.addChild(rectTrue);
+			groupBox.addChild(endFigure);
+		
+			
+			var connFlowChartSequence = new draw2d.ConnectionFlowChartSequence( sequence);	   
+		    connFlowChartSequence.setSource(starFigure.getPort("input"));
+			connFlowChartSequence.setTarget(ifFigure.getPort("output"));
+			workFlowchart.addFigure(connFlowChartSequence);
+			 
+			var connFlowChart = new draw2d.ConnectionFlowChart("True");	   
+		    connFlowChart.setSource(ifFigure.getPort("inputTrue"));
+			connFlowChart.setTarget(rectTrue.getPort("output"));
+			workFlowchart.addFigure(connFlowChart);
+			
+			var connFlowChart = new draw2d.ConnectionFlowChart("False");	   
+			connFlowChart.setSource(ifFigure.getPort("inputFalse"));
+			connFlowChart.setTarget(endFigure.getPort("output"));
+			workFlowchart.addFigure(connFlowChart);
+						
+		    var connFlowChart = new draw2d.ConnectionFlowChart();	   
+		    connFlowChart.setSource(rectTrue.getPort("input"));
+			connFlowChart.setTarget(endFigure.getPort("output"));
+		    workFlowchart.addFigure(connFlowChart);
+		    
+		    var iWorkFlow = new draw2d.IWorkFlow();
+		    iWorkFlow.setId(flowchar.id);
+		  	iWorkFlow.setInterfaceSource(interface4Flowchart);
+		  	iWorkFlow.setStartFigure(starFigure);
+		  	iWorkFlow.setGroupBox(groupBox);
+		  	//----------------------ConditionIFFigure -------------
+		  	ifFigure.setCondition(flowchar.condition);
+		  	iWorkFlow.setConditionIFFigure(ifFigure);
+		  	
+		  	//----------------------RectangleFigure -------------
+		  	rectTrue.setMessage(flowchar.message);
+		  	rectTrue.setDescription(flowchar.description);
+		  	rectTrue.setCheckNext(flowchar.checkNext);
+		  	iWorkFlow.setRectangleFigureTrue(rectTrue);
+		  //iWorkFlow.setRectangleFigureFalse(rectFalse);
+		  	iWorkFlow.setEndFigure(endFigure);
+		  	iWorkFlow.setConnectionFlowChartSequence(connFlowChartSequence);
+		  	iWorkFlow.setSequence(sequence);
+		  	
+		  	iWorkFlow.setMarkStatus(flowchar.markStatus);
+		  	this.iworkFlowList.add(iWorkFlow);
+		interface4Flowchart.setMaxSequence(maxsequence);
+		//------------------ checkNext sequence -----------------
+		  if(preFlowchart){
+		  		preFlowchart.checkNextFlowchart(iWorkFlow);
+		  }
+		  var preFlowchart = null;
+		  if(flowchar.checkNext =='true' ){
+		  	preFlowchart = rectTrue;
+		  }
+		  
+		}
+		
+		
+	}
+}
+
+draw2d.Mapping.prototype.onDoubleClick=function()
+{   
+    var idMap = this.getId();   
+    var interface1 = interfaceMap[idMap];
+        
+    if(interface1){
+     try{
+        if(interface1.mapping.getName()==""){
+           //alert("Please input interface Name first.");
+           showInformationDialog("Please input interface Name first.",200,80,this);
+           return;
+        }           
+       var inputPortConn = interface1.inputPort;
+       var outputPortConn = interface1.outputPort;
+       var mapping = interface1.mapping;           
+          var input = getinPortoutPutObject(inputPortConn);   
+          var output = getinPortoutPutObject(outputPortConn);   
+          if(input && output){
+          
+              if(input instanceof draw2d.SF && !(output instanceof draw2d.SF) ){ 
+                 //-------------input->SF-------------
+                 // input.getName();
+                 // alert("  input.getName()= " +   input.getName());
+                 //var  listEast = createField(input,idMap);                 
+                 createNewTab(input,output,mapping,this);                                
+                 //clearWorksapce(input);
+              }
+              else if (output instanceof draw2d.SF && !(input instanceof draw2d.SF) ){            
+                  //----------------input-> SAP,XML,CSV -------------------              
+                  //listWest = createFieldsFromDataStrore(input,idMap);
+                  createNewTab(output,input,mapping,this);  
+                  //clearWorksapce(output);
+              }
+          }     
+      }catch(e){
+            alert("create new tab fail." + e);
+      }   
+     
+    }
+    
+}
+
+function getinPortoutPutObject(portConn){
+          var Obj;
+    if(portConn){
+          var source = portConn.getSource().parentNode;
+          var target = portConn.getTarget().parentNode;
+          if(!(source instanceof draw2d.Mapping) ){
+               //alert(" inputPortConn source= " + source);
+               Obj = source;
+          }
+          else if( !(target instanceof draw2d.Mapping) ){
+               //alert("inputPortConn target= " + target);
+               Obj = target;
+          }
+    }
+    return Obj;     
+}
+/*------------------------------ MappingSettingDialog.js ---------------------------------------------- */
+draw2d.MappingSettingDialog.prototype.onOk=function(){
+    
+    var curMapName = this.name.value;
+    var curMapId = this.mapping.getId();
+    if(curMapName==""){
+        //alert("Name,this field is mandatory.");
+        //showInformationDialog("Name,this field is mandatory.",200,80,this);
+        this.setLabelDescription("Name,this field is mandatory.");
+        return;
+    }
+    for(var key in interfaceMap){
+        var interfaces = getInterface(key).mapping;
+        if(!(curMapId == key)){
+            // alert(interface1.getName());
+            if(interfaces){
+                if(interfaces.getName() == curMapName){
+                    //alert("this interface name already exist.");
+                    //showInformationDialog("this interface name already exist.",200,80,this);
+                    this.setLabelDescription("this interface name already exist.");
+                    return;
+                }
+            }
+        }       
+    }
+  this.mapping.setName(this.name.value);
+  this.mapping.setDescription(this.description.value);
+  this.mapping.setStatus(this.status.value);
+  
+  var checked = this.initialization.checked;
+  if(!checked){
+    checked = "false";
+  }else{
+    checked = "true";
+  }  
+  this.mapping.setInitialization(checked);
+  this.mapping.setSequence(this.sequence.value);
+  this.mapping.setOperationType(this.operationType.value);  
+  this.mapping.setType(this.type.value);
+  this.mapping.setMarkStatus("updated");
+  
+  this.workflow.removeFigure(this);
+}
+/*-------------------------------------when delete connection line: ConnectionInterface.js ------------------------------------------*/
+function isDeleteConnectionInterface (conn){  
+   var isDeleted = false;
+     for (var key in interfaceMap){
+            var interfaces = interfaceMap[key];          
+            if(interfaces){
+                //alert("mapFieldDataRemoveList" + mapFieldDataRemoveList.getSize());
+                var inputPortConn = interfaces.inputPort;
+                var outputPortConn = interfaces.outputPort ;
+                if(inputPortConn && outputPortConn ){                           
+                    if(inputPortConn == conn){                     
+                        //deleteNodeFigure(interfaces);
+                         isDeleted = true;
+                         break;
+                    }else if (outputPortConn == conn){
+                        //deleteNodeFigure(interfaces);
+                       isDeleted = true;
+                       break;
+                    }            
+                }                      
+            }
+       }  
+   return isDeleted ;                  
+}
+draw2d.ConnectionInterface.prototype.isDeleteable = function(){
+  if(isDeleteConnectionInterface(this)){  
+    node = getinPortoutPutObject(this);  
+    showConfirmDeleteDialog(node);
+    this.deleteable= false;
+  }else{
+     removeNodFigureFrominterfaceMap(this.getMapId());
+  }
+  return this.deleteable;
+}
+draw2d.ConnectionInterface.prototype.onDelete = function(){  
+     onDeleteNodFigure(this.getMapId());
+}
+
+function deleteNodeFigure(interfaces){
+   if(!interfaces){return false;}
+    var deltStatus = false;
+    var inputPortConn = interfaces.inputPort
+    var outputPortConn = interfaces.outputPort  
+    var mapping = interfaces.mapping;               
+    if(mapping){
+        var key = mapping.getId();
+        var interfaceObj = mapping.getObjectInterface();   
+        var id = interfaceObj.id;
+                    
+        var inputNode = getinPortoutPutObject(inputPortConn);   
+        var outputNode = getinPortoutPutObject(outputPortConn);
+        //----------------  delete chained ---------------------
+        var iStrutureNode; 
+        if(!(inputNode instanceof draw2d.SF)){
+          //alert("inputNode "+inputNode);
+          iStrutureNode = inputNode;
+        }else if(!(outputNode instanceof draw2d.SF)){
+          //alert("outputNode "+outputNode);
+          iStrutureNode = outputNode;
+        }
+        if(iStrutureNode){
+            removeChainChildInterface(iStrutureNode);
+        }
+       if(id){
+           interfaceObj.markStatus = "deleted";
+           mapping.setMarkStatus("deleted");
+       }else{
+          interfaceMap[key]="";
+       }
+      this.workflow. removeFigure(inputNode);
+      this.workflow. removeFigure(outputNode); 
+      this.workflow. removeFigure(inputPortConn);
+      this.workflow. removeFigure(outputPortConn);  
+      this.workflow. removeFigure(mapping);
+      
+      var idFlowchart = "Flowchart"+key; 
+      var tabFlowchart = mapTabs[idFlowchart];
+      var tabPanel = mapTabs[key];
+      if(tabFlowchart){
+      	tabs.remove(tabFlowchart);
+      }
+      var tabPanel = mapTabs[key];
+      if(tabPanel){
+          tabs.remove(tabPanel);
+      }
+      deltStatus = true;
+    }
+ return deltStatus;                                                
+}
+function removeChainChildInterface(iStrutureNode){  
+    
+    var childIntfaceConn;
+    var interfaceType;
+    var mapId = iStrutureNode.getMapId();
+        var interface1 = interfaceMap[mapId];
+        if(interface1){
+            var mapping = interface1.mapping;
+            if(mapping){
+                interfaceType = mapping.getType();
+                var iChained = mapping.getIChained()    
+                if(iChained){
+                    iChained.onDelete(); 
+                }           
+            }
+        }   
+    if(interfaceType == "InBound"){
+        var inputPortConn = iStrutureNode.getInputPortConnections();
+        removeConnectionChildInterface(inputPortConn);
+    }
+    else if(interfaceType == "OutBound"){
+        var outputPortConn = iStrutureNode.getOutputPortConnections();
+        removeConnectionChildInterface(outputPortConn);
+    }   
+}
+function removeConnectionChildInterface(connChildInterface){
+    for(var i=0; i < connChildInterface.getSize(); i++){
+            var conn= connChildInterface.get(i);
+            if(conn instanceof draw2d.ConnectionChildInterface){
+                childIntfaceConn = conn;
+                //--- delete ConnectionChildInterface ---
+                if(childIntfaceConn.isDeleted()){
+                    childIntfaceConn.onDelete();
+                }
+                break;
+            }
+    }
+}
+//--------------------------------------------------- delete mapping -----------------------------------
+draw2d.Mapping.prototype.isDeleteable = function(){  
+   if(removeMappingFromWorkflow(this)){  
+    showConfirmDeleteDialog(this);
+    this.deleteable= false;
+  }else{
+     removeNodFigureFrominterfaceMap(this.getId());
+  }
+  return this.deleteable;
+}
+draw2d.Mapping.prototype.onDelete = function(){
+  onDeleteNodFigure(this.getId());
+}
+
+function removeMappingFromWorkflow(mappingObj){
+var isDeleted = false;
+ for (var key in interfaceMap){
+            var interfaces = interfaceMap[key];          
+            if(interfaces){
+                //alert("mapFieldDataRemoveList" + mapFieldDataRemoveList.getSize());              
+                var inputPortConn = interfaces.inputPort
+                var outputPortConn = interfaces.outputPort  
+                var mapping = interfaces.mapping;
+                if(mapping && inputPortConn && outputPortConn){                
+                    if(mapping == mappingObj){                      
+                        //deleteNodeFigure(interfaces);
+                        isDeleted = true;
+                        break;
+                    }
+                }                      
+            }            
+        }
+  return isDeleted ;      
+}
+//------------------------------------------------- delete sf --------------------------------
+draw2d.SF.prototype.isDeleteable = function(){
+
+  if(removeSFFromWorkflow(this)){  
+    showConfirmDeleteDialog(this);
+    this.deleteable= false;
+  }else{
+     removeNodFigureFrominterfaceMap(this.getMapId());
+  }
+  return this.deleteable;
+ 
+}
+draw2d.SF.prototype.onDelete = function(){
+ onDeleteNodFigure(this.getMapId())
+}
+
+function removeSFFromWorkflow(sfObj){
+ var isDeleted = false;
+ for (var key in interfaceMap){
+            var interfaces = interfaceMap[key];          
+            if(interfaces){
+                //alert("mapFieldDataRemoveList" + mapFieldDataRemoveList.getSize());
+                var inputPortConn = interfaces.inputPort
+                var outputPortConn = interfaces.outputPort                  
+                var inputNode = getinPortoutPutObject(inputPortConn);   
+                var outputNode = getinPortoutPutObject(outputPortConn);
+                var sf;
+               if(inputNode && outputNode){
+                    if(inputNode instanceof draw2d.SF && !(outputNode instanceof draw2d.SF)){
+                        sf = inputNode;             
+                            
+                    }else if (outputNode instanceof draw2d.SF && !(inputNode instanceof draw2d.SF)){
+                        sf = outputNode;            
+                    }
+                    if(sf){                 
+                        if(sf == sfObj){                       
+                            //deleteNodeFigure(interfaces);
+                            isDeleted = true;
+                            break;
+                        }
+                    }       
+               
+               }
+            }            
+   }
+   return isDeleted;
+}
+function onDeleteNodFigure(mapId){
+  var interfaces = interfaceMap[mapId];
+  deleteNodeFigure(interfaces); 
+}
+
+//------------------------------------ delete xml -----------------------------
+draw2d.XML.prototype.onDelete = function(){
+  onDeleteNodFigure(this.getMapId());  
+}
+
+draw2d.XML.prototype.isDeleteable = function(){
+ if(removeSAPXMLCSVFrowWorkflow(this)){  
+    showConfirmDeleteDialog(this);
+    this.deleteable= false;
+  }else{
+     removeNodFigureFrominterfaceMap(this.getMapId());
+  }
+  return this.deleteable;
+}
+//---------------------------------------delete sap --------------------------
+draw2d.SAP.prototype.onDelete = function(){
+  onDeleteNodFigure(this.getMapId());  
+}
+
+draw2d.SAP.prototype.isDeleteable = function(){
+  if(removeSAPXMLCSVFrowWorkflow(this)){  
+    showConfirmDeleteDialog(this);
+    this.deleteable= false;
+  }else{
+     removeNodFigureFrominterfaceMap(this.getMapId());
+  }
+  return this.deleteable;
+}
+
+//---------------------------------------delete right90 --------------------------
+draw2d.RIGHT90.prototype.onDelete = function(){
+  onDeleteNodFigure(this.getMapId());  
+}
+
+draw2d.RIGHT90.prototype.isDeleteable = function(){
+  if(removeSAPXMLCSVFrowWorkflow(this)){  
+    showConfirmDeleteDialog(this);
+    this.deleteable= false;
+  }else{
+     removeNodFigureFrominterfaceMap(this.getMapId());
+  }
+  return this.deleteable;
+}
+
+//------------- Override RIGHT90.js --------------------
+draw2d.RIGHT90.prototype.getContextMenu = function(){
+
+     var menu = new draw2d.Menu();
+     var oThis = this;
+     // var idMap = this.getId();                      
+     var item= new draw2d.MenuItem("Adapter Properties",null,function (){
+           try{
+	           var dialog = oThis.sapDialogSetting;    
+	            if(!dialog){
+	                dialog = new draw2d.IntergrationDialogSetting(oThis);
+	                oThis.sapDialogSetting = dialog;     
+	            }           
+	            
+	            // alert(oThis.adapterType);
+	            oThis.adapterList = getPropertyList(oThis.adapterType);
+	            oThis.setRefreshAdapterList(oThis.adapterList);     
+	            oThis.workflow.showDialog(dialog,oThis.getX(),oThis.getY());
+            }catch(e){
+                alert(e);
+            }       
+            
+            
+        });                            
+        menu.appendMenuItem(item);
+        var item1= new draw2d.MenuItem("Import Fields Definition",null,function (){
+            try{
+                var interfaceId = getInterfaceId(oThis.getMapId());             
+                if(interfaceId){
+                    var popWin= window.open('/apex/ImportCSVXMLPageStudio?integrationId=' + intId + '&interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');
+                    popWin.moveTo(200,300); popWin.resizeTo(850,200);                                       
+                }else{
+                    alert("InterfaceId null,can not be import.");
+                }     
+            }catch(e){
+                alert(e);
+            }               
+        });
+        menu.appendMenuItem(item1);  
+        var item2= new draw2d.MenuItem("Export Fields Definition",null,function (){
+            try{
+                var interfaceId = getInterfaceId(oThis.getMapId());             
+                if(interfaceId){
+                    var popWin = window.open('/apex/ExportIStructureXML?interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');            
+                }else{
+                    alert("InterfaceId null,can not be export.");
+                }
+            }catch(e){
+                alert(e);
+            }                                                       
+        });
+        menu.appendMenuItem(item2);  
+       return menu;
+}  
+
+
+// ------------- Override SAP.js --------------------
+draw2d.SAP.prototype.getContextMenu = function(){
+
+     var menu = new draw2d.Menu();
+     var oThis = this;
+     // var idMap = this.getId();
+     
+                 
+     var item= new draw2d.MenuItem("Adapter Properties",null,function (){
+     	try{
+     	  var dialog = oThis.sapDialogSetting;    
+            if(!dialog){
+                dialog = new draw2d.IntergrationDialogSetting(oThis);
+                oThis.sapDialogSetting = dialog;     
+            }           
+            
+            oThis.adapterList = getPropertyList(oThis.adapterType);
+            oThis.setRefreshAdapterList(oThis.adapterList);     
+            oThis.workflow.showDialog(dialog,oThis.getX(),oThis.getY());
+     	}catch(e){
+             alert(e);
+         }                      
+        });
+                            
+        menu.appendMenuItem(item);
+        var item1= new draw2d.MenuItem("Import Fields Definition",null,function (){
+            try{
+                var interfaceId = getInterfaceId(oThis.getMapId());             
+                if(interfaceId){
+                    var popWin= window.open('/apex/ImportCSVXMLPageStudio?integrationId=' + intId + '&interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');
+                    popWin.moveTo(200,300); popWin.resizeTo(850,200);                                       
+                }else{
+                    alert("InterfaceId null,can not be import.");
+                }     
+            }catch(e){
+                alert(e);
+            }               
+        });
+        menu.appendMenuItem(item1);  
+        var item2= new draw2d.MenuItem("Export Fields Definition",null,function (){
+            try{
+                var interfaceId = getInterfaceId(oThis.getMapId());             
+                if(interfaceId){
+                    var popWin = window.open('/apex/ExportIStructureXML?interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');            
+                }else{
+                    alert("InterfaceId null,can not be export.");
+                }
+            }catch(e){
+                alert(e);
+            }                                                       
+        });
+        menu.appendMenuItem(item2);  
+       return menu;
+}  
+
+function getInterfaceId(key){
+    var interfaceId;
+    var interfaceObj = interfaceMap[key];
+    if(interfaceObj){           
+        var interface1 = interfaceObj.mapping;
+        if(interface1){
+            interfaceId = interface1.getObjectInterface().id;               
+        }           
+    }
+    return interfaceId;
+}
+
+function exportMapping(){                    
+    try{
+        if(currentMappingId && !(currentMappingId == "interfacesTab")){
+            var interfaceId = getInterfaceId(currentMappingId);             
+            if(interfaceId){
+                var popWin = window.open('/apex/ExportIMappingXML?interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');          
+            }else{
+                alert("InterfaceId null,can not be export.");
+            }
+        }               
+    }catch(e){
+        alert(e);
+    }     
+}
+
+function importMapping(){
+    try{
+        if(currentMappingId && !(currentMappingId == "interfacesTab")){
+            var interfaceId = getInterfaceId(currentMappingId);             
+            if(interfaceId){
+                // var popWin = window.open('/apex/ExportIMappingXML?interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');
+                //apex/ImportCSVXMLPage?interfaceId=a0880000005CUdp&filetype=XML&type=IMapping
+                // var popWin= window.open('/apex/ImportCSVXMLPageStudio?integrationId=' + intId + '&interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');
+                var popWin= window.open('/apex/ImportCSVXMLPage?integrationId=' + intId + '&interfaceId=' + interfaceId + '&filetype=XML&type=IMapping','_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');
+                popWin.moveTo(200,300); popWin.resizeTo(850,200);                                                   
+            }else{
+                alert("InterfaceId null,can not be export.");
+            }
+        }               
+    }catch(e){
+        alert(e);
+    }     
+        
+}
+
+
+
+// ------------- Override XML.js --------------------
+draw2d.XML.prototype.getContextMenu = function(){
+
+     var menu = new draw2d.Menu();
+     var oThis = this;
+     // var idMap = this.getId();
+                         
+        var item1= new draw2d.MenuItem("Import Fields Definition",null,function (){
+            try{
+                var interfaceId = getInterfaceId(oThis.getMapId());             
+                if(interfaceId){
+                    var popWin= window.open('/apex/ImportCSVXMLPageStudio?integrationId=' + intId + '&interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');
+                    popWin.moveTo(200,300); popWin.resizeTo(850,200);                                       
+                }else{
+                    alert("InterfaceId null,can not be import.");
+                }     
+            }catch(e){
+                alert(e);
+            }               
+        });
+        menu.appendMenuItem(item1);  
+        var item2= new draw2d.MenuItem("Export Fields Definition",null,function (){
+            try{
+                var interfaceId = getInterfaceId(oThis.getMapId());             
+                if(interfaceId){
+                    var popWin = window.open('/apex/ExportIStructureXML?interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');            
+                }else{
+                    alert("InterfaceId null,can not be export.");
+                }
+            }catch(e){
+                alert(e);
+            }                                                       
+        });
+        menu.appendMenuItem(item2);  
+       return menu;
+}  
+
+// ------------- Override CVS.js --------------------
+draw2d.CSV.prototype.getContextMenu = function(){
+
+     var menu = new draw2d.Menu();
+     var oThis = this;
+     // var idMap = this.getId();
+                         
+        var item1= new draw2d.MenuItem("Import Fields Definition",null,function (){
+            try{
+                var interfaceId = getInterfaceId(oThis.getMapId());             
+                if(interfaceId){
+                    var popWin= window.open('/apex/ImportCSVXMLPageStudio?integrationId=' + intId + '&interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');
+                    popWin.moveTo(200,300); popWin.resizeTo(850,200);                                       
+                }else{
+                    alert("InterfaceId null,can not be import.");
+                }     
+            }catch(e){
+                alert(e);
+            }               
+        });
+        menu.appendMenuItem(item1);  
+        var item2= new draw2d.MenuItem("Export Fields Definition",null,function (){
+            try{
+                var interfaceId = getInterfaceId(oThis.getMapId());             
+                if(interfaceId){
+                    var popWin = window.open('/apex/ExportIStructureXML?interfaceId=' + interfaceId,'_blank','menubar=0,toolbar=0,location=0,resizable=yes,fullscreen=no,width=600,height=300');            
+                }else{
+                    alert("InterfaceId null,can not be export.");
+                }
+            }catch(e){
+                alert(e);
+            }                                                       
+        });
+        menu.appendMenuItem(item2);  
+       return menu;
+}  
+
+//---------------------------------------delete csv --------------------------
+draw2d.CSV.prototype.onDelete = function(){
+  onDeleteNodFigure(this.getMapId());  
+}
+draw2d.CSV.prototype.isDeleteable = function(){
+  if(removeSAPXMLCSVFrowWorkflow(this)){  
+    showConfirmDeleteDialog(this);
+    this.deleteable= false;
+  }else{
+    removeNodFigureFrominterfaceMap(this.getMapId());
+  }
+  return this.deleteable;
+}
+
+function showConfirmDeleteDialog(sapXmlCsvObj){
+    var dialog = new draw2d.ConfirmDeleteDialog(sapXmlCsvObj,"Are you sure you want to delete?");       
+    dialog.setDimension(200,80);
+    this.workflow.showDialog(dialog,sapXmlCsvObj.getX(),sapXmlCsvObj.getY());
+}
+function removeNodFigureFrominterfaceMap(mapId){
+    var interfaces = interfaceMap[mapId];
+     if(interfaces){
+        interfaceMap[mapId] = "";
+     } 
+} 
+/*------------------------------------------------ removeSAPXMLCSVFrowWorkflow()-----------------*/
+function removeSAPXMLCSVFrowWorkflow(sapXmlCsvObj){
+ var deleteStatus = false;
+ for (var key in interfaceMap){
+            var interfaces = interfaceMap[key];          
+            if(interfaces){               
+                var inputPortConn = interfaces.inputPort
+                var outputPortConn = interfaces.outputPort                
+                    
+                var inputNode = getinPortoutPutObject(inputPortConn);   
+                var outputNode = getinPortoutPutObject(outputPortConn);
+                var sapXmlCsv;
+                if(inputNode && outputNode){
+                    if(!(inputNode instanceof draw2d.SF)){
+                        sapXmlCsv = inputNode;
+                        //isInputNode = true;
+                        //alert(mapping);
+                    }else if (!(outputNode instanceof draw2d.SF)){
+                        sapXmlCsv = outputNode;
+                        //isInputNode = false;
+                        //alert(mapping);
+                    }
+                    if(sapXmlCsv){  
+                         //alert("sapXmlCsv" + sapXmlCsv);              
+                        if(sapXmlCsv == sapXmlCsvObj){                     
+                            //deleteNodeFigure(interfaces);
+                            deleteStatus = true;
+                            break;
+                        }
+                    }       
+               }
+            
+            }            
+        }
+       return deleteStatus;
+}
+//------------------------ create layout for newTab -----------------------------------------------------------
+var workFlowMap = {};
+var mapTabs = {}; // store object tab
+
+function createNewLayoutHTML(idMapping){
+/******************************************************************************************
+         <div id="west2">            
+          </div>
+          
+          <div id="east2">          
+          </div>          
+          <div id="center2"   class="x-layout-active-content" >
+              <div id="paintarea2" style="width:3000px;height:3000px;" > </div>
+          </div>
+   ********************************************************************************************/
+ 
+    if(!workFlowMap[idMapping]){
+ 
+         var newTabs = document.getElementById("addNewTabs");    
+        
+          var westSlide = document.createElement("div");
+          westSlide.id = "west"+idMapping;   
+          westSlide.style.marginLeft = "10px";    
+          newTabs.appendChild(westSlide);
+          
+          var eastSlide = document.createElement("div");
+          eastSlide.id = "east"+idMapping;
+          eastSlide.style.marginLeft = "10px";       
+          newTabs.appendChild(eastSlide);
+          
+          var center = document.createElement("div");
+          center.id = "center"+idMapping;
+          var painter = document.createElement("div");
+          
+          var idPainter ="paintarea"+idMapping; 
+          painter.id = idPainter;
+          painter.style.width="3000px";
+          painter.style.height="3000px";
+          center.appendChild(painter);
+          
+          newTabs.appendChild(center);
+          
+          
+          var workflow2  = new draw2d.Workflow(idPainter);
+          workflow2.html.style.backgroundImage = "url({!URLFOR($Resource.IntegrationStudio, 'Integration/grid_10.png')})"; 
+          workFlowMap[idMapping] = workflow2;
+    }    
+}
+function createNewLayoutHTML4Flowchart(interface4Flowchar){
+/******************************************************************************************
+         <div id="west2">            
+          </div>
+          
+          <div id="east2">          
+          </div>          
+          <div id="center2"   class="x-layout-active-content" >
+              <div id="paintarea2" style="width:3000px;height:3000px;" > </div>
+          </div>
+   ********************************************************************************************/
+    
+    var mapId = interface4Flowchar.getId();
+    var idFlowchart = "Flowchart"+mapId;
+    if(!workFlowMap[idFlowchart]){
+         var newTabs = document.getElementById(FLOWCHARTTAB);   
+         /*
+          var westSlide = document.createElement("div");
+          westSlide.id = "west"+idFlowchart;    
+          westSlide.style.marginLeft = "10px";   
+          //newTabs.appendChild(westSlide);
+          
+          var eastSlide = document.createElement("div");
+          eastSlide.id = "east"+idFlowchart;
+          eastSlide.style.marginLeft = "10px";    
+         // newTabs.appendChild(eastSlide);
+          */
+          var center = document.createElement("div");
+          center.id = "center"+idFlowchart;
+          var painter = document.createElement("div");
+          
+          var idPainter ="paintarea"+idFlowchart; 
+          painter.id = idPainter;
+          painter.style.width="3000px";
+          painter.style.height="3000px";
+          center.appendChild(painter);
+          
+          newTabs.appendChild(center);
+          
+          
+          var workflowFlowchart  = new draw2d.Workflow(idPainter);          
+          workflowFlowchart.html.style.backgroundImage = "url({!URLFOR($Resource.IntegrationStudio, 'Integration/grid_10.png')})";       
+          workFlowMap[idFlowchart] = workflowFlowchart;
+        //  interfaceMap[mapId];
+           var w = new draw2d.GUIPalette(interface4Flowchar);
+           workflowFlowchart.setToolWindow(w);  
+          // move the tool palette out of the hint message
+          //
+          w.setPosition(20,140);
+    }    
+}
+//------------------------------- Event onclik  tabs ------------------------------------------
+ var handleActivateTabsMap = {};
+ var currentMappingId ;
+ var selectFlowchart = false;
+ function onClickTabs(tab){     
+     currentMappingId = handleActivateTabsMap[tab.id];
+     if(tab.tabType==FLOWCHARTTAB){ 
+	 	selectFlowchart = true;	 	
+	 }else{	 	
+	 	selectFlowchart = false;
+	 }
+    
+ }
+//----------------------- create new tab for each mapping item -------------------------------------------------
+function createNewTab(objSF,objSAPorXMLorCSV,mapping,oThis){
+   var idexMapping = mapping.getId();
+   var sfName = objSF.getName();
+    var listFldData = objSAPorXMLorCSV.getDataList();
+    if(!sfName){ 
+        //alert("Please select source name first. ");
+        showInformationDialog("Please select source name first.",190,80,oThis);
+        return;
+    }
+
+    /*if(!listFldData || listFldData.length < 0 ){ 
+        //alert("please create structure field first. ");
+        showInformationDialog("please create structure field first.",200,80,oThis);
+        return;
+    }*/
+    
+    createNewLayoutHTML(idexMapping);
+     //----------- create SF fields----------------------------     
+    var listEast = createField(sfName,idexMapping);
+    var objectType2 =  sfName +" Fields";
+     //----------- create SAP,XML,CSV fields-------------------
+    var listWest = createFieldsFromDataStrore(listFldData,idexMapping);
+    var objectType1="";
+    
+    if(objSAPorXMLorCSV instanceof draw2d.SAP){
+        objectType1 = "SAP Fields";
+    }  
+    else if(objSAPorXMLorCSV instanceof draw2d.XML){
+        objectType1 = "XML Fields";
+    }
+    else if(objSAPorXMLorCSV instanceof draw2d.CSV){
+        objectType1 = "CSV Fields";
+    }       
+    
+    var center = "center" + idexMapping; 
+    // var tabTitle = mapping.getName();   
+    var tabTitle = '<img src=\"{!URLFOR($Resource.IntegrationStudio, 'Integration/Mapping.png')}\" style='width:12px;padding-right:3px;'/>' + mapping.getName();
+   // var tabTitle = "<img src='Mapping.png' style='width:12px;padding-right:3px;'/>"+mapping.getName();
+    if(!tabTitle){
+      //tabTitle = listSettingData[0];
+      tabTitle = "Interface" ;
+    }      
+  var isExstingTab = false;       
+  if(!mapTabs[idexMapping]){
+        var east = "east" + idexMapping;
+        var west = "west" + idexMapping;                              
+       //tabIndex +=1;       
+        var tab1 = new Ext.Panel({
+                                        title: tabTitle,
+                                        autoScroll:true,
+                                        scrollable:true,
+                                        layout:'border',
+                                        height:(screen.height-140),
+                                        
+                                        items:[{
+                                          title:objectType1,
+                                          region:'west',
+                                          collapsible: true,
+                                          split:true,
+                                          scrollable:true,
+                                          autoScroll: true,
+                                        
+                                          width:120,
+                                          items:[{                                          
+                                                contentEl: west,
+                                                border :false
+                                                
+                                          }]
+                                        },{
+                                          title: objectType2,
+                                          region:'east',
+                                          collapsible: true,
+                                          split:true,
+                                          scrollable:true,
+                                          autoScroll: true,
+                                          width:120,
+                                          items:[{
+                                                contentEl: east,
+                                                border :false
+                                                
+                                          }]
+                                        },{
+                                          title:workspace,
+                                          region:'center',
+                                          layout: 'fit',                                         
+                                          items: [{
+                                              contentEl: center,
+                                              autoScroll:true
+                                            }]      
+                                        }]
+                                      ,listeners: {activate: onClickTabs}});
+                var tabPanel = tabs.add(tab1);                      
+                handleActivateTabsMap[tabPanel.id] = idexMapping;
+                mapTabs[idexMapping] =tabPanel.show();                
+        //});
+    }else{
+        isExstingTab = true; 
+       var panelTab = mapTabs[idexMapping];
+       panelTab.setTitle(tabTitle);
+       panelTab.show();
+    }
+
+       /*---------------------------------- workflow2---------------------------------------------*/
+       var workflow2 = workFlowMap[idexMapping];                       
+        if(workflow2){  
+            
+                workflow2.scrollArea = document.getElementById(center).parentNode;
+                //var dragsource=new Ext.dd.DragSource("dragWest22", {ddGroup:'TreeDD',dragData:{name: "draw2d.Field('Field 2')"}}); 
+                //--------------- west slide (SAP,XML,CSV)------------------------------     
+                    if(listWest){
+                        for(var i=0;i < listWest.length ;i++){
+                             var objIStructure = listWest[i];
+                             if(objIStructure.markStatus != "deleted"){
+                                 var fieldName = objIStructure.name;
+                                 var structureType = objIStructure.structureType;
+                                 var idField = "dragMewestField"+idexMapping+i
+                                 var field = "draw2d.Field(objSAPorXMLorCSV,'" + idexMapping + "','" + fieldName + "','" + structureType + "','left')";
+                                 var dragsource=new Ext.dd.DragSource(idField, {ddGroup:'TreeDD',dragData:{name: field}}); 
+                             }                            
+                        }
+                    }
+                //------------------ east slide (SF)--------------------------------    
+                   if(listEast){
+                        for(var i=0;i < listEast.length ;i++){
+                             var idField = "dragMeField"+idexMapping+i 
+                             var type = "text";                         
+                             var field = "draw2d.Field(objSF,'"+ idexMapping +"','" + listEast[i] + "','" + type + "','right')";
+                            var dragsource=new Ext.dd.DragSource(idField, {ddGroup:'TreeDD',dragData:{name: field}}); 
+                        }
+                   }    
+              
+                 var droptarget2=new Ext.dd.DropTarget(center,{ddGroup:'TreeDD'});
+               
+                 droptarget2.notifyDrop=function(dd, e, data)
+                       {
+                            if(data.name)
+                            {
+                               var xOffset    = workflow2.getAbsoluteX();
+                               var yOffset    = workflow2.getAbsoluteY();
+                               var scrollLeft = workflow2.getScrollLeft();
+                               var scrollTop  = workflow2.getScrollTop();
+                                
+                               workflow2.addFigure(eval("new "+data.name),e.xy[0]-xOffset+scrollLeft,e.xy[1]-yOffset+scrollTop);
+                               return true;
+                            }
+                       }
+                  //------------ mapping field -----------------
+                 if(!isExstingTab){//only first loading page.
+                    generateMappingFields(workflow2,mapping,objSAPorXMLorCSV,objSF);
+                 }                       
+        }                              
+                    
+}
+/**
+ * getLoadingMappingFieldsList() store ObjectMapping.<b>
+ * The properties of ObjectMapping: 
+ objMapping.id 
+ objMapping.interfaceId
+ objMapping.mapExtId
+ objMapping.mapSource
+ objMapping.mapSourceType
+ objMapping.mapTarget
+ objMapping.mapTargetType
+ objMapping.mapType
+ *****************************************
+ * use only first loading page.
+*/
+function generateMappingFields(workflow,mapping,sapXmlCsv,sf){
+    if(mapping){
+        var mappingList = mapping.getLoadingMappingFieldsList();
+        if(mappingList){
+            var y = 20  ;
+            var x = 50;
+            for(var i=0; i < mappingList.length; i++){
+                var objectMapping = mappingList[i];
+                
+                var id = objectMapping.id;
+                var interfaceId = objectMapping.interfaceId;
+                var mapExtId = objectMapping.mapExtId;
+                var mapType = objectMapping.mapType;
+                
+                var mapSource = objectMapping.mapSource;
+                var mapSourceType = objectMapping.mapSourceType;
+                
+                var mapTarget = objectMapping.mapTarget;
+                var mapTargetType=objectMapping.mapTargetType
+                
+                var idMap = mapping.getId();
+                
+                // add groupBox figure
+                var groupBox = new draw2d.GroupFigure();
+				groupBox.setDimension(600, 70);								
+				workflow.addFigure(groupBox,x-20,y+(i*70));
+                
+                var sourceField = new draw2d.Field(sapXmlCsv,idMap,mapSource,mapSourceType,"left");
+                sourceField.setIdField(id);
+                sourceField.setInterfaceId(interfaceId);
+                sourceField.setMapType(mapType);                                
+                workflow.addFigure(sourceField,x,y+(i*70));
+                
+                var targetField = new draw2d.Field(sf,idMap,mapTarget,mapTargetType,"right");
+                targetField.setIdField(id);
+                targetField.setInterfaceId(interfaceId);
+                targetField.setMapExtId(mapExtId);
+                targetField.setMapType(mapType);
+                
+                workflow.addFigure(targetField,x+350,y+(i*70)+30);
+                
+                // add all field to groupBox figure
+                sourceField.setGroupBox(groupBox);
+				targetField.setGroupBox(groupBox);
+				groupBox.addChild(sourceField);
+				groupBox.addChild(targetField);
+                
+                var connField = new draw2d.ConnectionFields();
+                connField.setSource(sourceField.getPort("output"));
+                connField.setTarget(targetField.getPort("input"));
+                workflow.addFigure(connField);
+                
+                var mappingFieldDataList = getConnectionFieldDataList(idMap);
+   
+                mappingFieldDataList.add(connField);
+                
+            }
+        }
+    }
+}
+/*------------------------------------ ConnectionMappingFieldDialog.js -------------------------*/
+draw2d.ConnectionMappingFieldDialog.prototype.onOk=function()
+{
+   var checkedExpID = this.mapExtId.checked;
+   var checkedMapType = this.mapType.checked;
+   this.sfField.markStatus = "updated";
+  if(!checkedExpID){
+    checkedExpID = "false";
+    //this.sfField.setKeyImage(false); 
+  }else{
+    checkedExpID = "true";
+    //this.sfField.setKeyImage(true);  
+  }
+  if(!checkedMapType){
+    checkedMapType="Flat";
+    //this.sfField.setBackgroundColor(this.sfField.getDefaultBackgroundColor());
+  }else{
+    checkedMapType="Formula";
+     //this.sfField.setBackgroundColor("#8DB2E3");
+  }
+ 
+ 
+    var connFieldList = getConnectionFieldDataList(this.sfField.getMapId());
+    var isConnField = false;
+    var isExistingExtId = false;
+    
+    for(var i =0; i < connFieldList.getSize(); i++){
+        var connField = connFieldList.get(i);
+        if(connField){
+            var left;
+            var right;
+            var source = connField.getSource().parentNode;
+            var target = connField.getTarget().parentNode;          
+            if(source.getStatus() == "right"){
+                right=source;
+            }
+            else if(target.getStatus() == "right"){
+                right=target;                              
+            }
+            
+            if(right){
+                //alert(right.getId() +" right==sfField "+ sfField.getId() )
+                if(right.getId() == this.sfField.getId() ){
+                     isConnField = true;
+                }
+                if(right.getMapExtId() == "true" && right.getId() != this.sfField.getId() ){
+                    
+                    isExistingExtId = true ;
+                }
+            }       
+      }     
+    }
+    if(!isConnField){
+        //alert("This field is not made connection.");
+        showInformationDialog("This field is not mapping.",210,80,this);
+        this.workflow.removeFigure(this);
+        return ;        
+    }
+  if(checkedExpID == "true" && isExistingExtId){    
+        //alert("Ext ID already exist.");
+        showInformationDialog("Ext ID already exist.",170,80,this);         
+        return;
+  }
+  this.sfField.setMapExtId(checkedExpID);
+  this.sfField.setMapType(checkedMapType);
+  //this.sf.setMapType(this.mapType.value); 
+  this.workflow.removeFigure(this);
+}
+/*------------------------- refresh flowchart --------------------------------*/
+
+function refreshFlowchart(mapId,flowchartList){
+	var idFlowchart = "Flowchart"+mapId;
+	var workFlowchart = workFlowMap[idFlowchart]; 
+	var interfaces = interfaceMap[mapId];
+	if(!workFlowchart){return;}
+	if(!workFlowchart && !interfaces){return ;}
+	
+	
+	//---------------- delete all flowchart from workflowchart ----------------------
+	var mapping = interfaces.mapping;
+	if(!mapping){return;}
+	var workflowchartLIst = mapping.getIWorkFlowList();
+	var size=workflowchartLIst.getSize();
+	for(var i=size-1;i>=0;i--) {
+	   var iworkflow = workflowchartLIst.get(i);
+	   var startFigure = iworkflow.getStartFigure();
+	   var connFlowchartSequence = iworkflow.getConnectionFlowChartSequence();
+	   var ifFigure = iworkflow.getConditionIFFigure();
+	   var rectTrue = iworkflow.getRectangleFigureTrue() 	 
+	   var endFigure = iworkflow.getEndFigure();
+	   var groupBox = iworkflow.getGroupBox();
+	   
+	   connFlowchartSequence.onDelete();
+	   ifFigure.onDelete();
+	   rectTrue.onDelete();	
+	   groupBox.onDelete();   
+	   if(endFigure){ endFigure.onDelete(); }
+	   startFigure.onDelete();
+	   //------------------ IWorkFlow for mapping.getIWorkFlowList(); --------------
+	   workflowchartLIst.remove(iworkflow);		
+		
+	}
+	//--------------- redraw flowchart -----------------------------------
+	mapping.setLoadingIWorkFlowList(flowchartList);	
+	generateFlowchart(mapping,workFlowchart);
+	 
+}
+
+/*------------------------- refresh mappingFields --------------------------------*/
+
+function refreshMappingFields(mapId,mappingFieldsList){
+    var workflow = workFlowMap[mapId];
+    var interfaces = interfaceMap[mapId];
+    if(!workflow){return;}
+    if(!workflow && !interfaces){return;}
+    
+    var inputPortConn = interfaces.inputPort;
+    var outputPortConn = interfaces.outputPort;
+    var mapping = interfaces.mapping;
+    var input = getinPortoutPutObject(inputPortConn);
+    var output = getinPortoutPutObject(outputPortConn);
+    var sapXmlCsv;
+    var sf
+    if(input && output){
+        if(input instanceof draw2d.SF && !(output instanceof draw2d.SF) ){
+            //-------------input->SF-------------
+            sapXmlCsv =output;
+            sf = input;
+        }
+        else if (output instanceof draw2d.SF && !(input instanceof draw2d.SF) ){        
+            //----------------input-> SAP,XML,CSV -------------------
+            sapXmlCsv =input;
+            sf = output;
+        }
+    }
+    //---------------- delete all figure from workflow ----------------------
+    var mapping = interfaces.mapping;
+    var lines = workflow.getLines();
+    var size=lines.getSize();
+    for(var i=size-1;i>=0;i--) {
+        var objFigure = lines.get(i);
+        workflow.removeFigure(objFigure.getSource().parentNode);
+        workflow.removeFigure(objFigure.getTarget().parentNode);
+        workflow.removeFigure(objFigure);
+    }
+    
+    //------ remove all mapping field connections from removelist ------------
+    var removeList = getRemoveMappingFieldData(mapId);
+    if(!removeList.isEmpty()){
+        removeList.removeAllElements();
+    }
+    //--------- clear all mapping fields connection from current workflow
+    var fieldsConnList = getConnectionFieldDataList(mapId);
+    if(!fieldsConnList.isEmpty()){
+        fieldsConnList.removeAllElements();
+    }
+    //--------------- redraw mappingfields -----------------------------------
+    mapping.setLoadingMappingFieldsList(mappingFieldsList);
+    generateMappingFields(workflow,mapping,sapXmlCsv,sf);
+}
+
+
+
+//------------------------ create  fields  from dataStore --> SAP, XML, CSV ----------------------------------------------
+
+function createFieldsFromDataStrore(listFldData,idMapping){   
+    if(listFldData){
+      var westHTML = "" ; 
+        for(var k=0; k < listFldData.length; k++){  
+          var iStruture = listFldData[k];
+          if(iStruture.markStatus != "deleted"){
+              var fieldName = iStruture.name;
+              var idField = idMapping+k ;
+              var length = fieldName.length;
+              var width = ((8*length)+15)-length;     
+               
+               westHTML +=  '<br/><div id= \'dragMewestField'+ idField + '\' class=\'field-img\' style=\'width:' + width + 'px;\' >' + fieldName + '</div>' ;
+          }
+        }
+       // var html = "<center>" + westHTML + "</center>";
+        document.getElementById("west"+idMapping).innerHTML = westHTML ;  
+    }
+    return listFldData ;
+}
+
+//------------------------------------------------- create fields from salesforce by object -----------------------
+function getFieldsFromSObject(value){
+ // call method from WebService
+    // sforce.connection.sessionId = '{!$Api.Session_ID}';
+    var listFields = sforce.apex.execute(NAMESPACE + "IntegrationStudioController", "getListFields", {sobjName:value});  
+    return listFields;
+}
+
+function getIFunctionList(){    
+    var functionList = sforce.apex.execute(NAMESPACE + "IntegrationStudioController", "getIFunctionsList", {});  
+    return functionList;
+}
+
+function getPropertyList(adapterTypeName){  
+	// alert(adapterTypeName);  
+    var adapId = sforce.apex.execute(NAMESPACE + "IntegrationStudioController", "getAdapterId", {adapterType:adapterTypeName});
+    if(adapId){
+        var propertyList = sforce.apex.execute(NAMESPACE + "IntegrationStudioController", "getAdapterProperties", {adapterId:adapId,adapterType:adapterTypeName});
+        return propertyList; 
+    }      
+    return null;
+}
+
+function  createField(value,idMapping){   
+    var listFields =  getFieldsFromSObject(value);     
+    var fieldHTML = "" ;            
+         for(var i=0; i < listFields.length; i++){
+                 
+                 var sfField = idMapping+i;             
+                 var lengthsf = listFields[i].length;
+                 var widthsf = ((8*lengthsf)+15)-lengthsf; 
+                 fieldHTML += '<br/><div id= \'dragMeField'+ sfField + '\' class=\'field-img\' style=\'width: ' + widthsf + 'px;\' >' + listFields[i] + '</div>' ;
+                
+        }     
+   // var html = "<center>" + fieldHTML  + "</center>";                             
+    document.getElementById("east"+idMapping).innerHTML = fieldHTML ;
+    return listFields;
+}
+
+</script>          
+  
+<script type="text/javascript">
+
+/*----------------------- override this method for loading image with salesforce ( dialog )----------------------------*/
+/*Window.addResizeHandler(new ResizeHandler(){
+    public void onResize(ResizeEvent event) {   
+        alert("resizing ... ");
+        if(topPanel!=null){
+        topPanel.setWidth(Window.getClientWidth());
+        topPanel.setHeight(Window.getClientHeight());
+        }   
+        if(btnLogout!=null){
+        int w = Window.getClientWidth()-350;
+        btnLogout.setStyle("margin-left:"+w+"px");  
+    }
+}
+*/
+
+
+draw2d.Window.prototype.createHTMLElement=function()
+{
+  var item = draw2d.Figure.prototype.createHTMLElement.call(this);
+  item.style.margin="0px";
+  item.style.padding="0px";
+  item.style.border= "1px solid black";
+  item.style.backgroundImage="url({!URLFOR($Resource.IntegrationStudio, 'Integration/window_bg.png')})";
+  item.style.zIndex=draw2d.Window.ZOrderBaseIndex;
+  item.style.cursor=null;
+
+  if(this.hasTitleBar())
+  {
+   this.titlebar = document.createElement("div");
+   this.titlebar.style.position="absolute";
+   this.titlebar.style.left   = "0px";
+   this.titlebar.style.top    = "0px";
+   this.titlebar.style.width = this.getWidth()+"px";
+   this.titlebar.style.height = "15px";
+   this.titlebar.style.margin = "0px";
+   this.titlebar.style.padding= "0px";
+   this.titlebar.style.font="normal 10px verdana";
+   this.titlebar.style.backgroundColor="blue";
+   this.titlebar.style.borderBottom="2px solid gray";
+   this.titlebar.style.whiteSpace="nowrap";
+   this.titlebar.style.textAlign="center";
+   this.titlebar.style.backgroundImage="url({!URLFOR($Resource.IntegrationStudio, 'Integration/window_toolbar.png')})";
+   this.textNode = document.createTextNode(this.title);
+   this.titlebar.appendChild(this.textNode);
+
+//   this.disableTextSelection(this.titlebar);
+
+   item.appendChild(this.titlebar);
+  }
+  return item;
+}
+
+draw2d.ToolFlowChart.prototype.type="{!URLFOR($Resource.IntegrationStudio, 'Integration/toolpainter/ToolFlowChart')}";
+draw2d.ConditionIFFigure.prototype.type="{!URLFOR($Resource.IntegrationStudio, 'Integration/toolpainter/ConditionIFFigure')}";
+draw2d.Mapping.prototype.type="{!URLFOR($Resource.IntegrationStudio, 'Integration/Mapping')}";
+draw2d.ChainedInterface.prototype.type="{!URLFOR($Resource.IntegrationStudio, 'Integration/ChainedInterface')}";
+draw2d.SF.prototype.type="{!URLFOR($Resource.IntegrationStudio, 'Integration/SF')}";
+draw2d.SAP.prototype.type="{!URLFOR($Resource.IntegrationStudio, 'Integration/SAP')}";
+draw2d.RIGHT90.prototype.type="{!URLFOR($Resource.IntegrationStudio, 'Integration/RIGHT90')}";
+draw2d.XML.prototype.type="{!URLFOR($Resource.IntegrationStudio, 'Integration/XML')}";
+draw2d.CSV.prototype.type="{!URLFOR($Resource.IntegrationStudio, 'Integration/CSV')}";
+   
+    
+     var workflow  = new draw2d.Workflow("paintarea");
+       workflow.html.style.backgroundImage = "url({!URLFOR($Resource.IntegrationStudio, 'Integration/grid_10.png')})"; 
+       
+    //----------------------- load data to create interface ------------------------------------ 
+    /*
+   var interfaceList = new Array({description:'11'
+                                , id:'a0880000004WJZFAA4'
+                                , initialization:'true'
+                                , integrationId:'a0780000004aOkqAAE'
+                                , interfaceType:'InBound'
+                                , name:'Interface 88888'
+                                , operationType:'upsert'
+                                , sequence2:'1'
+                                , sourceName:'account'
+                                , status:'Development'
+                                 });
+    var iStrutureList = new Array(  {id:'a0680000004ly95AAA'
+                                ,interfaceId:'a0880000004WJZFAA4'
+                                , name:'Name 1'
+                                , source:'account'
+                                , structureType:'String',markStatus: 'edit'}
+                                ,{id:'a0680000004ly96AAA'
+                                , interfaceId:'a0880000004WJZFAA4'
+                                , name:'Name 2'
+                                , source:'account'
+                                , structureType:'String',markStatus:'edit'}
+                                ,{id:'a0680000004ly97AAA'
+                                , interfaceId:'a0880000004WJZFAA4'
+                                , name:'Name 3'
+                                , source:'account'
+                                , structureType:'String',markStatus: 'edit'}
+                                );                          
+    var mappingList = new Array({ id:'a048000000Bw51kAAB'
+                      ,interfaceId:'a0880000004WJZFAA4'
+                      ,mapExtId:'true'
+                      , mapSource:'Name 1'
+                      , mapSourceType:'text'
+                      , mapTarget:'Phone'
+                      , mapTargetType:'text'
+                      , mapType:'Flat'}
+                      
+                      ,{id:'a048000000Bw51lAAB'
+                      , interfaceId:'a0880000004WJZFAA4'
+                      , mapExtId:'false'
+                      , mapSource:'Name 2'
+                      , mapSourceType:'text'
+                      , mapTarget:'ParentId'
+                      , mapTargetType:'text'
+                      , mapType:'Flat' }
+                      
+                      ,{id:'a048000000Bw51mAAB'
+                      , interfaceId:'a0880000004WJZFAA4'
+                      , mapExtId:'false'
+                      , mapSource:'Name 3'
+                      , mapSourceType:'text'
+                      , mapTarget:'Type'
+                      , mapTargetType:'text'
+                      , mapType:'Formula' }
+                    );
+    //----------------------------------------- load flowchart -------------------------------------
+	  var flowchartList =  new Array(  {checkNext:'false'
+	  									, condition:'test' 
+										,description:'description1'
+										,id:'a0R80000000sW42EAE'
+										,interfaceSource:'a0A80000006ytItEAI'
+										,interfaceTarget:''
+										,markStatus:'edit'
+										,message:'message1' 
+										,operationType:'-None-'
+										,sequence:'1'}
+										
+										,{	checkNext:'false'
+											,condition:'test'
+											,description:'description1'
+											,id:'a0R80000000sW43EAE'
+											,interfaceSource:'a0A80000006ytItEAI'
+											,interfaceTarget:''
+											,markStatus:'edit'
+											,message:'message1'
+											,operationType:'-None-'
+											,sequence:'2'}
+										,{	checkNext:'false'
+											,condition:'test'
+											,description:'description1'
+											,id:'a0R80000000sW43EAE'
+											,interfaceSource:'a0A80000006ytItEAI'
+											,interfaceTarget:''
+											,markStatus:'edit'
+											,message:'message1'
+											,operationType:'-None-'
+											,sequence:'3'}
+										,{	checkNext:'false'
+											,condition:'test'
+											,description:'description1'
+											,id:'a0R80000000sW43EAE'
+											,interfaceSource:'a0A80000006ytItEAI'
+											,interfaceTarget:''
+											,markStatus:'edit'
+											,message:'message1'
+											,operationType:'-None-'
+											,sequence:'4'}
+										  );
+    
+    
+         var x=100;
+         var y=200;
+         //alert("interfaceList.length " + interfaceList.length);
+      for(var i=0; i < interfaceList.length; i++){
+         var interface1 = interfaceList[i];
+         //alert(interface);
+          var mapObj;
+         if(interface1){//------------------ create interface 
+           mapObj = new draw2d.Mapping();
+           //mapObj.setName(interface1.name);
+          // mapObj.setInitialization(interface1.initialization);       
+           mapObj.setObjectInterface(interface1);
+           mapObj.setLoadingMappingFieldsList(mappingList);
+           mapObj.setLoadingIWorkFlowList(flowchartList);
+            workflow.addFigure(mapObj,y,x);
+            var dataList = new Array();
+            
+            for(var k =0 ; k < iStrutureList.length; k++ ){
+               var iStruture = iStrutureList[k];
+               if(iStruture){ 
+                 //var objXML = {};
+                 //objXML.fieldName = iStruture.name;
+                 //objXML.dataType = iStruture.structureType;
+                 dataList[k] = iStruture;
+                 
+               }
+            }
+            
+            //alert(mapObj.getObjectInterface().id +"===" + interface.name);
+            var interfaceObj = getInterface(mapObj.getId());
+            interfaceObj.mapping = mapObj;
+            var xml = new draw2d.XML();
+            xml.setMapId(mapObj.getId());
+            xml.setDataList(dataList);
+            workflow.addFigure(xml,100,100);
+            
+             
+           // Create a Connection
+          var conn = new draw2d.ConnectionInterface();
+          conn.setMapId(mapObj.getId());
+          conn.setSource(mapObj.getPort("input"));
+          conn.setTarget(xml.getPort("output"));
+          workflow.addFigure(conn); 
+          interfaceObj.outputPort = conn;
+          
+          //------- salesforce object ----
+          if(interface1.sourceName){
+              var sfObj = new draw2d.SF();
+              sfObj.setName("BMW");
+              sfObj.setName(interface1.sourceName);
+              sfObj.setMapId(mapObj.getId());
+              workflow.addFigure(sfObj,300,100);
+               // Create a Connection
+              var conn = new draw2d.ConnectionInterface();
+              conn.setMapId(mapObj.getId());
+              conn.setSource(mapObj.getPort("output"));
+              conn.setTarget(sfObj.getPort("input"));
+              workflow.addFigure(conn);
+              interfaceObj.inputPort = conn;
+          }
+          
+        
+          
+         }
+    }
+    */
+    
+    var interfaceList = sforce.apex.execute(NAMESPACE + "IntegrationStudioController", "getListInterface", {integId:intId});                           
+    var x=-50,y=200,idx=0;;
+    var listChainedInterfacesId = new Array();
+         
+    for(var i=0; i < interfaceList.length; i++){
+        var interfa = interfaceList[i];
+        var chainedList = interfa.chainInterfaces;
+        if(chainedList){
+            if(!chainedList.length){
+                chainedList[0] = chainedList; 
+                chainedList.length = 1;
+            }
+            for(var k=0; k < chainedList.length; k++){
+                listChainedInterfacesId[idx] = chainedList[k].chainChildInterfaceId;
+                idx++;
+            }                       
+        }       
+     }
+     
+     for(var i=0; i < interfaceList.length; i++){
+            var interface1 = interfaceList[i];
+            if(!checkInterfaceId(listChainedInterfacesId,interface1.id)){
+                if(interface1.interfaceType == "OutBound"){                             
+                    drawInterface(interface1,y,y-100,y+100,"output","input",false);
+                }else if(interface1.interfaceType == "InBound"){                
+                    drawInterface(interface1,y,y+100,y-100,"input","output",false);
+                }                       
+            }                                                       
+      }
+      
+      // check interfaceId that is a child of another interface.
+      function checkInterfaceId(listChainedInterfacesId,interId){
+        for(var i=0; i < listChainedInterfacesId.length; i++){
+            if(listChainedInterfacesId[i]==interId){
+                return true;
+            }
+        }
+        return false;
+      }
+             
+      function drawInterface(interface1,yMap,ySf,yIStruture,inputPortName,outPutPortName,isChained){
+            var mapObj;
+            //mainTab = false;
+            
+            if(interface1 && !interface1.mark){   //------------------ create interface
+                x = x + 100;
+                var iStrutureList = interface1.structures; 
+                var mappingList = interface1.mappings;                  
+                var chainedList = interface1.chainInterfaces;
+                var properties = interface1.adapterProperties;        
+                var workflows =  interface1.workflows;
+                // alert(workflows);         
+                
+                if(iStrutureList && !iStrutureList.length){ // when length is null
+                   iStrutureList[0] = iStrutureList;
+                   iStrutureList.length = 1;
+                }
+                
+                if(mappingList && !mappingList.length){  // when length is null
+                    mappingList[0] = mappingList;
+                    mappingList.length = 1;
+                }   
+                
+                if(workflows && !workflows.length){  // when length is null
+                    workflows[0] = workflows;
+                    workflows.length = 1;
+                }   
+                if(chainedList && !chainedList.length){  // when length is null
+                    chainedList[0] = chainedList;
+                    chainedList.length = 1;
+                } 
+                          
+                // add groupBox figure                
+                var groupBox = new draw2d.GroupFigure();
+				groupBox.setDimension(400, 50);								
+				workflow.addFigure(groupBox,yMap-150,x-10);
+                
+                // add mapping figure
+                mapObj = new draw2d.Mapping();
+                // mapObj.setName(interface.name);
+                // mapObj.setInitialization(interface.initialization);
+                mapObj.setObjectInterface(interface1);
+                mapObj.setLoadingMappingFieldsList(mappingList);
+                mapObj.setLoadingIWorkFlowList(workflows);
+                               
+                workflow.addFigure(mapObj,yMap,x);
+                
+                
+                var dataList = new Array();
+                var propertyList = new Array();             
+                if(iStrutureList) { dataList = iStrutureList;}
+                if(properties) { propertyList = properties;}                
+
+                var interfaceObj = getInterface(mapObj.getId());
+                interfaceObj.mapping = mapObj;
+                // var xml = new draw2d.XML();
+                var xml;
+                if(interface1.interfaceType=="OutBound"){
+                    if(interface1.adapterType=="SAP"){
+                        xml = new draw2d.SAP();
+                    }else if(interface1.adapterType=="RIGHT90" || interface1.adapterType=="Right90"){
+                        xml = new draw2d.RIGHT90();
+                    }
+                    else if(interface1.adapterType=="Xml"){
+                        xml = new draw2d.XML();
+                    }else{
+                        xml = new draw2d.XML();
+                    }               
+                }else{
+                    xml = new draw2d.XML();
+                }
+                
+                xml.setMapId(mapObj.getId());
+                xml.setDataList(dataList);                          
+                if(interface1.interfaceType=="OutBound"){
+                    if(interface1.adapterType=="SAP" || interface1.adapterType=="Right90" || interface1.adapterType=="RIGHT90"){
+                        // alert("propertyList : " + propertyList);
+                        xml.setAdapterList(propertyList);
+                    }
+                }                   
+                workflow.addFigure(xml,yIStruture,x);
+                                
+                // Create a Connection
+                var conn = new draw2d.ConnectionInterface();
+                conn.setMapId(mapObj.getId());
+                conn.setSource(mapObj.getPort(inputPortName));
+                conn.setTarget(xml.getPort(outPutPortName));
+                workflow.addFigure(conn);
+                interfaceObj.outputPort = conn;
+                
+                //------- salesforce object -------         
+                if(interface1.sourceName){
+                    var sfObj = new draw2d.SF();
+                    sfObj.setName(interface1.sourceName);
+                    sfObj.setMapId(mapObj.getId());
+                    curMapId = mapObj.getId();              
+                    workflow.addFigure(sfObj,ySf,x);
+                    // Create a Connection
+                    var conn = new draw2d.ConnectionInterface();
+                    conn.setMapId(mapObj.getId());
+                    conn.setSource(mapObj.getPort(outPutPortName));
+                    conn.setTarget(sfObj.getPort(inputPortName));
+                    workflow.addFigure(conn);
+                    interfaceObj.inputPort = conn;
+                }
+                
+                // add all xmlFigure,mappingFigure,SfFigure to groupBox
+                mapObj.setGroupBox(groupBox);
+		      	xml.setGroupBox(groupBox);
+		      	sfObj.setGroupBox(groupBox);
+			  	groupBox.addChild(mapObj);
+			  	groupBox.addChild(xml);
+			  	groupBox.addChild(sfObj);
+                                        
+                if(chainedList && !isChained){                  
+                    var xmlCList = new Array();  
+                    var chainX = x + 80;
+                                                        
+                    for(var k=0; k < chainedList.length; k++){                    
+                      var intId = chainedList[k].chainChildInterfaceId;                                                           
+                      for(var j=0; j < interfaceList.length; j++){
+                        if(interfaceList[j].id == intId){                                                                                                                                                                                                                                       
+                            xmlCList[k] = drawInterface(interfaceList[j],y+100,y+200,y,"input","output",true);                                                      
+                            interfaceList[j].mark = 'true';
+                        }                     
+                      }                   
+                    }                                                                                                        
+                    drawChainedConnection(xml,mapObj,chainX,140,xmlCList,chainedList);                  
+                }               
+                return xml;
+                
+            }           
+      }
+      
+      
+      function drawChainedConnection(xmlParent,mapObj,chainX,chainY,xmlChild,chainedList){
+        /* ------- draw chained interface ------------------- */
+            var ichainedIntface = new draw2d.ChainedInterface();
+            workflow.addFigure(ichainedIntface,chainY,chainX);
+            
+            // Create a Chain Connection
+            var conn = new draw2d.ConnectionParentInterface();
+            // conn.setMapId(mapObj.getId());
+            conn.setSource(ichainedIntface.getPort("input"));
+            conn.setTarget(xmlParent.getPort("output"));
+            workflow.addFigure(conn);
+            for(var k=0; k < xmlChild.length; k++){         
+                //------------------- child1 interface --------------
+                var conn = new draw2d.ConnectionChildInterface();
+                // conn.setMapId(mapObj.getId());               
+                conn.setIChainedId(chainedList[k].id);
+                conn.setSequence(chainedList[k].chainSequence);
+                conn.setInitOperation(chainedList[k].initOperation);
+                conn.setMarkStatus("edit");             
+                ichainedIntface.setMarkStatus("edit");
+                mapObj.setIChained(ichainedIntface);                
+                var chainedList1 = ichainedIntface.getChildInterfaceList();
+                chainedList1.add(conn);
+                conn.setSource(ichainedIntface.getPort("output"));
+                conn.setTarget(xmlChild[k].getPort("input"));
+                workflow.addFigure(conn);               
+            }                       
+      }
+            
+    //--------------------------------------------------------------------------           
+     var tabs;
+     var workspace = 'Workspace<div class = "button" onClick="saveIntegration()" > Save </div>';
+     var saveworkspace = 'Workspace<div class = "button" onClick="saveIntegration()" > Save </div>';     
+     
+     
+     //  var workspace =   'Workspace<div class = "button" onClick="popupImport()" > Save </div>';
+      /* var workspace =   '<div class = "button-save" >'
+                      + '<img src=\"{!URLFOR($Resource.IntegrationStudio, 'Integration/images/icons/save.gif')}\" onclick ="save()"/>'  
+                      + '</div><div class="button">Workspace</div>'; */  
+        Draw2D = function(){
+                    var layoutTab;                    
+                    return {
+                       init : function(){             
+            /*---------------------------------- Tab1---------------------------------------------*/
+                        var tab0 = new Ext.Panel({
+                                    // title:'Interfaces',
+                                    title: '<img src=\"{!URLFOR($Resource.IntegrationStudio, 'Integration/viewall.gif')}\" style='width:12px;padding-right:3px;'/>Interfaces',
+                                    autoScroll:true,                                  
+                                    scrollable:true,
+                                    layout:'border',
+                                    height: (screen.height-140),
+                                    items:[{
+                                      title:' ',
+                                      region:'west',
+                                      split:true,
+                                      collapsible: true,
+                                      width:120,
+                                      layout:'accordion',
+                                    layoutConfig:{
+                                        animate:true
+                                    },
+                                    items: [{
+                                                contentEl: 'west-1',
+                                                title:'Connectors',
+                                                border:false,
+                                                iconCls:'nav'
+                                            },{
+                                                 contentEl: 'west-2',
+                                                title:'Operations',                                       
+                                                border:false,
+                                                iconCls:'settings'
+                                            }]
+                                    },{
+                                      region:'center',
+                                      title:workspace,
+                                      layout: 'fit',    
+                                      items: [{
+                                          contentEl: 'center1',
+                                          autoScroll:true
+                                        }]      
+                                    }]
+                                ,listeners: {activate: onClickIntercesTab}});              
+                             tabs = new Ext.TabPanel({
+                                          deferredRender:false,
+                                          enableTabScroll:true,
+                                          activeTab:0,
+                                          items:[tab0]
+                                        });
+                    
+                                layoutTab = new Ext.Viewport({
+                                    layout:'border',                                    
+                                    items:[ 
+                                            /*new Ext.BoxComponent({ // raw
+                                            region:'north',
+                                            el: 'north',
+                                            height:32
+                                            }),*/
+                                            {
+                                            margins:'0 0 0 0',
+                                            region:'center',                                        
+                                            items:tabs
+                                            }      
+                                        ]
+                                  });                       
+                                  
+                    /*---------------------------------- workflow1---------------------------------------------*/
+                                workflow.scrollArea = document.getElementById("center1").parentNode;
+                    //               var dragsource=new Ext.dd.DragSource("dragMe", {ddGroup:'TreeDD',dragData:{name: "Start"}}); 
+                    //               var dragsource=new Ext.dd.DragSource("dragMe2", {ddGroup:'TreeDD',dragData:{name: "End"}}); 
+                                   var dragsource=new Ext.dd.DragSource("dragMapping", {ddGroup:'TreeDD',dragData:{name: "draw2d.Mapping"}}); 
+                                   var dragsource=new Ext.dd.DragSource("dragChainedInterface", {ddGroup:'TreeDD',dragData:{name: "draw2d.ChainedInterface"}}); 
+                                   var dragsource=new Ext.dd.DragSource("dragSF", {ddGroup:'TreeDD',dragData:{name: "draw2d.SF"}});
+                                   var dragsource=new Ext.dd.DragSource("dragSAP", {ddGroup:'TreeDD',dragData:{name: "draw2d.SAP"}});
+                                   var dragsource=new Ext.dd.DragSource("dragRIGHT90", {ddGroup:'TreeDD',dragData:{name: "draw2d.RIGHT90"}}); 
+                                   var dragsource=new Ext.dd.DragSource("dragXML", {ddGroup:'TreeDD',dragData:{name: "draw2d.XML"}});
+                                   var dragsource=new Ext.dd.DragSource("dragCSV", {ddGroup:'TreeDD',dragData:{name: "draw2d.CSV"}});
+ 
+                                   
+                                   var droptarget=new Ext.dd.DropTarget("center1",{ddGroup:'TreeDD'});
+                                   
+                                       droptarget.notifyDrop=function(dd, e, data)
+                                       {
+                                            if(data.name)
+                                            {
+                                               var xOffset    = workflow.getAbsoluteX();
+                                               var yOffset    = workflow.getAbsoluteY();
+                                               var scrollLeft = workflow.getScrollLeft();
+                                               var scrollTop  = workflow.getScrollTop();
+                     
+                                               workflow.addFigure(eval("new "+data.name),e.xy[0]-xOffset+scrollLeft,e.xy[1]-yOffset+scrollTop);
+                                               return true;
+                                            }
+                                       }
+                                          
+                      workspace +=   '<div class = "button" style="margin-left:5px;" onClick="exportMapping()" > Export Mapping </div>';
+                      workspace +=   '<div class = "button" style="margin-left:5px;" onClick="importMapping()" > Import Mapping </div>';                                                         
+                      }
+                    };
+                }();  
+                  
+       Ext.EventManager.onDocumentReady(Draw2D.init, Draw2D, false);
+         function onClickIntercesTab(tab){
+             currentMappingId = 'interfacesTab';
+             //alert(tab.title + ' was activated.');
+       }
+    </script>
+    
+   
+    <script type="text/javascript">
+/*------------------------------------------- override methods of  FieldsInputPort.js & FieldsOutputPort.js ------------------------------------------ */
+var mappingFieldDataMap = {};
+var removeMappingFieldDataMap = {}; //store remove 
+
+function getConnectionFieldDataList(mapId){
+  var fieldList = mappingFieldDataMap[mapId]; 
+  if(!fieldList){
+    fieldList = new draw2d.ArrayList();  
+    mappingFieldDataMap[mapId]=fieldList;
+    //alert("new");
+  }
+  
+  return fieldList;
+}
+
+function getRemoveMappingFieldData(mapId){
+    var removeList = removeMappingFieldDataMap[mapId];
+    if(!removeList){
+        removeList = new draw2d.ArrayList();
+        removeMappingFieldDataMap[mapId] = removeList;
+    }
+  return removeList;
+}
+
+/*
+draw2d.FieldsInputPort.prototype.onDrop=function(port){  
+  if(port.getMaxFanOut && port.getMaxFanOut()<= port.getFanOut())
+    return;
+  if(this.parentNode.status == port.parentNode.status){ return; }
+  if(this.parentNode.id == port.parentNode.id)
+  {
+    // same parent node -> do nothing
+  }
+  else if(port instanceof draw2d.OutputPort)
+  {
+    
+    // "port" is an OutputPort => Create a Command which creates a connection [port ---> this]
+    // This is the different to the OutputPort implementation of .
+    //
+    //var command = new draw2d.CommandConnect(this.parentNode.workflow,port,this);
+    var command = new draw2d.CommandConnect(this.parentNode.workflow,port,this);
+    var cnnField = new draw2d.ConnectionFields();
+     command.setConnection(cnnField);
+    this.parentNode.workflow.getCommandStack().execute(command);
+   
+    var mappingFieldDataList = getConnectionFieldDataList(this.parentNode.getMapId());
+   
+    mappingFieldDataList.add(cnnField);
+  }
+};  
+
+*/
+
+draw2d.FieldsInputPort.prototype.onDrop=function(port){
+    if(port.getMaxFanOut && port.getMaxFanOut()<= port.getFanOut())
+        return;
+    if(this.parentNode.status == port.parentNode.status){ return; }
+    if(this.parentNode.id == port.parentNode.id)
+    {
+    // same parent node -> do nothing
+    }
+    else if(port instanceof draw2d.OutputPort)
+    {
+    if(this.parentNode.getInputPortConnections().getSize()>0){
+        return;
+    }
+    // "port" is an OutputPort => Create a Command which creates a connection [port ---> this]
+    // This is the different to the OutputPort implementation of .
+    //
+    //var command = new draw2d.CommandConnect(this.parentNode.workflow,port,this);
+    var command = new draw2d.CommandConnect(this.parentNode.workflow,port,this);
+    var cnnField = new draw2d.ConnectionFields();
+    command.setConnection(cnnField);
+    this.parentNode.workflow.getCommandStack().execute(command);
+    
+    var mappingFieldDataList = getConnectionFieldDataList(this.parentNode.getMapId());
+    
+    mappingFieldDataList.add(cnnField);
+    }
+};
+
+
+
+
+draw2d.FieldsOutputPort.prototype.onDrop=function(port){    
+  if(this.getMaxFanOut()<=this.getFanOut())
+    return;
+  if(this.parentNode.status == port.parentNode.status){ return; }
+   
+  if(this.parentNode.id == port.parentNode.id)
+  {
+    // same parentNode -> do nothing
+  }
+  else if(port instanceof draw2d.InputPort)
+  {
+    if(port.parentNode.getInputPortConnections().getSize()>0){
+        return;
+    }       
+    // "port" is an InputPort => Create a Command which creates a connection [this ---> port]
+    // This is the different to the InputPort implementation of onDrop.
+    //
+    //var command = new draw2d.CommandConnect(this.parentNode.workflow,this, port);
+    var command = new draw2d.CommandConnect(this.parentNode.workflow,this, port);
+     var cnnField = new draw2d.ConnectionFields();
+     command.setConnection(cnnField);
+   
+    this.parentNode.workflow.getCommandStack().execute(command);
+      
+    var mappingFieldDataList = getConnectionFieldDataList(this.parentNode.getMapId());
+   
+    mappingFieldDataList.add(cnnField);
+  }
+
+}; 
+
+draw2d.FieldsOutputPort.prototype.onDrop=function(port){
+    if(this.getMaxFanOut()<=this.getFanOut())
+        return;
+    if(this.parentNode.status == port.parentNode.status){ return; }
+    
+    if(this.parentNode.id == port.parentNode.id){
+    // same parentNode -> do nothing
+    }
+    else if(port instanceof draw2d.InputPort){
+    if(port.parentNode.getInputPortConnections().getSize()>0){
+    return;
+    }
+    // "port" is an InputPort => Create a Command which creates a connection [this ---> port]
+    // This is the different to the InputPort implementation of onDrop.
+    //
+    //var command = new draw2d.CommandConnect(this.parentNode.workflow,this, port);
+    var command = new draw2d.CommandConnect(this.parentNode.workflow,this, port);
+    var cnnField = new draw2d.ConnectionFields();
+    command.setConnection(cnnField);
+    
+    this.parentNode.workflow.getCommandStack().execute(command);
+    
+    var mappingFieldDataList = getConnectionFieldDataList(this.parentNode.getMapId());
+    
+    mappingFieldDataList.add(cnnField);
+}
+
+};
+
+
+
+
+
+
+
+/*-------------------------------   ConnectionFields  ----------------------------------------*/
+/**
+* Open FornulaExpression dialog 
+*/
+draw2d.ConnectionFields.prototype.onDoubleClick = function(){
+    var source = this.getSource().parentNode;
+    var target = this.getTarget().parentNode;
+    var sapXmlCsvField;
+    var sfField;
+    if(source.getConnector() instanceof draw2d.SF && !(target.getConnector() instanceof draw2d.SF)){
+        sapXmlCsvField = target;
+        sfField = source;
+    }else{
+        sapXmlCsvField = source
+        sfField = target;
+    }
+   if(sfField.getMapType() == "Formula"){   
+        var targetList = getSObjectList(); //-------- SF    
+        // var dialog = new draw2d.FornulaExpressionDialog(sapXmlCsvField,targetList);
+        var functionList = getIFunctionList();
+        var dialog = new draw2d.FornulaExpressionDialog(sapXmlCsvField,targetList,functionList);  
+        this.workflow.showDialog(dialog,sapXmlCsvField.getX(),sapXmlCsvField.getY());          
+        // this.workflow.showDialog(dialog);
+   }
+}
+
+draw2d.FornulaExpressionDialog.prototype.onSave=function()
+{
+    if(this.sapXmlCsvField instanceof draw2d.Field){
+		this.sapXmlCsvField.setName(this.getExpression());
+		this.sapXmlCsvField.markStatus = "updated";
+		this.sapXmlCsvField.setMapType("Formula");
+    }else{
+      this.flowchart.setCondition(this.getExpression());
+      this.flowchart.getIWorkFlow().setMarkStatus("updated");
+    }
+	this.workflow.removeFigure(this);
+}
+
+draw2d.FornulaExpressionDialog.prototype.onChangeTarget=function()
+{
+  var val =  this.targets.value;  
+  var listFieldSObj = new getFieldsFromSObject(val);
+  if(listFieldSObj){
+       this.targetFields.options.length = 0;     
+      for(i = 0 ;i < listFieldSObj.length; i++){  
+      var option = document.createElement('option');
+        var val =listFieldSObj[i];
+        option.value = val;
+        option.appendChild(document.createTextNode(val));
+        //if(this.sf.getName() == val){
+        //  option.selected = true;
+        //}
+        this.targetFields.appendChild(option);
+      }
+  }
+}
+
+draw2d.FornulaExpressionDialog.prototype.onChangeFunction=function(){
+    // alert("set function description.");  
+    // var str = "CASE(expression, value1, result1, value2, result2,...,else_result) Checks an expression against a series of values. If the expression compares equal to any value, the corresponding result is returned. If it is not equal to any of the values, the else-result is returned";
+    // var str = getIFunctionDescription(this.functions.value);
+    var str = this.functionListDesc[this.functions.value];
+    this.setContentLabel(str);  
+}
+
+// ----------------------- * ConditionIFFigure.js * ------------------------------------
+draw2d.ConditionIFFigure.prototype.onDoubleClick=function()
+{  
+   var inputFigure = this.mapping.getInputPortFigure();
+   var ouputFigure = this.mapping.getOutputPortFigure()
+   var sapXMLCSV;
+  // alert("inputFigure "+ inputFigure.type + "   ouputFigure  "+ ouputFigure.type);
+   if(!(inputFigure instanceof draw2d.SF)){
+      sapXMLCSV= inputFigure;
+   }else if (!(ouputFigure instanceof draw2d.SF)){
+    	sapXMLCSV= ouputFigure;
+   }
+   // var dialog = new draw2d.FornulaExpressionDialog(sapXMLCSV);
+   var targetList = getSObjectList();
+   var functionList = getIFunctionList();
+   var dialog = new draw2d.FornulaExpressionDialog(sapXMLCSV,targetList,functionList);	 
+   dialog.setTargetsDisable('true');
+   dialog.setTargetsFieldDisable('true');
+   dialog.setInsertButtonDisable('true');
+   dialog.setFlowchart(this);
+	this.workflow.showDialog(dialog,this.getX(),this.getY());
+  // var dialog = new draw2d.RectangleDialog(this);   
+	//this.workflow.showDialog(dialog,this.getX(),this.getY());
+}
+
+//--------------------------  override method (isDeleteable ) of Field.js ------------------------------------
+draw2d.Field.prototype.onDelete=function()
+{
+ //if(this.deleteable){
+  //    alert("deleted"+ this.getId());
+     var mapId = this.getMapId();
+     var mappingFldDataRemoveList = getConnectionFieldDataList(mapId);
+     var removeList = getRemoveMappingFieldData(mapId);
+     
+     if(mappingFldDataRemoveList){
+        for(var ind = 0; ind < mappingFldDataRemoveList.getSize(); ind++){
+            var cnnField = mappingFldDataRemoveList.get(ind);
+            if(cnnField){
+                var source =    cnnField.getSource().parentNode;
+                var target =    cnnField.getTarget().parentNode;
+                
+                if(source.getId() == this.getId()){                         
+                        //alert("getSource()  " +mapData.getSource().parentNode.getName() );
+                        mappingFldDataRemoveList.remove(cnnField);
+                        addRemoveMappingFieldsObject2List(cnnField,mapId);
+                        this.workflow.removeFigure(target);
+                        this.workflow.removeFigure(cnnField);
+                }
+                else if(target.getId() == this.getId()){                        
+                        //alert("getTarget  " + mapData.getTarget().parentNode.getName());
+                        mappingFldDataRemoveList.remove(cnnField);
+                        addRemoveMappingFieldsObject2List(cnnField,mapId);
+                        this.workflow.removeFigure(source);
+                        this.workflow.removeFigure(cnnField);
+                }
+                
+            }
+        }
+        // mappingFieldDataMap[this.getMapId()]= mappingFldDataRemoveList;
+     }
+     this.workflow.removeFigure(this);
+    
+ /// }
+ // return this.deleteable;
+}
+
+draw2d.ConnectionFields.prototype.onDelete=function()
+{
+ //if( this.deleteable){
+        for (var key in workFlowMap){
+            var mapFieldDataRemoveList = mappingFieldDataMap[key];
+            if(mapFieldDataRemoveList){
+                //alert("mapFieldDataRemoveList" + mapFieldDataRemoveList.getSize());
+                var remove = mapFieldDataRemoveList.remove(this);
+                if(remove){               
+                   addRemoveMappingFieldsObject2List(this,key);                
+                   this.workflow. removeFigure(this.getSource().parentNode);
+                   this.workflow. removeFigure(this.getTarget().parentNode);
+                   break;
+                }                      
+            }           
+        }
+   this.workflow. removeFigure(this);       
+ //}
+  //return this.deleteable;
+}
+function addRemoveMappingFieldsObject2List(cnnField,mapId){
+                   var left;
+                   var right;                 
+                   var source = cnnField.getSource().parentNode;
+                   var target = cnnField.getTarget().parentNode;
+                   var removeList = getRemoveMappingFieldData(mapId);
+                   
+                   if(source.getStatus() == "right"){
+                        right=source;
+                    }
+                    else if(source.getStatus() == "left"){
+                        left=source;                               
+                    }                  
+                    if(target.getStatus() == "right"){
+                        right=target;
+                    }
+                    else if(target.getStatus() == "left"){
+                        left=target;
+                    }
+                                        
+                   var leftID = left.getIdField();
+                   var rightID = right.getIdField();
+                   //alert("leftID==== "+ leftID + "       rightID ==  " + rightID);
+                   if((leftID) && (rightID)){                  
+                       var objMapping = getMappingFieldsObject(left,right);                       
+                        objMapping.id = rightID  ; 
+                        objMapping.markStatus = "deleted";  
+                                                   
+                       removeList.add(objMapping);
+                   } 
+                   //-------- add removeList to Mapping.js -----------
+                   var mapping = interfaceMap[mapId].mapping;  
+                   if(mapping){
+                      mapping.setRemoveMappingFieldsList(removeList);
+                   }
+}
+/*
+ objMapping.id= ""; 
+ objMapping.interfaceId= "";
+ objMapping.mapExtId= "";
+ objMapping.mapSource= "";
+ objMapping.mapSourceType= "";
+ objMapping.mapTarget= "";
+ objMapping.mapType= "";
+    
+*/
+ 
+                      
+draw2d.Mapping.prototype.getMappingFieldsList=function(){
+    var mapId = this.getId();   
+    var mappingList = this.getCurrentMappingFieldsList()    
+    var ind = mappingList.length;
+    
+    //------------get deleted mappingflieds data  ------------- 
+    var removeList = getRemoveMappingFieldData(mapId);
+    //alert( removeList.getSize());
+    for(var k = 0; k < removeList.getSize(); k++){
+        var mappingObj = removeList.get(k);     
+          mappingList[ind]= mappingObj ;
+           ind++;   
+   
+   }  
+    return mappingList;
+}
+
+
+draw2d.Mapping.prototype.getCurrentMappingFieldsList=function(){
+    //var mappingList = this.mappingFieldsList;
+   //if(!this.mappingFieldsList){
+   
+   //}
+     var    mappingList = new Array(); 
+     var mapId = this.getId();
+        var fieldsConnList = getConnectionFieldDataList(mapId);
+        //alert(fieldsConnList);
+        var ind = 0;
+        if(fieldsConnList){
+          
+            for(var i = 0 ; i < fieldsConnList.getSize(); i++){
+                var cnnField = fieldsConnList.get(i);
+                var objMapping;
+                if(cnnField){
+                var left;
+                var right;
+                var source = cnnField.getSource().parentNode;
+                // alert(source.status );
+                    if(source.getStatus() == "right"){
+                        right=source;
+                    }
+                    else if(source.getStatus() == "left"){
+                        left=source;
+                               
+                    }
+                               
+                    var target = cnnField.getTarget().parentNode;
+                    if(target.getStatus() == "right"){
+                        right=target;
+                    }
+                    else if(target.getStatus() == "left"){
+                        left=target;
+                    }       
+                                           
+                 objMapping = getMappingFieldsObject(left,right);                
+                 var leftId = left.getIdField();    
+                 var rightId = right.getIdField();
+                    
+                 if(leftId|| rightId){
+                    if(left.markStatus == "updated" || right.markStatus == "updated"){
+                        objMapping.markStatus = "updated";
+                    }
+
+                 }else{
+                    objMapping.markStatus = "new";
+                 }
+                 
+                 if(leftId){
+                    //mappingFieldsStore[leftId] = objMapping;
+                     objMapping.id = leftId  ;
+                 }
+                 if(rightId){
+                    //mappingFieldsStore[rightId] = objMapping;
+                    objMapping.id = rightId  ;
+                 }
+                                  
+              }
+                if(objMapping){                 
+                    mappingList[ind]=objMapping;
+                    ind++;
+                } 
+            }   
+        }
+    this.currentMappingFieldList = mappingList;
+    
+    return this.currentMappingFieldList;
+}
+
+function getMappingFieldsObject(left,right){
+     /*objMapping = {};
+                    
+                 objMapping.interfaceId = left.getInterfaceId();                 
+                 objMapping.mapSource = left.getName();
+                 objMapping.mapSourceType = left.getType();
+                 
+                 objMapping.mapTarget = right.getName();
+                 objMapping.mapTargetType = right.getType();
+                 objMapping.mapExtId = right.getMapExtId();
+                 objMapping.mapType = right.getMapType();
+    return objMapping;  */
+    try{                                  
+            var iStruMap = new sforce.Xml("ObjectMapping");                                             
+             iStruMap.id = left.getIdField();                        
+             iStruMap.mapType = right.getMapType(); // 'Flat';
+             if(!iStruMap.mapType) iStruMap.mapType = 'Flat'; 
+             iStruMap.mapSource = escape(left.getName());
+             iStruMap.mapSourceType = left.getType();                                
+             iStruMap.mapTarget = right.getName();             
+             iStruMap.mapTargetType = right.getType();
+             iStruMap.mapExtId = right.getMapExtId();              
+             iStruMap.markStatus = 'edit';
+             iStruMap.interfaceId = left.getInterfaceId();                                               
+          // if(!left.getInterfaceId()){ iStruMap.interfaceId = '#';  }                               
+        }catch(e){
+              alert('Error at: createObjectIMapping:\n'+e);
+              return null;
+        }        
+        // alert(iStruMap);
+                 
+    return iStruMap;   
+                 
+}
+
+function save(){
+     alert("mapId == " + currentMappingId);     	
+     	
+   	var interfaceFlowchart = getInterface(currentMappingId).mapping;     	
+   	var listFlowchart = interfaceFlowchart.getIWorkFlowList();
+   	for(var i=0; i < listFlowchart.getSize(); i++){
+	   var st ="";
+   	   var flowchart = listFlowchart.get(i);
+   	   var rectTrue = flowchart.getRectangleFigureTrue();
+   	   // var rectFalse = flowchart.getRectangleFigureFalse();
+   	   var ifFigure = flowchart.getConditionIFFigure();
+   	    st +=   "  getInterfaceSource " + flowchart.getInterfaceSource().getName()
+			   + " getSequence "+ flowchart.getSequence()
+			    + " ConditionIF "+ ifFigure.getCondition()
+			   + " --- rectTrue --- " +  rectTrue.getTargets() + " operationtype " 
+			   			   +  rectTrue.getOperationType() +" checkNext " +  rectTrue.getCheckNext() 
+			   ;   	     
+			       
+   	   alert(st);
+   	}
+   	
+     for(var key in interfaceMap){
+        
+        var interface1 = getInterface(key).mapping;         
+        if(interface1){
+            var listChainChild = interface1.getChainChildInterfaceList();
+            var ichained1 = "Ichained Interface111::: " + listChainChild.getSize();
+            for(var i =0; i < listChainChild.getSize();i++){
+                var chainChildConn = listChainChild.get(i);
+                ichained1 += "   getSequence = " + chainChildConn.getSequence()
+                                    +"   getMarkStatus = " + chainChildConn.getMarkStatus()
+                                    
+                                    //+"   childInterface = " + childInterface.getName()
+                                    +"   ===========================================   ";
+            }
+             alert(ichained1);
+             
+            var val = "id : " +interface1.getObjectInterface().id + "  interface name : " 
+                    + interface1.getObjectInterface().name + " markStatus : " 
+                    +interface1.getObjectInterface().markStatus
+                    +"  initialization==" +interface1.getObjectInterface().initialization
+                    +"  status==" +interface1.getObjectInterface().status
+                    +"  operationType==" +interface1.getObjectInterface().operationType
+                    +"  interfaceType==" +interface1.getObjectInterface().interfaceType;
+                    
+                 if(interface1.getIChained()){
+                    val += "   ichaind size == " + interface1.getIChained().getChildInterfaceList().getSize()
+                          +"   getIChained().getMarkStatus() == " + interface1.getIChained().getMarkStatus();
+                    alert(val);
+                    /*            
+                    var ichained = "Ichained Interface::: ";
+                    var childInterfaceList = interface1.getIChained().getChildInterfaceList();
+                    
+                    for(var i =0; i < childInterfaceList.getSize(); i++){
+                        var connChild = childInterfaceList.get(i);
+                        var childInterface =connChild.getChildInterface();
+                        ichained += "getSequence = " + connChild.getSequence()
+                                    +"   getMarkStatus = " + connChild.getMarkStatus()
+                                    
+                                    +"   childInterface = " + childInterface.getName()
+                                    +"   ===========================================   ";
+                     }   
+                    alert(ichained);
+                    */
+                 }else{
+                    alert(val);     
+                 }
+                    
+            var fieldsMappingList = interface1.getMappingFieldsList();
+            
+            for(var i=0 ; i < fieldsMappingList.length; i++){
+                var objMapping = fieldsMappingList[i];
+                var str = "id = " +  objMapping.id + " interfaceId= " +  objMapping.interfaceId
+                         + "mapExtId == " +  objMapping.mapExtId + "  mapType == " +  objMapping.mapType
+                         + "<br/> left Name= " + objMapping.mapSource + "  type= "+ objMapping.mapSourceType
+                         + "<br/> right  Name= " + objMapping.mapTarget + " type= " +  objMapping.mapTargetType 
+                         + "  objMapping.markStatus  " + objMapping.markStatus
+                          + "   objMapping.mapType  " +  objMapping.mapType;
+                
+                alert(str);
+                
+            }
+            
+        }
+     }
+}
+      
+    
+    </script>
+
+
+</apex:page>

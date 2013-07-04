@@ -1,0 +1,68 @@
+<apex:component >
+    <apex:form >
+        <div id="element"></div> 
+    </apex:form>
+    <script type="text/javascript" charset="utf-8" src="http://cdn.sencha.io/ext-4.0.7-gpl/ext-all.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://cdn.sencha.io/ext-4.0.7-gpl/resources/css/ext-all.css" />
+   <script type="text/javascript" >
+Ext.require([
+    '*'
+]);
+
+Ext.onReady(function() {
+    var html = '<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, sodales a, '+
+    'porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales non, iaculis ac, '+
+    'lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet tincidunt quam turpis '+
+    'vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla vel, urna.<br/><br/>'+
+    'Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing '+
+    'eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt '+
+    'diam nec urna. Curabitur velit. Lorem ipsum dolor sit amet.</p>';
+    
+    var configs = [{
+       
+        title: ' Iphone',
+        animCollapse: true,
+        collapsible: true,
+        width: 180,
+        html: html
+    },{
+        title : 'Panel as child',
+        width : 500,
+        height: 400,
+        layout: 'fit',
+        bodyStyle: 'padding:5px',
+        items: [
+            {
+                xtype: 'panel',
+                border: false,
+                layout: {
+                    type: 'vbox',
+                    align: 'stretch'
+                },
+                items: [
+                    {
+                        html: 'top, with no title',
+                        height: 100,
+                        margin: '0 0 5 0'
+                    },{
+                        xtype: 'panel',
+                        title: 'test',
+                        html: 'bottom',
+                        flex: 2
+                    }
+                ]
+            }
+        ]
+    }];
+    
+    Ext.each(configs, function(config) {
+        var element = Ext.getBody().createChild({cls: 'panel-container'});
+        
+        Ext.widget('panel', Ext.applyIf(config, {
+            renderTo: element,
+            bodyPadding: 7
+        }));
+    });
+});
+</script>
+</apex:component>

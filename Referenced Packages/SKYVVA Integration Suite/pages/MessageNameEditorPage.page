@@ -1,0 +1,145 @@
+<apex:page id="MessageEditor" standardController="skyvvasolutions__Interfaces__c" extensions="skyvvasolutions.MessageNameEditor" sidebar="false" showHeader="false">
+    <style>
+
+        .lblCol{
+            color:#333333;
+            font-size:91%;
+            font-weight:bold;
+            padding:2px 10px 2px 2px;
+            text-align:right;
+        }
+        
+        .lblCol2{}
+        
+        .lblCol3{
+           visibility:hidden;
+           padding:2px 10px 2px 2px;
+        }
+        
+        .lblCol4{width:386px;}
+        
+        .error {
+            color:red;
+        }
+        
+        .no-error{
+            color:#009900;
+        }
+    </style>
+    
+    <script>
+        String.prototype.trim = function() {
+            return this.replace(/^\s+|\s+$/g,"");
+        }  
+       
+        var idPre='MessageEditor:formMessageEditor:pageBlockMessageEditor:'; 
+        var taId = idPre+ 'conditionSection:txtArea';
+        
+        function getSelectedItem(elementId){           
+                    
+            var textArea=document.getElementById(taId);
+            
+            var cbo=document.getElementById(idPre+elementId);
+            var newStr=cbo.value;
+            if(newStr!=null && newStr!=''){
+            
+                if(textArea.value==null || textArea.value.trim()==''){
+
+                    textArea.value=newStr;
+                }
+                else{
+
+                    textArea.value=textArea.value.trim()+' ' +newStr;
+                }
+            }
+            textArea.focus;
+            
+        }
+            
+        function checkTextAreaNullValue(){
+            var txtArea=document.getElementById('MessageEditor:formMessageEditor:pageBlockMessageEditor:conditionSection:txtArea');
+            var result=document.getElementById('MessageEditor:formMessageEditor:pageBlockMessageEditor:conditionSectionResult:result');
+            if(txtArea.value==null || txtArea.value.trim()==''){
+                result.innerHTML='';
+                alert('Please input Message Name Expression to test!');
+                return true;
+            }else if(txtArea.value.search(/vlookup/i)!=-1){
+                result.innerHTML='';
+                alert('The VLookup function is not supported in this context!');
+                return true;
+            } 
+            return false;
+        }
+
+    </script>
+    
+    <apex:form id="formMessageEditor">
+    
+        <apex:actionStatus id="status">
+            <apex:facet name="start">
+                <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+            </apex:facet>
+        </apex:actionStatus>
+        <apex:pageBlock id="pageBlockMessageEditor" title="Interface: {!skyvvasolutions__Interfaces__c.skyvvasolutions__Name__c}">
+        
+            <apex:pageMessages id="messages"/>
+            <apex:pageBlockSection id="formulaSection" columns="1" title="Message Name Editor" collapsible="false">
+        
+                 <apex:panelGrid columns="6" cellspacing="2" columnClasses="lblCol,lblCol2">
+                 
+                     <apex:outputLabel >Source Fields</apex:outputLabel>    
+                     <apex:selectList size="1" id="cboSource" onchange="getSelectedItem('formulaSection:cboSource');" style="width:160px;">
+                     <apex:selectoptions value="{!lstSourceFields}"/>
+                     
+                     </apex:selectList> 
+                         
+                     <apex:outputLabel >Operators</apex:outputLabel>
+                     <apex:selectList size="1" id="cboOper" onchange="getSelectedItem('formulaSection:cboOper');"  style="width:160px;">                        
+                         <apex:selectoptions value="{!lstOperator}"/>
+                     </apex:selectList>
+                     
+                     <apex:outputLabel >Functions</apex:outputLabel>
+                     <apex:selectList size="1" value="{!fDesc}" id="cboFunction">                       
+                         <apex:selectoptions value="{!lstIFunction}"/>
+                         <apex:actionsupport event="onchange" action="{!displayDesc}" rerender="functionDesc"/>  
+                     </apex:selectList>
+                     <apex:outputLabel />
+                     <apex:outputLabel />
+                     <apex:outputLabel />
+                     <apex:outputLabel />
+                     <apex:outputLabel />   
+                 
+                     <apex:commandButton value="Insert Function" onclick="getSelectedItem('formulaSection:cboFunction');return false;"/>
+                     
+                 </apex:panelGrid>
+             </apex:pageBlockSection>    
+                 
+             <apex:pageBlockSection id="conditionSection" columns="1">
+                    <apex:panelGrid columns="3" cellspacing="2" columnClasses="lblCol,lblCol2,lblCol2"> 
+                         <apex:outputLabel >Message&nbsp;Name&nbsp;Expression</apex:outputLabel>
+                         <apex:outputPanel >
+                           <apex:inputField value="{!skyvvasolutions__Interfaces__c.skyvvasolutions__Message_Name_Expression__c}" style="width:386px; height:200px" id="txtArea" required="false"/>
+                           <apex:outputLabel ><br/>(Leave it blank to use the default message name format)</apex:outputLabel>
+                         </apex:outputPanel>
+                         <apex:outputLabel value="{!fDesc}" id="functionDesc"/>
+                    </apex:panelGrid>
+             </apex:pageBlockSection>
+             <apex:pageBlockSection id="conditionSectionResult" columns="1">
+                    <apex:panelGrid columns="3" cellspacing="2" columnClasses="lblCol3,lblCol4,lblCol4">
+                        <apex:outputLabel >Message&nbsp;Name&nbsp;Expression</apex:outputLabel>
+                        <apex:outputText value="{!result}" style="color:{!IF(BEGINS(result, 'Error>'), 'red' , '#009900')};" id="result">&nbsp;</apex:outputText>
+                    </apex:panelGrid>
+              
+             </apex:pageBlockSection>
+            
+            <apex:pageBlockButtons id="pbButtons">
+                <apex:commandButton action="{!doSave}" value="Save"
+                            oncomplete="if('{!saveOk}'=='true') window.close();" 
+                            status="status" reRender="result, messages"/>
+                <apex:commandButton action="{!testFormula}" onClick="if(checkTextAreaNullValue()) return false;" value="Test Formula" rerender="result, messages" status="status"/> 
+                <apex:commandButton onclick="window.close(); return false;" value="Cancel"/>
+            </apex:pageBlockButtons>
+                    
+        </apex:pageBlock>
+    </apex:form>    
+</apex:page>

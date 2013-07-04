@@ -1,0 +1,134 @@
+<apex:page standardController="Account" extensions="MyAccountController"> 
+<apex:form >
+<apex:pageMessages />
+
+ <apex:sectionHeader title="Account Edit" subtitle="{!account.name}">
+ </apex:sectionHeader>
+<apex:pageBlock title="" mode="detail">
+      <apex:pageBlockButtons >
+        <apex:commandButton action="{!save}" value="Save"/>
+           <apex:commandButton action="{!savenew}" value="Save & New"/>
+              <apex:commandButton action="{!cancel}" value="cancel"/>
+      </apex:pageBlockButtons>
+      <apex:pageBlockSection title="Account Information" columns="2">
+       
+        <apex:outputField value="{!account.ownerId}"/><apex:inputField value="{!account.rating}"/>
+        <apex:inputField value="{!account.name}"/> <apex:inputField value="{!account.Phone}"/>
+        <apex:inputField value="{!account.ParentId}"/><apex:inputField value="{!account.fax}"/>
+         <apex:inputField value="{!account.accountNumber}"/>  <apex:inputField value="{!account.Website}"/>
+         <apex:inputField value="{!account.site}"/><apex:inputField value="{!account.TickerSymbol}"/>
+          <apex:inputField value="{!account.type}"/><apex:inputField value="{!account.ownership}"/>
+         <apex:inputField value="{!account.Industry}"/><apex:inputField value="{!account.NumberOfEmployees}"/>
+          <apex:inputField value="{!account.AnnualRevenue}"/><apex:inputField value="{!account.Sic}"/>
+        <apex:inputField value="{!account.counter__c}"/>
+      </apex:pageBlockSection>
+ <apex:pageBlockSection title="Address Inforamtion" columns="2">
+        <apex:inputField value="{!account.BillingStreet}"/><apex:inputField value="{!account.ShippingStreet}"/>
+       <apex:inputField value="{!account.BillingPostalCode}"/><apex:inputField value="{!account.ShippingPostalCode}"/>
+        <apex:inputField value="{!account.BillingCity}"/> <apex:inputField value="{!account.ShippingCity}"/>
+       <apex:inputField value="{!account.BillingState}"/><apex:inputField value="{!account.ShippingState}"/>
+        <apex:inputField value="{!account.BillingCountry}"/><apex:inputField value="{!account.ShippingCountry}"/>
+      </apex:pageBlockSection>
+      <apex:pageBlockSection title="Additional Inforamtion" columns="2">
+        <apex:inputField value="{!account.CustomerPriority__c}"/><apex:inputField value="{!account.SLA__c}"/>
+       <apex:inputField value="{!account.SLAExpirationDate__c}"/><apex:inputField value="{!account.SLASerialNumber__c}"/>
+       <apex:inputField value="{!account.NumberofLocations__c}"/><apex:inputField value="{!account.UpsellOpportunity__c}"/>
+        <apex:inputField value="{!account.Active__c}"/>
+      </apex:pageBlockSection>
+ <apex:pageBlockSection title="Description Information" columns="1">
+   <apex:inputText value="{!account.description}" id="theTextInput"/>
+      </apex:pageBlockSection>
+ 
+    </apex:pageBlock>
+   </apex:form>
+   <apex:relatedList list="Contacts">
+    
+    </apex:relatedList>
+      <apex:relatedList list="Opportunities">
+     
+    </apex:relatedList>
+       <apex:relatedList list="Cases">
+      
+    </apex:relatedList>
+    <apex:relatedList subject="{!account}" list="OpenActivities" />
+    <apex:relatedList subject="{!account}" list="ActivityHistories" />
+    <apex:relatedList subject="{!account}" list="NotesAndAttachments" />
+    <apex:relatedList subject="{!account}" list="AccountPartnersFrom" />
+    <hr/>
+	<script type="text/javascript" charset="utf-8" src="http://cdn.sencha.io/ext-4.0.7-gpl/ext-all.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://cdn.sencha.io/ext-4.0.7-gpl/resources/css/ext-all.css" />
+    <apex:form >
+        <div id="gridSpace"></div> 
+    </apex:form>
+
+    <script type="text/javascript" >
+	    Ext.ns("Ext.ch"); //Defining a namespace is best practice in ExtJS
+	    Ext.onReady(function(){ //This is a execution point
+		    var mypanel = new Ext.create('Ext.ch.mypanel', {   //This is to create our custom panel
+		            renderTo: gridSpace,
+		            title : 'All Accounts'
+		        });
+	
+	        Account.getAllAccounts(function(result, er){ //This method is used to call our controller method
+						                var res = Ext.decode(result);
+						                store.loadData(res.Records);
+	            					}, {escape:false});
+   		});
+   		
+   		Ext.define('AccountModel', { //Defining a model, which is like an object
+	        extend	: 'Ext.data.Model',
+	        fields	: [
+			            {name: 'Id', type: 'string'},
+			            {name: 'Name', type: 'string'},
+			            {name: 'Phone', type: 'string'},
+			            {name: 'Type', type: 'string'}
+	    			  ]
+	    });
+	    
+		var store = Ext.create('Ext.data.Store', { //Create a store, which is like collection of records with sorting and grouping capability
+	                        model 		: 'AccountModel', //Associate your store with Model
+	                        proxy 		: {
+				                            type 	: 'memory',
+				                            reader	: {
+			                                	type : 'json',
+				                          	}
+	                       				  }
+	                    });
+	    
+	    Ext.define('Ext.ch.mypanel', { //Defining a panel in order to display our data
+	        extend		: 'Ext.grid.Panel',
+	        alias 		: 'widget.mypanel',
+	        name 		: 'mypanel',
+	        columnLines : true,
+	        autoScroll	: true,
+	        singleSelect: true,
+	        selType		: 'cellmodel',
+	        border		: true,
+	        height		: 100,
+	        width		: 600,
+	        store		: store, //Associate with our store
+	        columns 	: [ //Define the required columns
+		                    {
+		                        text 		: 'Id',
+		                        dataIndex	: 'Id',
+		                        flex		: 0.3
+		                    },
+		                    {
+		                        text 		: 'Account Name',
+		                        dataIndex 	: 'Name',
+		                        flex 		: 0.3
+		                    },
+		                    {
+		                        text 		: 'Account Type',
+		                        dataIndex 	: 'Type',
+		                        flex 		: 0.3
+		                    },
+		                    {
+		                        text 		: 'Phone',
+		                        dataIndex 	: 'Phone',
+		                        flex 		: 0.3
+		                    }
+		            	],
+		});
+    </script>
+</apex:page>

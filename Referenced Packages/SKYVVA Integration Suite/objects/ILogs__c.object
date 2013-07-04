@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>This object will contains all logs coming from the client side
+
+PLEASE DO NOT TOUCH</description>
+    <enableActivities>false</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <fields>
+        <fullName>Creation_Date__c</fullName>
+        <defaultValue>Now()</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Creation Date</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Description__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Logs</description>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <required>false</required>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Error_Level__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Level</label>
+        <length>10</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>FlagLevel__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF (Error_Level__c=&quot;Error&quot;, IMAGE(&quot;/img/samples/color_red.gif&quot;, &quot;red&quot;, 15, 25),
+    IF (Error_Level__c=&quot;Info&quot;, IMAGE(&quot;/img/samples/color_green.gif&quot;, &quot;green&quot;, 15, 25), 
+        IMAGE(&quot;/img/samples/color_yellow.gif&quot;, &quot;yellow&quot;, 15, 25))
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Level</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Integration__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Integration</label>
+        <referenceTo>Integration__c</referenceTo>
+        <relationshipLabel>Logs</relationshipLabel>
+        <relationshipName>Logs</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Source__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Interface</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <label>Logs</label>
+    <nameField>
+        <displayFormat>IL#{YY}{MM}{DD}-{00000}</displayFormat>
+        <label>Logs Name</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Logs</pluralLabel>
+    <searchLayouts>
+        <excludedStandardButtons>New</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
+        <searchFilterFields>NAME</searchFilterFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+    <webLinks>
+        <fullName>Back</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Back</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>//invoke integrationId
+var integrationId;
+
+var getVars = new Array();
+var locvartemp = ( window.location.href.indexOf( &quot;?&quot; ) + 1 ) ? window.location.href.substr( window.location.href.indexOf( &quot;?&quot; ) + 1 ) : &quot;&quot;;
+locvartemp = locvartemp.split( &quot;&amp;&quot; );
+for( var x = 0; x &lt; locvartemp.length; x++ ) {
+    var lvTempVar = locvartemp[x].split( &quot;=&quot; );
+    getVars[ unescape( lvTempVar[0] ) ] = unescape( lvTempVar[1] );
+    integrationId=(getVars[ unescape( lvTempVar[0] ) ]);
+}
+ top.document.location.href=&quot;/&quot; + integrationId;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Clear</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Clear</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/16.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/16.0/apex.js&quot;)}
+
+var records = {!GETRECORDIDS($ObjectType.ILogs__c)};
+
+if (records[0] == null) {
+	alert(&quot;Please select at least one row&quot;);
+}
+else {
+	if(confirm(&quot;Are you sure you want to delete ?&quot;)){
+		//ok
+		
+		//15022011 regen records in form of 15Ids
+		for(i=0;i&lt;records.length;i++){
+			records[i] = records[i].substr(0,15);
+		}	
+		
+		var integrationId = &quot;{!Integration__c.Id}&quot;;
+		
+		//override the window
+		//window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=ILogs__c&amp;btn=Clear&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+		
+		// invoke the webservice
+		var param = {logIds:records};
+		try {
+			//14022011 let&apos;s try with the web service call, if error API_DISABLED_FOR_ORG, then try with the vf page
+			var result = sforce.apex.execute(&quot;skyvvasolutions.IServices&quot;, &quot;deleteLogs&quot;,param);
+			top.document.location.href=&quot;/&quot; + integrationId;
+		}
+		catch (e) {
+			//14022011 PE GE
+			//ERROR {faultcode:&apos;sf:API_DISABLED_FOR_ORG&apos;, faultstring:&apos;API_DISABLED_FOR_ORG: API is not enabled for this //Organization or Partner&apos;, }
+			if(e.faultcode!=null &amp;&amp; e.faultcode.search(/API_DISABLED_FOR_ORG/i)&gt;0){
+				//override the window
+				window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=ILogs__c&amp;btn=Clear&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+			}
+			else alert(e);
+		}
+	}
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Clear1</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Clear</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>//Not used</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Clear_All</fullName>
+        <availability>online</availability>
+        <description>clear all logs for an integration</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Clear All</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/16.0/connection.js&quot;)} 
+{!REQUIRESCRIPT(&quot;/soap/ajax/16.0/apex.js&quot;)} 
+
+if(confirm(&quot;Are you sure you want to delete all logs?&quot;)){ 
+	//ok 
+	// invoke the webservice 
+	var integrationId = &quot;{!Integration__c.Id}&quot;; 
+	
+	//override the window
+	//window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=ILogs__c&amp;btn=Clear_All&amp;par=&quot;+integrationId;
+	
+	var param = {integrationId:integrationId}; 
+	try { 
+		//14022011 let&apos;s try with the web service call, if error API_DISABLED_FOR_ORG, then try with the vf page
+		var result = sforce.apex.execute(&quot;skyvvasolutions.IServices&quot;, &quot;deleteAllLogs&quot;,param); 
+		top.document.location.href=&quot;/&quot; + integrationId; 
+	} 
+	catch (e) { 
+		//14022011 PE GE
+		//ERROR {faultcode:&apos;sf:API_DISABLED_FOR_ORG&apos;, faultstring:&apos;API_DISABLED_FOR_ORG: API is not enabled for this //Organization or Partner&apos;, }
+		if(e.faultcode!=null &amp;&amp; e.faultcode.search(/API_DISABLED_FOR_ORG/i)&gt;0){
+			//override the window
+			window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=ILogs__c&amp;btn=Clear_All&amp;par=&quot;+integrationId;
+		}
+		else alert(e);
+	} 
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Process</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Process</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>//not used</url>
+    </webLinks>
+</CustomObject>

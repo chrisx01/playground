@@ -1,0 +1,42 @@
+<apex:page id="ImpPage" standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.GenerateDeploymentScript" sidebar="false" tabStyle="skyvvasolutions__Integration__c">
+<apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Import Integration from XML file"></apex:sectionHeader>
+<style>
+    
+        .lblCol{
+            color:#333333;
+            font-size:91%;
+            font-weight:bold;
+            padding:2px 10px 2px 2px;
+            text-align:right; 
+        }
+        
+        .lblCol2{}
+        
+</style>
+    
+<apex:form id="frm" >
+        <apex:outputText value="{!er}" style="font-weight:bold; color:red;" rendered="{!NOT(ISNULL(er))}"></apex:outputText>
+        <apex:pageBlock id="pbSCR" rendered="{!ISNULL(er)}">
+            <apex:pageBlockButtons id="pbButton">
+                   <apex:commandButton id="back" value="Back" action="{!btnBack}"/>
+            </apex:pageBlockButtons>
+            <apex:panelGrid id="integration" columns="2" cellspacing="5" columnClasses="lblCol,lblCol2" rendered="{!NOT(ISNULL(integName))}">
+                  <apex:outputLabel >Integration</apex:outputLabel>
+                  <apex:outputText value="{!integName}" />
+            </apex:panelGrid>
+            <apex:pageblocksection id="blsUpload" title="Upload Data" collapsible="true" columns="1">
+                <apex:panelGrid columns="3" cellspacing="5" columnClasses="lblCol,lblCol2,lblCol2">
+                    <apex:outputLabel >File</apex:outputLabel>
+                    <apex:inputFile id="theFile" fileName="{!document.name}" value="{!document.body}" contentType="{!document.contentType}" size="50"/>   
+                    <apex:commandButton id="upload" value="Import Integration" action="{!uploadFile2}"/>
+                </apex:panelGrid>
+            </apex:pageblocksection>
+            
+            <apex:pageblocksection columns="1">
+                <apex:outputtext value="{!infoMsg}" style="color:green;font-weight:bold;font-size:14px;" rendered="{!isImport}"/>
+                <apex:outputText value="{!errFileType}" style="font-weight:bold; color:red;" rendered="{!NOT(ISNULL(errFileType))}"></apex:outputText>
+            </apex:pageblocksection>
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

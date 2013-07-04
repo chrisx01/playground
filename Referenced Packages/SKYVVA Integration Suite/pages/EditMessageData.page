@@ -1,0 +1,82 @@
+<apex:page id="page" controller="skyvvasolutions.EditMessageData" sidebar="false" showHeader="false" tabStyle="skyvvasolutions__Integration__c">
+<!-- hidden scroll on popup windows -->
+<body style="overflow:hidden">
+    <apex:form id="frmEditeData">
+    
+    <apex:actionStatus id="status">
+        <apex:facet name="start">
+            <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+        </apex:facet>
+    </apex:actionStatus>
+    
+
+        <apex:pageBlock mode="edit" rendered="{!hasData}" id="pbData">
+        
+            <apex:pageBlockButtons location="top" id="pbButton">
+            <apex:commandButton id="btnSave" value="Save" onclick="saveData();"/>
+            <apex:actionFunction name="saveData" action="{!updateData}" oncomplete="self.close();" status="status"/> 
+            <apex:commandButton id="btnReprocess" value="Reprocess" onclick="return confirmMsg();"/>
+            <apex:actionFunction name="actF_Reprocess" action="{!reprocess}" oncomplete="self.close();" status="status"/> 
+            <apex:commandButton id="btnCancel" value="Cancel" onclick="self.close();"/>
+            </apex:pageBlockButtons>
+        
+            <div style="width:100%;height:378px;overflow:auto;" id="divData">
+            
+                 <apex:pageBlockTable value="{!lData}" var="d" 
+                    captionStyle="text-align:left;font-weight:bold;padding-bottom:4px;padding-top:4px;" border="0"
+                    >
+                     <apex:facet name="caption">Data for message {!msgName}</apex:facet>
+                    <apex:column style="width:50px;">
+                        <apex:facet name="header">Name</apex:facet>
+                        <apex:outputText value="{!d.name}"/>
+                    </apex:column>
+                    <apex:column >
+                        <apex:facet name="header">Value</apex:facet>
+                        <apex:inputText value="{!d.value}" style="width:250px;" rendered="{!d.isBigText==false}" onkeypress="pressEnter(event);"/>
+                        <apex:inputTextarea value="{!d.value}" style="width:250px;" rendered="{!d.isBigText}" rows="3"/>
+                    </apex:column>
+                </apex:pageBlockTable>
+                 
+            </div>
+            
+        </apex:pageBlock>
+            
+
+    </apex:form>
+    
+    <script>
+    
+        window.onload = function() {
+        
+            if({!hasData}==false) {
+                alert("The message {!msgName} has no data available.");
+                self.close();
+            }
+        }
+        //When user press Enter save data
+        function pressEnter(e){
+            try{
+                var evtobj=window.event? event : e;
+                var unicode=evtobj.charCode? evtobj.charCode : evtobj.keyCode;
+                
+                if(unicode=='13'){
+                    document.getElementById('page:frmEditeData:pbData:pbButton:btnSave').click();
+                }
+            }catch(ex){
+                alert('Error: '+ex);
+            }
+        }    
+        
+        //confirm user when click button Reprocess
+        function confirmMsg(){
+            if(!confirm('Do you want to reprocess this message?')){
+               return false;
+            }
+            //actionFunction call reprocess message method
+            actF_Reprocess();
+            return true;
+        }
+    
+    </script>
+    </body>
+</apex:page>

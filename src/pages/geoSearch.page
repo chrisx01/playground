@@ -1,0 +1,52 @@
+<apex:page controller="GeoController" showHeader="false" sidebar="false" tabstyle="Contact">
+<apex:image url="{!$Resource.logo}" width="50" height="50"/>
+ <apex:sectionheader title="Google Maps Geocoding" subtitle="Test"> 
+
+     <apex:form >
+     
+     <apex:pageblock >
+    <apex:messages />
+          <apex:pageblockbuttons >
+              <apex:commandbutton action="{!submit}" value="Submit" rerender="resultsPanel" status="status">
+          </apex:commandbutton></apex:pageblockbuttons>
+      
+          Enter a Address to validate 
+              
+          <apex:pageblocksection >
+               <apex:pageblocksectionitem >
+                    <apex:outputlabel for="address">Address</apex:outputlabel>
+                    <apex:inputtext id="address" value="{!address}">
+               </apex:inputtext></apex:pageblocksectionitem>
+          </apex:pageblocksection>
+          
+          <apex:pageblocksection >
+               <apex:pageblocksectionitem >
+                    <apex:outputlabel for="city">City</apex:outputlabel>
+                    <apex:inputtext id="city" value="{!city}">
+               </apex:inputtext></apex:pageblocksectionitem>
+          </apex:pageblocksection>
+          
+          <apex:pageblocksection >
+               <apex:pageblocksectionitem >
+                    <apex:outputlabel for="state">State</apex:outputlabel>
+                    <apex:inputtext id="state" value="{!state}">
+               </apex:inputtext></apex:pageblocksectionitem>
+          </apex:pageblocksection>
+
+          
+         
+              
+          <apex:actionstatus id="status" starttext="Fetching map...">
+        
+         
+
+</apex:actionstatus>
+ <apex:outputpanel id="resultsPanel">
+            <apex:outputtext value="{!geoAddress}">
+
+          </apex:outputtext></apex:outputpanel>
+</apex:pageblock>
+</apex:form>
+</apex:sectionheader>
+<c:gMap />
+</apex:page>

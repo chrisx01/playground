@@ -1,0 +1,89 @@
+<apex:page id="page" standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.GenerateDeploymentScript" sidebar="false">
+<apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Integration Deployment Script"></apex:sectionHeader>
+    <apex:form id="frm" >
+        <apex:pageBlock id="pbSCR" mode="edit">
+            <apex:pageBlockButtons location="top" id="pbButton">
+                <apex:commandButton id="btnExp" value="Export Integration As XML" onclick="openWindow(); return false;"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection id="bpSection" columns="1">
+                <apex:pageBlockSectionItem id="pbsItem">
+                    <apex:outputLabel id="lblNamespace">Specific Target Namespace (if any) </apex:outputLabel>
+                    <apex:inputText id="prefix" value="{!nsPrefix}"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem id="pbsItemScript">
+                    <apex:inputTextarea id="data" value="{!scr}" style="width:100%; height:500px;"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+    
+    <script>
+    String.prototype.trim = function(){
+    return (this.replace(/^[\s\xA0]+/, "").replace(/[\s\xA0]+$/, ""))
+    }
+
+    String.prototype.contains = function(str) {
+        return (this.indexOf(str) != -1);
+    }
+
+    String.prototype.endsWith = function(str){
+        return (this.match(str+"$")==str);
+    }
+    function isValid(str){
+    
+        /**
+        Your namespace prefix must:
+        Begin with a letter
+        Contain one to 15 alphanumeric characters
+        Not contain two consecutive underscores
+        start with a to z caseinsensitive and not contain special char @,#,$...
+        */
+        var patt= /^([a-zA-Z0-9_]+[\w])$/;
+        var result=patt.test(str) && str.length <=15 && str.search(/__/)<0 && str.search(/\\/)<0 && str.search('\/')<0 && '1234567890_'.indexOf(str.charAt(0))<0;
+        return result;
+    }
+    </script>
+    
+    <script>
+    function openWindow(){
+	    
+	    
+        //must be validate valid namspacr prefix
+        var nsPrefix=document.getElementById('page:frm:pbSCR:bpSection:pbsItem:prefix').value;
+
+        try{
+            nsPrefix=(nsPrefix!=null ? nsPrefix.trim() : '');
+            //namespace__ or namespace_ or name space
+            if(nsPrefix!='' && !isValid(nsPrefix)){
+                alert("Your namespace prefix must:\n\n\tBegin with a letter\n\tContain one to 15 alphanumeric characters\n\tNot contain two consecutive underscores");
+            }else{
+                popup("/apex/ExportDeploymentScript?id=" + "{!URLENCODE(intgId)}" + "&exp=1"+(nsPrefix!='' ? "&namespace="+nsPrefix.toLowerCase() : ""));
+           }
+            
+        }catch(e){
+            alert(e);
+        }
+    }
+    </script>
+    <script>
+    function popup(url)
+    {
+        var width = 400;
+        var height = 400;
+        var left = (screen.width - width)/2;
+        var top = (screen.height - height)/2;
+        var params = 'width='+width+', height='+height;
+        params += ', top='+top+', left='+left;
+        params += ', directories=no';
+        params += ', location=no';
+        params += ', menubar=no';
+        params += ', resizable=no';
+        params += ', scrollbars=no';
+        params += ', status=no';
+        params += ', toolbar=no';
+        newwin=window.open(url,'windowname5', params);
+        if (window.focus) {newwin.focus()}
+        return false;
+    }
+    </script>
+</apex:page>

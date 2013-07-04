@@ -1,0 +1,235 @@
+<apex:page standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.ClsManageMiddlewareWSDL" sidebar="false" id="page">
+
+    
+    <script>
+        var bAction=true;//related user hit enter key in some fields.
+    
+        function createComplete(){
+            //Chea: 25-Aug-2011 >Rerender Endpoint value
+            renderEndpoint();
+            var er=document.getElementById('page:frm:er').value;
+            if(er!='')alert(er);
+        }
+        function isEnterKey(evt,intfType)
+        {   var theEvent = evt || window.event;
+            var key = theEvent.keyCode || theEvent.which;
+            if(key==13){
+                if(intfType=="inbound"){
+                    document.getElementById('page:frm:bpDetailRelatedList:pbsInboundList:btnSaveInBoundIntfs').click();
+                }else{
+                    document.getElementById('page:frm:bpDetailRelatedList:pbsOutboundList:btnSaveOutBoundInts').click();
+                }
+                bAction=false;
+            }
+            return true;
+        }
+    </script>
+    
+    <script>
+        //Chea: 25-Aug-2011 >it is to render endpoint value on each bottons action is complete
+        function renderEndpoint(){
+	        try{
+	                //https://ap1.salesforce.com/a0J90000001FyhK(Button)
+	                //(VF pag)>https://skyvvasolutions.ap1.visual.force.com/services/Soap/c/19.0/00D90000000Hf1g
+	                var url= '{!$Api.Enterprise_Server_URL_190}';
+	                //alert('url>>'+url);
+	                if(url!=null && url!=''){
+	                    //after replace https://ap1.visual.force.com/services/Soap/c/19.0/00D90000000Hf1g
+	                    url=url.replace(/skyvvasolutions./i,'');
+	                    var to=url.toLowerCase().lastIndexOf('.visual.force.com');
+	                    //eg: Endpoint: https://ap1-api.salesforce.com/services/Soap/class/skyvvasolutions/IServices
+	                    url=url.substring(0,to)+'-api.salesforce.com/services/Soap/class/'+"{!nsslash}"+'IServices';
+	                }
+	                document.getElementById('page:frm:bpDetailRelatedList:pbsDetail:iendpiont:endpiont').innerHTML= url;
+	                //alert('>>from :'+0+'>to:'+to+'>>url:'+url);
+	            }catch(e){
+                alert('renderEndpoint:'+e);
+            }
+        }
+        window.onload = function() {
+            renderEndpoint();
+        }
+    </script>
+    
+    <apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Manage Middleware WSDL"/> 
+    <apex:form id="frm">
+        <apex:inputHidden id="er" value="{!er}"/>
+        <apex:outputText id="errFilter" value="{!er}" rendered="{!bDisplay}" style="font-weight:bold; color:red;"/>
+        <apex:pageblock id="bpDetailRelatedList" rendered="{!NOT(bDisplay)}">
+            <apex:pageblocksection id="pbsDetail" collapsible="false" columns="1">
+                <apex:pageBlockSectionItem id="iendpiont">
+                    <apex:outputLabel value="Endpoint"/>
+                    <apex:outputText id="endpiont"/>
+                </apex:pageBlockSectionItem>
+                <apex:inputField id="sfEndpoint" value="{!intg.skyvvasolutions__Target_Namespace__c}" style="width:500px;"/>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Integration ID"/>
+                    <apex:outputField id="intgId" value="{!intg.Id}"/>
+                </apex:pageBlockSectionItem>
+                <!-- DropDown list interface of integration -->
+                <apex:pageBlockSectionItem >
+                   <apex:outputLabel for="interfaces">Create WSDL for Interface</apex:outputLabel>
+                   <apex:selectList size="1" id="interfaces" value="{!intfId}">
+                         <apex:selectoptions value="{!selOptIdNames}"/>
+                   </apex:selectList>
+                </apex:pageBlockSectionItem>
+                
+                <!--25-Aug-2011 >call method renderEndpoint() to render Endpoint value oncomplete(Button or Link) and in some method, 
+                Revmoe render component id "attachments", no this id -->
+                <apex:pageBlockSectionItem id="pbsiButton">
+                    <apex:outputText value=""/>
+                    <apex:panelGroup id="pnlGroupButton">
+                        <apex:commandButton value="Back" onclick="if(bAction)document.location.href='/{!URLENCODE($Request.id)}';bAction=true;return false;"/>
+                       <apex:commandButton action="{!btnCreateWSDL}" value="Create WSDL" oncomplete="createComplete();" reRender="frm" status="status"/>
+                       <apex:commandButton action="{!btnCreateWSDL4AllInterfaces}" value="Create WSDL for all Interfaces" oncomplete="createComplete();" reRender="frm" status="status"/>
+                    </apex:panelGroup>
+                </apex:pageBlockSectionItem>
+            </apex:pageblocksection>
+            
+            <apex:pageblocksection id="pbsInboundList" title="Inbound Interfaces (Related List)" collapsible="false" columns="1">
+                     <apex:outputPanel >
+                        <center>
+                            <apex:commandButton value="Edit" action="{!updateInBoundIntfs}" disabled="{!NOT(hasIntfInBound)}" status="status" rerender="frm" rendered="{!bEditInBound}" oncomplete="renderEndpoint();"/>
+                            <apex:commandButton id="btnSaveInBoundIntfs" value="Save" action="{!updateInBoundIntfs}" oncomplete="createComplete();" status="status" rerender="frm" rendered="{!NOT(bEditInBound)}"/>
+                            <apex:commandButton immediate="true" value="Cancel" action="{!CancelInBoundIntfs}" status="status" rerender="frm" rendered="{!NOT(bEditInBound)}" oncomplete="renderEndpoint();">
+                                 <apex:param name="dataId" value="InBound" assignTo="{!cancelINOUT}"/>
+                            </apex:commandButton>
+                        </center>
+                     </apex:outputPanel>           
+                     <apex:outputText value="No records to display" rendered="{!NOT(hasIntfInBound)}"/>
+                     <apex:pageblocktable id="pbtInboundList" value="{!lIntfInbound}" var="f" rendered="{!hasIntfInBound}">
+                       
+                       <apex:column >
+                            <apex:facet name="header">Target Object</apex:facet>
+                            <apex:outputField value="{!f.skyvvasolutions__Source_Name__c}" rendered="{!bEditInBound}"/>
+                            <apex:inputField value="{!f.skyvvasolutions__Source_Name__c}" onkeypress="isEnterKey(event,'inbound');" rendered="{!NOT(bEditInBound)}"/>
+                       </apex:column>
+                       <apex:column >
+                            <apex:facet name="header">Operation Type</apex:facet>
+                            <apex:outputField value="{!f.skyvvasolutions__OperationType__c}" rendered="{!bEditInBound}"/>
+                            <apex:inputField value="{!f.skyvvasolutions__OperationType__c}" onkeypress="isEnterKey(event,'inbound');" rendered="{!NOT(bEditInBound)}"/>
+                       </apex:column>
+                       <apex:column >
+                           <apex:facet name="header">Interface Name</apex:facet>
+                           <apex:outputLink value="/{!f.id}" target="_blank" rendered="{!bEditInBound}">{!f.skyvvasolutions__Name__c}</apex:outputLink>
+                           <apex:inputField value="{!f.skyvvasolutions__Name__c}" onkeypress="isEnterKey(event,'inbound');" rendered="{!NOT(bEditInBound)}"/>
+                       </apex:column>
+                       <apex:column >
+                           <apex:facet name="header">Parent Interface</apex:facet>
+                           <apex:outputLink value="/{!f.skyvvasolutions__Parent_Interface__c}" target="_blank" rendered="{!bEditInBound}">{!f.Parent_Interface__r.skyvvasolutions__Name__c}</apex:outputLink>
+                           <apex:inputField value="{!f.skyvvasolutions__Parent_Interface__c}" onkeypress="isEnterKey(event,'inbound');" rendered="{!NOT(bEditInBound)}"/>
+                       </apex:column>
+                       <apex:column >
+                            <apex:facet name="header">External Mapping</apex:facet>
+                            <!-- Chea: 27-07-2011 user f.PI__c instead  f.External_Mapping__c-->
+                            <apex:outputField value="{!f.skyvvasolutions__PI__c}" rendered="{!bEditInBound}"/>
+                            <apex:inputField value="{!f.skyvvasolutions__PI__c}" onkeypress="isEnterKey(event,'inbound');" rendered="{!NOT(bEditInBound)}"/>     
+                       </apex:column>
+                       <apex:column >
+                            <apex:facet name="header">Mapping in SFDC</apex:facet>
+                            <apex:outputField value="{!f.skyvvasolutions__Mapping_in_SFDC__c}" rendered="{!bEditInBound}"/>
+                            <apex:inputField value="{!f.skyvvasolutions__Mapping_in_SFDC__c}" onkeypress="isEnterKey(event,'inbound');" rendered="{!NOT(bEditInBound)}"/>    
+                       </apex:column>
+                       
+                     </apex:pageblocktable>
+                  
+                </apex:pageblocksection> 
+               <!-- Outbound Interfaces (Related List) -->
+               <apex:pageblocksection id="pbsOutboundList" title="Outbound Interfaces (Related List)" collapsible="false" columns="1">
+                     <apex:outputPanel >
+                         <center>
+                            <apex:commandButton value="Edit" action="{!updateOutBoundIntfs}" disabled="{!NOT(hasIntfOutBound)}" status="status" rerender="frm" rendered="{!bEditOutBound}" oncomplete="renderEndpoint();"/>
+                            <apex:commandButton id="btnSaveOutBoundInts" value="Save" action="{!updateOutBoundIntfs}" oncomplete="createComplete();" status="status" rerender="frm" rendered="{!NOT(bEditOutBound)}"/>
+                            <apex:commandButton immediate="true" value="Cancel" action="{!CancelOutBoundIntfs}" status="status" rerender="frm" rendered="{!NOT(bEditOutBound)}" oncomplete="renderEndpoint();">
+                                 <apex:param name="dataId" value="OutBound" assignTo="{!cancelINOUT}"/> 
+                            </apex:commandButton>
+                        </center>
+                     </apex:outputPanel>           
+                     <apex:outputText value="No records to display" rendered="{!NOT(hasIntfOutBound)}"/>
+                     <apex:pageblocktable id="pbtInboundList" value="{!lIntfOutbound}" var="f" rendered="{!hasIntfOutBound}">
+                       
+                       <apex:column >
+                           <apex:facet name="header">SAP Target Object</apex:facet>
+                           <apex:outputField id="trgSAPObvject" value="{!f.skyvvasolutions__Source_Name__c}" rendered="{!bEditOutBound}"/>
+                           <apex:inputField value="{!f.skyvvasolutions__Source_Name__c}" onkeypress="isEnterKey(event,'outbound');" rendered="{!NOT(bEditOutBound)}"/>
+                       </apex:column>
+                       <apex:column >
+                           <apex:facet name="header">Interface Name</apex:facet>
+                           <apex:outputLink value="/{!f.id}" target="_blank" rendered="{!bEditOutBound}">{!f.skyvvasolutions__Name__c}</apex:outputLink>
+                           <apex:inputField value="{!f.skyvvasolutions__Name__c}" onkeypress="isEnterKey(event,'outbound');" rendered="{!NOT(bEditOutBound)}"/>
+                       </apex:column>
+                       <apex:column >
+                           <apex:facet name="header">SOQL Statement</apex:facet>
+                           <apex:outputField id="externalMapping" value="{!f.skyvvasolutions__Query__c}" rendered="{!bEditOutBound}"/>
+                           <apex:inputField value="{!f.skyvvasolutions__Query__c}" rendered="{!NOT(bEditOutBound)}"/>
+                       </apex:column>
+                       <apex:column >
+                           <apex:facet name="header">Parent Interface</apex:facet>
+                           <apex:outputLink value="/{!f.skyvvasolutions__Parent_Interface__c}" target="_blank" rendered="{!bEditOutBound}">{!f.Parent_Interface__r.skyvvasolutions__Name__c}</apex:outputLink>
+                           <apex:inputField value="{!f.skyvvasolutions__Parent_Interface__c}" onkeypress="isEnterKey(event,'outbound');" rendered="{!NOT(bEditOutBound)}"/>
+                       </apex:column>
+                       <apex:column >
+                            <apex:facet name="header">Adapter</apex:facet>
+                            <apex:outputLink value="/{!f.skyvvasolutions__AdapterId__c}" target="_blank" rendered="{!bEditOutBound}">{!f.AdapterId__r.skyvvasolutions__Name__c}</apex:outputLink>
+                            <apex:inputField value="{!f.skyvvasolutions__AdapterId__c}" onkeypress="isEnterKey(event,'outbound');" rendered="{!NOT(bEditOutBound)}"/>
+                       </apex:column>
+                       
+                     </apex:pageblocktable>
+                  
+               </apex:pageblocksection>
+               
+        </apex:pageblock>
+    
+<!-- Related list of Attachment -->
+<!--<apex:pageblock id="pbAttachments">
+    <apex:relatedList id="attachments" subject="{!Integration__c}" list="NotesAndAttachments" />
+</apex:pageblock>-->
+   
+	    <apex:pageBlock title="Notes & Attachments" rendered="{!NOT(bDisplay)}">
+	    	<apex:pageBlockButtons location="top">
+		    	<apex:commandButton value="New Note" onclick="document.location.href='/002/e?parent_id={!URLENCODE($Request.id)}&retURL=/apex/ManageMiddlewareWSDL?id={!URLENCODE($Request.id)}';return false;" rerender="frm"/>
+		    	<apex:commandButton value="Attach File" onclick="document.location.href='/p/attach/NoteAttach?pid={!URLENCODE($Request.id)}&parentname={!URLENCODE(intg.Name)}&retURL=/apex/ManageMiddlewareWSDL?id={!URLENCODE($Request.id)}';return false;" rerender="frm"/>
+		    	<apex:commandButton value="View All" onclick="document.location.href='/ui/content/ViewAllNotesPage?id={!URLENCODE($Request.id)}&retURL=/apex/ManageMiddlewareWSDL?id={!URLENCODE($Request.id)}';return false;" rerender="frm"/>
+	    	</apex:pageBlockButtons>
+	    	<apex:pageblocksection columns="1">
+		    	<apex:outputLabel value="No records to display" rendered="{!NOT(hasAtt)}"/>
+		    	<apex:pageBlockTable value="{!lAttachment}" var="att" rendered="{!hasAtt}">
+		    		<apex:column styleClass="actionColumn">
+		    			<apex:facet name="header">
+		    				<apex:outputLabel value="Action"/>
+		    			</apex:facet>
+		    			<apex:outputLink value="/{!att.Id}/e?retURL=/apex/ManageMiddlewareWSDL?id={!$Request.id}" styleClass="actionLink">Edit</apex:outputLink>
+		    			&nbsp;|&nbsp;
+		    			<apex:outputLink value="/servlet/servlet.FileDownload?file={!att.Id}" target="_blank" styleClass="actionLink">View</apex:outputLink>
+		    			&nbsp;|&nbsp;
+	    				<apex:commandLink value="Del" action="{!deleteAtt}" 
+	    					onclick="if(confirm('Are you sure?')==false)return false;" 
+	    					styleClass="actionLink" status="status" rerender="frm" oncomplete="renderEndpoint();">
+	    					<apex:param name="deleteAtt" value="{!att.Id}" assignTo="{!attId}"/>
+	    				</apex:commandLink>	
+		    		</apex:column>
+		    		<apex:column >
+		    			<apex:facet name="header">
+		    				<apex:outputLabel value="Type"/>
+		    			</apex:facet>
+		    			<apex:outputLabel value="Attachment"/>
+		    		</apex:column>
+		    		<apex:column >
+		    			<apex:facet name="header">
+		    				<apex:outputLabel value="Title"/>
+		    			</apex:facet>
+		    			<apex:outputLink value="/{!att.Id}" target="_blank">{!att.Name}</apex:outputLink>
+		    		</apex:column>
+		    		<apex:column value="{!att.LastModifiedDate}"/>
+		    		<apex:column value="{!att.CreatedById}"/>
+		    	</apex:pageBlockTable>
+		    </apex:pageblocksection>	
+	    </apex:pageBlock>
+	    <apex:actionStatus id="status">
+	        <apex:facet name="start">
+	          <c:Load BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="170px" ImageUrl="/img/loading.gif" Message="Please, wait..."  messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+	         </apex:facet>
+	     </apex:actionStatus>
+     </apex:form>
+      <!--<apex:relatedList id="attachments" subject="{!Integration__c}" list="NotesAndAttachments" rendered="{!NOT(bDisplay)}"/>-->
+</apex:page>

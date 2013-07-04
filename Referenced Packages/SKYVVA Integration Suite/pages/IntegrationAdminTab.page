@@ -1,0 +1,67 @@
+<apex:page controller="skyvvasolutions.IntegrationAdminTab" sidebar="false" id="pAdmindTab">
+    <apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Integration Admin Tab"></apex:sectionHeader>
+    
+    <apex:form id="frm">
+        <apex:inputHidden id="tabName"/>
+    </apex:form>
+    
+    <apex:tabPanel switchType="client" id="IntegrationTabPanel">
+        <apex:tab label="Integration" name="integration" id="integration" ontabenter="setTabName('integration');">
+            
+                <apex:outputPanel id="pnlIntegration" layout="block">
+                    <apex:enhancedList type="Integration__c" height="500" rowsPerPage="25" id="integrationList"/>
+                </apex:outputPanel>
+                
+        </apex:tab>
+        
+        <apex:tab label="Adapter" name="adapter" id="adapter">
+                <apex:outputPanel id="pnlAdapter" layout="block">
+                    <apex:enhancedList type="Adapter__c" height="350" rowsPerPage="25" id="adapterList"/>
+                </apex:outputPanel>
+                <apex:actionSupport id="actSAdapter" event="ontabenter" rerender="pnlAdapter" status="status" onsubmit="if(isSubmit('adapter')==false) return false;" oncomplete="setTabName('adapter');">
+                </apex:actionSupport>
+
+        </apex:tab>
+        
+        <apex:tab label="IStructure Repository" name="istructureRepository" id="istructureRepository">
+            <apex:outputPanel id="pnlISRepository" layout="block">
+                <apex:enhancedList type="IStructure_Repository__c" height="350" rowsPerPage="25" id="isRepository"/>
+            </apex:outputPanel>
+            <apex:actionSupport id="actSISRepository" event="ontabenter" rerender="pnlISRepository" status="status" onsubmit="if(isSubmit('istructureRepository')==false) return false;" oncomplete="setTabName('istructureRepository');"/> 
+        </apex:tab>
+        
+        <apex:tab label="SOAPi Configuration" name="Soapiconfiguration" id="Soapiconfiguration">
+            <apex:outputPanel id="pnlSoapi" layout="block">
+                <apex:enhancedList type="iSOAP_Configuration__c" height="350" rowsPerPage="25" id="isSoapi"/>
+            </apex:outputPanel>
+            <apex:actionSupport id="actSoapi" event="ontabenter" rerender="pnlSoapi" status="status" onsubmit="if(isSubmit('Soapiconfiguration')==false) return false;" oncomplete="setTabName('Soapiconfiguration');"/> 
+        </apex:tab>
+    </apex:tabPanel>
+    
+    
+    <script>
+        //search(/selectedTab/i)
+       function isSubmit(tab){
+           var tName=document.getElementById("pAdmindTab:frm:tabName").value;
+           //alert(tName);
+           if(tab != tName){
+               return true;
+               
+           }
+           return false;
+       }
+       
+       function setTabName(tab){
+           //alert(tab);
+           document.getElementById("pAdmindTab:frm:tabName").value=tab;
+       
+       }
+    </script>
+    
+    
+    <apex:actionStatus id="status">
+          <apex:facet name="start">
+            <c:Load BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="170px" ImageUrl="/img/loading.gif" Message="Please, wait..."  messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+           </apex:facet>
+       </apex:actionStatus>
+</apex:page>

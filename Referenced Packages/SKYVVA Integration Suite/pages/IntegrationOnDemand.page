@@ -1,0 +1,21 @@
+<apex:page standardController="skyvvasolutions__Integration__c" showHeader="true" tabStyle="skyvvasolutions__Integration__c" id="mainPage">
+
+<apex:tabPanel switchType="client" value="{!$CurrentPage.parameters.selTab}" id="IntegrationTabPanel">
+<apex:tab label="Details" name="IntDetails" id="tabdetails">
+<apex:detail relatedList="false" title="true"/>
+</apex:tab>
+<apex:tab label="Interfaces" name="Interfaces" id="tabInterface">
+<apex:include pageName="skyvvasolutions__InterfacesOverviewPage" id="intfOverview"/>
+</apex:tab>
+<apex:tab label="Workflows" name="Workflows" id="tabWorkflow">
+<apex:include pageName="skyvvasolutions__WorkflowsOverviewPage" id="workflowsOverview"/>
+</apex:tab>
+<apex:tab label="Messages" name="Messages" id="tabMessages">
+<apex:include pageName="skyvvasolutions__DynamicIntegrationMessagePage" id="msgBoard"/>
+</apex:tab>
+<apex:tab label="Logs" name="Logs" id="tabLogs">
+<apex:relatedList subject="{!skyvvasolutions__Integration__c}" list="Logs__r" />
+<apex:include pageName="skyvvasolutions__ILogsView" id="tabILogsView"/>
+</apex:tab>
+</apex:tabPanel>
+</apex:page>

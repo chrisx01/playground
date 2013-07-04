@@ -1,0 +1,91 @@
+<apex:page id="iChain" standardController="skyvvasolutions__IChained_Interfaces__c" extensions="skyvvasolutions.ClsIChainNewEditView">
+
+<apex:form id="frmChain">
+    <apex:pageBlock id="pbChainEdit_New" title="IChained Interface {!parentType}" mode="edit" rendered="{!NOT(view)}">
+                <center><apex:outputText value="{!error}" rendered="{!NOT(ISNULL(error))}" styleClass="pbError"></apex:outputText></center>
+                <apex:pageBlockSection id="pbsChainData" columns="1">
+                    <apex:pageBlockSectionItem >
+                          <apex:outputLabel for="parentName">Parent Interface</apex:outputLabel>
+                          <apex:outputText id="parentName" value="{!parentName}"/>
+                     </apex:pageBlockSectionItem>
+                      
+                      <apex:pageBlockSectionItem >
+                          <apex:outputLabel for="child">Child Interface</apex:outputLabel>
+                          <apex:selectList size="1" id="child" value="{!childId}"  onchange="if({!isInbound==false})return false;actionF()" >
+                                <apex:selectoptions value="{!selChildIdNames}"/>
+                          </apex:selectList>
+                      </apex:pageBlockSectionItem>
+                      <apex:actionFunction action="{!changeChild}" rerender="pbChainEdit_New" name="actionF" status="status"/>
+                      
+                      <apex:pageBlockSectionItem id="pbsItemInboundRelation" rendered="{!isInbound}">
+                          <apex:outputLabel value="{!lblRelation}"/>
+                          <apex:selectList id="selInboundRelation" size="1" value="{!relationName}">
+                                <apex:selectoptions value="{!selRelationship}"/>
+                          </apex:selectList>
+                      </apex:pageBlockSectionItem>
+                      
+                      <apex:pageBlockSectionItem id="pbsItemOutboundRelation" rendered="{!isInbound==false}">
+                          <apex:outputLabel value="{!lblRelation}"/>
+                          <apex:inputText id="txtOutBoundRelation" value="{!relationName}"/>
+                      </apex:pageBlockSectionItem>
+                      
+                      <apex:inputField id="Sequence" value="{!chain.skyvvasolutions__Sequence__c}" required="false"/> 
+                      <apex:inputField id="Operation" value="{!chain.skyvvasolutions__Init_Operation__c}"/>
+                                      
+                </apex:pageBlockSection>
+                
+            <apex:pageBlockButtons id="pbBBEdit_New">
+            
+                <apex:commandButton id="btnSave" action="{!save}" value="Save" onclick="saveData();return false;"/>
+                <apex:actionFunction name="saveData" action="{!save}" oncomplete="if('{!error}'=='' && document.getElementById('iChain:frmChain:pbChainEdit_New:pbsChainData:Sequence').className!='error') document.location.href='/{!URLENCODE(previousePageId)}';" 
+                rerender="pbChainEdit_New" status="status"/>
+            <apex:commandButton action="{!cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+            
+    </apex:pageBlock>
+    <apex:pageBlock id="pbChainView" title="IChained Interface {!parentType}" mode="detail" rendered="{!view}">
+    
+        <apex:pageBlockSection id="pbsChainDataView" columns="1">
+                    <apex:pageBlockSectionItem >
+                      <apex:outputLabel for="parentInterface">Parent Interface</apex:outputLabel>
+                      <apex:outputLink id="parentInterface" value="/{!skyvvasolutions__IChained_Interfaces__c.ParentInterfaceId__r.Id}">{!skyvvasolutions__IChained_Interfaces__c.ParentInterfaceId__r.skyvvasolutions__Name__c}</apex:outputLink>
+                    </apex:pageBlockSectionItem> 
+                    
+                    <apex:pageBlockSectionItem > 
+                      <apex:outputLabel for="childInterface">Child Interface</apex:outputLabel>
+                      <apex:outputLink id="childInterface" value="/{!skyvvasolutions__IChained_Interfaces__c.ChildInterfaceId__r.Id}">{!skyvvasolutions__IChained_Interfaces__c.ChildInterfaceId__r.skyvvasolutions__Name__c}</apex:outputLink>
+                    </apex:pageBlockSectionItem>
+                    
+                    <apex:outputField id="txtRelationName" value="{!skyvvasolutions__IChained_Interfaces__c.skyvvasolutions__Parent_Relationship_Name__c}"/>
+                    <apex:outputField value="{!skyvvasolutions__IChained_Interfaces__c.skyvvasolutions__Sequence__c}"/>
+                    <apex:outputField value="{!skyvvasolutions__IChained_Interfaces__c.skyvvasolutions__Type__c}"/>
+                    <apex:outputField id="Operation" value="{!skyvvasolutions__IChained_Interfaces__c.skyvvasolutions__Init_Operation__c}"/>
+                    <apex:outputField id="createdDate" value="{!skyvvasolutions__IChained_Interfaces__c.CreatedDate}"/>
+                    <apex:outputField id="lastModifiedDate" value="{!skyvvasolutions__IChained_Interfaces__c.LastModifiedDate}"/>
+            
+        </apex:pageBlockSection>
+        <apex:pageBlockButtons id="pbBBEdit_Delte">
+            <apex:commandButton id="btnEdit" action="{!btnEdit}" value="Edit" rerender="frmChain" status="status"/>
+            <apex:commandButton id="btnDelet" value="Delete" onclick="return confirmMsg();" action="{!btnDel}"/>
+            <apex:commandButton id="btnClone" action="{!btnClone}" value="Clone" rerender="frmChain" status="status"/>
+            </apex:pageBlockButtons>
+    </apex:pageBlock>
+    
+    <apex:actionStatus id="status">
+        <apex:facet name="start">
+        <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+        </apex:facet>
+    </apex:actionStatus>
+    
+</apex:form>
+<script>
+       //confirm when delete button click
+       function confirmMsg(){
+            if(!confirm('Are you sure?')){
+               return false;
+            }
+            return true;
+        }
+        
+</script>
+</apex:page>

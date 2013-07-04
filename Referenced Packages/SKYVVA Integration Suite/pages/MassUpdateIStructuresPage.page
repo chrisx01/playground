@@ -1,0 +1,46 @@
+<apex:page standardController="skyvvasolutions__Interfaces__c" extensions="skyvvasolutions.MassUpdateIStructures" tabStyle="skyvvasolutions__IStructure__c" id="page">
+	<apex:sectionHeader subtitle="IStructures Edit" rendered="{!hasIStructure}"/>
+	<apex:form id="frm">
+		<apex:pageBlock title="IStructures Edit" id="pb" rendered="{!hasIStructure}">
+			<apex:pageBlockButtons >
+				<apex:commandButton value="Save" action="{!save}" rerender="frm,errMsg" status="status"/>
+				<apex:commandButton value="Cancel" action="{!cancel}"/>
+			</apex:pageBlockButtons>
+			<center><apex:outputText value="{!errMsg}" styleClass="pbError" id="errMsg"></apex:outputText></center>
+			<apex:pageBlockSection title="IStructures" columns="1" collapsible="false">
+				<apex:outputPanel >
+					<div style="height:400px;overflow:auto;">
+						<apex:pageBlockTable value="{!istructs}" var="struct">
+							<apex:column >
+								<apex:facet name="header">Name</apex:facet>
+								<apex:inputField value="{!struct.skyvvasolutions__Name__c}" style="width:350px;"/>	
+							</apex:column>
+							<apex:column >
+								<apex:facet name="header">Description</apex:facet>
+								<apex:inputField value="{!struct.skyvvasolutions__Description__c}" style="width:250px;"/>
+							</apex:column>
+							<apex:column >
+								<apex:facet name="header">Sample Content</apex:facet>
+								<apex:inputField value="{!struct.skyvvasolutions__Sample_Content__c}" style="width:180px;"/>
+							</apex:column>
+						</apex:pageBlockTable>
+					</div>
+				</apex:outputPanel>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+		<apex:actionStatus id="status">
+	        <apex:facet name="start">
+	        <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+	        </apex:facet>
+	    </apex:actionStatus>
+	</apex:form>
+	<script>
+		window.onload=function(){
+			var hasIStructure="{!hasIStructure}"=="true"?true:false;
+			if(!hasIStructure){
+				alert('No structure available');
+				document.location.href="/{!URLENCODE($REQUEST.Id)}";
+			}
+		}
+	</script>
+</apex:page>

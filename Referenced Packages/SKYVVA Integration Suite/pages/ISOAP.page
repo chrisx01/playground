@@ -1,0 +1,493 @@
+<apex:page controller="skyvvasolutions.UI_SOAPBuilder" id="iSOAPpage" sidebar="false" showHeader="true" tabStyle="skyvvasolutions__Integration__c">
+<script src="{!URLFOR($Resource.JQZip, '/jqueryLib/jquery/jquery.js')}"/>
+<script src="{!URLFOR($Resource.JQZip, '/jqueryLib/jquery/jquery-ui.custom.js')}"/>
+<script src="{!URLFOR($Resource.JQZip, '/jqueryLib/jquery/jquery.cookie.js')}"/>
+<link href="{!URLFOR($Resource.JQZip, '/jqueryLib/src/mySkinVista/ui.dynatree.css')}" rel="stylesheet" type="text/css" id="skinsheet"/>
+<script src="{!URLFOR($Resource.JQZip, '/jqueryLib/src/jquery.dynatree.js')}"/>
+<script src="{!URLFOR($Resource.JQZip, '/jqueryLib/jquery.contextMenu-custom.js')}" type="text/javascript"></script>
+<link href="{!URLFOR($Resource.JQZip, '/jqueryLib/jquery.contextMenu.css')}" rel="stylesheet" type="text/css" />
+<script src="{!URLFOR($Resource.CodeMirror, '/CodeMirror-2.3/lib/codemirror.js')}" type="text/javascript"></script>
+<script src="{!URLFOR($Resource.CodeMirror, '/CodeMirror-2.3/lib/util/formatting.js')}" type="text/javascript"></script>
+<script src="{!URLFOR($Resource.CodeMirror, '/CodeMirror-2.3/mode/xml/xml.js')}" type="text/javascript"></script>
+<script src="{!URLFOR($Resource.CodeMirror, '/CodeMirror-2.3/mode/javascript/javascript.js')}" type="text/javascript"></script>
+<script src="{!URLFOR($Resource.CodeMirror, '/CodeMirror-2.3/mode/htmlmixed/htmlmixed.js')}" type="text/javascript"></script>
+
+
+<script>
+    var editor ;
+    //Format XML string in textarea 
+    function formatXML(typ) {
+        var txt;
+        if(typ == 'Request'){
+            txt = document.getElementById("iSOAPpage:theForm:pageBlock:pblockSectionTree:pageBlockRequest:pBlockXML:txtXmlbody");           
+        }else{
+            txt = document.getElementById("iSOAPpage:theForm:pageBlock:pblockSectionTree:pageBlockRequest:pBlockXML:txtXmlResponse");
+        }
+        
+        editor = CodeMirror.fromTextArea(txt, {
+            lineNumbers: true,
+            mode: "htmlmixed"
+          });
+        CodeMirror.commands["selectAll"](editor);
+        var requestName ='';
+        var range = { from: editor.getCursor(true), to: editor.getCursor(false) };
+        editor.autoFormatRange(range.from, range.to);
+        editor.toTextArea();
+    }
+    
+    //Convert String to xml
+    function convertStringToXML(strXML){
+        // code for IE
+        if (window.ActiveXObject) 
+        {
+            var doc=new ActiveXObject("Microsoft.XMLDOM");
+            doc.async="false";
+            doc.loadXML(strXML);
+            
+        }
+        // code for Mozilla, Firefox, Opera, etc.
+        else
+        {
+            var parser=new DOMParser();
+            var doc=parser.parseFromString(strXML,"text/xml");
+        }// documentElement always represents the root node
+        
+        return doc;
+        
+    } 
+    //Create tree operations when project was changed
+    function doTransform(){
+        isTransformByButton = false;
+        doTransforming(true);
+    }
+    var isTransformByButton = false;
+    
+    //Create tree operation when Transform button was clicked
+    function doTransformByButton(){
+        isTransformByButton = true;
+        doTransforming(true);
+    }
+    //Create request xml 
+    function doRequestOperation(){
+        doTransforming(false);
+    }
+    //Do transform WSDL file with XSL file
+    function doTransforming(isTransform)
+    {
+    
+        try{
+            var xmlBody = document.getElementById("iSOAPpage:theForm:pageBlock:pblockSectionTree:pageBlockRequest:pBlockXML:txtXmlbody");
+           
+            if(xmlBody.value == null || xmlBody.value == ''){
+                var strXML = document.getElementById("iSOAPpage:theForm:xmlFile").value;
+                var strXSL = "";
+                //using xsl service when do request operation
+                if(!isTransform){
+                    strXSL = document.getElementById("iSOAPpage:theForm:xslFileRequest").value;
+                    strXSL = strXSL.replace(/OperationName/g,requestName);
+                }else{
+                    // using xsl port when transform wsdl file.
+                    strXSL = document.getElementById("iSOAPpage:theForm:xslFile").value;
+                    
+                }
+                var xsl = convertStringToXML(strXSL);
+                var xml = convertStringToXML(strXML);
+                // code for IE
+                if (window.ActiveXObject)
+                {
+                    var ex = xml.transformNode(xsl);
+                    if(!isTransform){
+                        $("#requestBoxForIE").html(ex).text();       
+                        xmlBody.value=$("#requestBoxForIE").text();
+                        xmlBody.value= xmlBody.value.substring(0,xmlBody.value.indexOf('<soapAction>'));
+                        //autoFormatSelection();
+                    }else{
+                        xmlBody.innerHTML = '';
+                        createTreeIE(ex);
+                    }
+                }
+                // code for Mozilla, Firefox, Opera, etc.
+                else if (document.implementation.createDocument)
+                {   
+                    var xsltProcessor = new XSLTProcessor(); 
+                    xsltProcessor.importStylesheet(xsl);
+                    var resultDocument = xsltProcessor.transformToFragment(xml,document);
+                    if(!isTransform){
+                        xmlBody.innerHTML = '';
+                        xmlBody.appendChild(resultDocument);
+                        var req = xmlBody.value;
+                        document.getElementById("iSOAPpage:theForm:txtSoapAction").value = req.substring(req.indexOf('<soapAction>'),req.length).replace('<soapAction>',"").replace('</soapAction>','');
+                        req = req.substring(0,req.indexOf('<soapAction>'));
+                        xmlBody.value = req;
+                        formatXML('Request');
+                    }else{
+                        xmlBody.innerHTML = '';
+                        createTree(resultDocument);
+                    }
+                }
+            }
+        }catch(err){
+            alert(err);
+            document.getElementById("iSOAPpage:theForm:xmlFile").value = '';
+            alert('WSDL file is invalid.');
+        }
+    }
+    //Draw tree
+    function loadTree(listOperation){
+        var parent=[];
+        var operations = listOperation.split(",");
+        for(var i=0;i<operations.length;i++){
+            var children = [];
+            var oper = operations[i].split(":");
+            var request = oper[1].split(";");
+            for(var j=0;j<request.length;j++){
+                var child = {title:request[j],
+                                onClick:function(node) {
+                                alert(node.data.title);
+                                }};
+                    children.push(child);
+            }
+            
+            var service = {title : oper[0],
+                           children : children,
+                           onClick:function(node) {
+                              alert(node.data.title);
+                           }
+                          };
+            parent.push(service);
+        }
+        
+        $(function(){ 
+             $("#tree3").dynatree({
+                  clickFolderMode: 3,
+                  autoCollapse:false,
+                  selectMode:1,
+                  children: [{title: "Operations", isFolder: true,children:parent}],
+                  onClick: function(node) {
+                       if(node.data.title != "Operations" && node.parent.data.title  != "Operations" ){                             
+                            //assign old request name to select query request
+                            document.getElementById("iSOAPpage:theForm:txtRequestNameOld").value = node.parent.data.title+ "/" + node.data.title;
+                            //call request
+                            requestName = node.parent.data.title;                 
+                            selectRequest();   
+                            
+                       }
+                  },
+                  onDblClick:function(node) {
+                    if(node.data.title != "Operations" && node.parent.data.title  == "Operations" ){  
+                        addNewNode(node);
+                    }
+                  }
+              });
+        });
+    }
+    var nodeSelected;
+    //Create new node 
+    function addNewNode(node){
+        nodeSelected=node;
+        editBlockOpen();
+    }
+    
+    function editBlockOpen(){           
+        var divOverLay =document.getElementById('overlayBackground');
+        var divEditDialog =document.getElementById('InlineEditDialog');             
+        divOverLay.style.display='inline';
+        divEditDialog.style.display='inline';      
+    }
+            
+    function closeFile(){
+        document.getElementById('overlayBgFile').style.display='none';
+        document.getElementById('InlineEditDialogFile').style.display='none';  
+    }
+    function closeNodeCreate(){
+        document.getElementById('overlayBackground').style.display='none';
+        document.getElementById('InlineEditDialog').style.display='none';
+    }
+    function addTreeNode(operationName,newRequestName){
+        var jSonTree = document.getElementById('iSOAPpage:theForm:jsonTree');
+        var lstOld = jSonTree.value.split(",");
+        var lstNew = '';
+        var conjun ='';
+        for(var i=0;i<lstOld.length;i++){
+            var oper = lstOld[i].split(":");
+            if(lstNew != ''){
+                conjun = ',';
+            }
+            lstNew =  lstNew + conjun + oper[0] + ":";
+            var requests = oper[1].split(";");
+            for(var j=0;j<requests.length;j++){
+                lstNew = lstNew + requests[j] ;
+                if(j < requests.length -1){
+                    lstNew = lstNew + ";"
+                }
+            }
+            if(oper[0] == operationName){
+                lstNew = lstNew + ";" + newRequestName ;
+            }
+            
+        }
+        jSonTree.value = lstNew;
+    }
+    function createNode(requestName){
+        var n=document.getElementById(requestName);     
+        if(n.value==''){
+            alert("Please enter request.");
+            return ;
+        }
+        nodeSelected.addChild({
+            title: n.value
+        });     
+        addTreeNode(nodeSelected.data.title,n.value);
+        closeNodeCreate();
+    
+    }
+    //Create tree for IE
+    function createTreeIE(xml){  
+        try{
+            if(isTransformByButton){
+                $("#forIE").html(xml).text();       
+                var xmlDoc=generatEndPoint($("#forIE").text());    
+                var xmlValue= $.parseXML(xmlDoc);
+                var listOperation= ''; //new Array();
+                var conjun = '';
+                var i=0;
+                 
+                $('Item',xmlValue).each(function() {
+                    if(listOperation != ''){
+                        conjun = ',';
+                    }
+                    listOperation = listOperation + conjun + $(this).text()+":Request1" ;
+                    i=i+1;
+                });
+                loadTree(listOperation);
+            }else{
+                var lst = document.getElementById("iSOAPpage:theForm:jsonTree").value;
+                if(lst != ''){
+                    loadTree(lst);
+                }
+            }        
+        }catch(e){
+            alert(e.message);
+        }      
+        
+   
+   }
+   //get endPoint
+   function generatEndPoint( xmlDoc ){
+        var te=xmlDoc.search("<location>");
+        var locations=xmlDoc.substring(te);
+        xmlDoc=xmlDoc.replace(locations,"");
+        var location=locations.replace('<location>',"").replace('</location>','');
+        if(location.indexOf("<") != -1){
+            location = location.substring(0,location.indexOf("<"));
+        }
+        document.getElementById("iSOAPpage:theForm:pageBlock:pblockSectionTree:pageBlockRequest:txtEndpoint").value=location;
+        return xmlDoc;
+   }
+   //Create tree for firefox,chrome ...
+   function createTree(xml){ 
+        var jsonTree = document.getElementById("iSOAPpage:theForm:jsonTree");       
+        var xmlDoc = "";
+        //get tree from isoap_configuration object
+        if(isTransformByButton){
+            if (xml.hasChildNodes()) { 
+                for (var oNode, sProp, vContent, nItem = 0; nItem < xml.childNodes.length; nItem++) {  
+                    oNode = xml.childNodes.item(nItem);
+                    if( oNode.nodeType == 3){             
+                        xmlDoc=xmlDoc+ oNode.nodeValue;
+                    }  
+                } 
+            }
+            if(xmlDoc != null && xmlDoc != "" ){
+                xmlDoc=generatEndPoint(xmlDoc);
+                var xmlValue= $.parseXML(xmlDoc);
+                var listOperation= ''; //new Array();
+                var i=0;
+                var conjun = '';
+                $('Item',xmlValue).each(function() {
+                    if(listOperation != ''){
+                        conjun = ',';
+                    }
+                    listOperation = listOperation + conjun + $(this).text()+":Request1" ;
+                    i=i+1;
+                    
+                });
+                jsonTree.value = listOperation;
+                loadTree(listOperation);
+            }else{
+                alert('WSDL file is invalid.');
+            }
+        }else{
+            var lst = jsonTree.value;
+            if(lst != ''){
+                loadTree(lst);
+            }
+        }
+    }
+    function openFile(){           
+         var divOverLay =document.getElementById('overlayBgFile');
+         var divEditDialog =document.getElementById('InlineEditDialogFile');             
+         divOverLay.style.display='inline';
+         divEditDialog.style.display='inline';      
+    }
+   
+</script>
+
+    <apex:sectionHeader title="SOAPi"/>
+    <apex:form id="theForm" >
+        <apex:actionFunction name="selectRequest" action="{!selectRequest}" onComplete="doRequestOperation();return false;" status="status" rerender="xslFileRequest,txtRequestNameOld,theMessages,cmdUpdateRequest,txtXmlbody,txtRequestNameOld,txtSoapAction"/>
+        <apex:actionFunction name="upsertRequest" action="{!upsertRequest}" status="status" rerender="messages"/>
+        <apex:ActionStatus id="status" >
+            <apex:facet name="start">
+                <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Processing..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+            </apex:facet>
+        </apex:ActionStatus>
+        <apex:inputHidden id="txtRequestNameOld" value="{!requestNameOld}"/>
+        <apex:inputHidden id="txtSoapAction" value="{!soapAction}"/>
+        <apex:inputtextarea id="xslFileRequest" value="{!bodyXSLRequest}" style="display:none;"/>
+        <apex:inputtextarea id="xslFile" value="{!bodyXSL}" style="display:none;"/>
+        <apex:inputtextarea id="xmlFile" value="{!bodyXML}" style="display:none;"/>
+        <apex:inputtextarea id="jsonTree" value="{!iSOAP_Config.skyvvasolutions__Operations__c}" style="display:none;"/>
+        <apex:pageblock id="pageBlockProject" >
+            <apex:pageMessages id="messages"/>
+            <apex:pageblockSection title="Project" columns="1" id="pBlockSectionProName" collapsible="false">
+                <apex:panelGrid columns="7" >
+                    <apex:selectList value="{!projectId}" size="1" id="cboProName" >
+                        <apex:selectOptions value="{!lstOptions}" /> 
+                    </apex:selectList>
+                    <apex:commandButton value="Go!" action="{!changeProjectName}" onComplete="doTransform();return false;" rerender="theForm" status="status" disabled="{!Not(disabledUpdate)}" />
+                    <apex:commandLink value="Edit"  action="{!edit}" onComplete="doTransform();return false;" style="padding:3px;" reRender="theForm" status="status" rendered="{!disabledUpdate}"/>
+                    <apex:outputLabel rendered="{!disabledUpdate}">|</apex:outputLabel>
+                    <apex:commandLink value="Create New SOAPi Configuration"  action="{!createNew}" style="padding:3px;" reRender="theForm" status="status"/>
+                </apex:panelGrid>
+            </apex:pageblockSection>
+        </apex:pageblock>
+        
+        <apex:pageblock id="pageBlock" >
+            <apex:pageMessages id="theMessages"/>
+            <apex:pageBlockButtons rendered="{!isSOAPPage}">
+                <apex:commandButton value="Save" action="{!saveProject}"  reRender="theMessages,cboProName" status="status"/>  
+                <!--  <apex:commandButton value="Back" action="{!cancel}" reRender="theForm" status="status"/>-->
+            </apex:pageBlockButtons>
+            <apex:pageblockSection title="Project" columns="1" id="pBlockSectionProject" rendered="{!isSOAPPage}" collapsible="false"> 
+                <apex:inputField value="{!iSOAP_Config.Name}" id="txtProName" label="Project Name"/>
+            </apex:pageblockSection>
+            <apex:pageblockSection title="WSDL File" columns="1" id="pBlockSectionFile" collapsible="false">
+                <apex:outputPanel layout="block" id="panelUploadFile"> 
+                    <apex:commandButton id="cmdUploadFile" value="Import WSDL" onclick="openFile();" rerender="theMessages" disabled="{!disabledUpload}"/>
+                    <apex:commandButton id="cmdTransform" value="Transform" onclick="doTransformByButton();return false;"  rerender="theMessages,cmdUploadFile,txtXmlResponse" status="status" disabled="{!disabledTransform}"/>
+                </apex:outputPanel>
+            </apex:pageblockSection> 
+            <apex:pageblockSection title="Login" columns="1" id="pBlockSectionLogin" collapsible="false">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Certificate Name" />
+                    <apex:inputField value="{!iSOAP_Config.skyvvasolutions__CertificateName__c}" id="txtCertificateName" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Authentication" />
+                    <apex:inputField value="{!iSOAP_Config.skyvvasolutions__Authentication__c}" id="cboAuthentication" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="User Name" />
+                    <apex:inputField value="{!iSOAP_Config.skyvvasolutions__UserName__c}" id="txtUserName" />
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="Password" />
+                    <apex:inputSecret value="{!iSOAP_Config.skyvvasolutions__PWD__c}" id="txtPassword" redisplay="true"/>
+                </apex:pageBlockSectionItem>
+            </apex:pageblockSection>
+            <apex:pageblockSection title="Operations" columns="2" id="pblockSectionTree" collapsible="false">
+            <apex:pageblock id="pageBlockTree">
+                <div id="tree3" style="height:557px;overflow:auto;" ></div>
+            </apex:pageblock>
+            <apex:pageblock id="pageBlockRequest" > 
+                <apex:outputPanel layout="block">
+                    <apex:commandButton id="cmdUpdateRequest" style="margin-left: 10px;" value="Update Request" action="{!upsertRequest}" rerender="txtSoapAction,messages,cmdUploadFile" status="status" disabled="{!disabledUpdateReq}"/>
+                    <apex:inputtext style="width:730px;margin-left: 45px;" id="txtEndpoint" value="{!iSOAP_Config.skyvvasolutions__EndPoint__c}" />
+                    <apex:commandButton id="cmdStart" value="Start" action="{!doRequest}" onComplete="formatXML('Response');return false;" status="status" rerender="txtXmlResponse,theMessages" />
+                </apex:outputPanel>
+                <apex:outputPanel layout="block"> 
+                    <apex:pageblockSection collapsible="false" columns="2" id="pBlockXML" >
+                        <apex:outputPanel layout="block"> 
+                            <apex:outputLabel value="Request"/>
+                            <apex:inputtextarea id="txtXmlbody" style="width:450px;height:500px;overflow:scroll;" value="{!xmlBodyRequest}" />
+                        </apex:outputPanel>
+                        <apex:outputPanel layout="block"> 
+                            <apex:outputLabel value="Response"/>
+                            <apex:inputtextarea id="txtXmlResponse" style="width:450px;height:500px;overflow:scroll;" value="{!xmlBodyResponse}" />
+                        </apex:outputPanel>
+                    </apex:pageblockSection>
+                </apex:outputPanel>
+            </apex:pageblock>
+            </apex:pageblockSection>
+        </apex:pageblock>
+        <div align="center" id="InlineEditDialog" class="overlayDialog inlineEditDialog" style="width:300px;  visibility: visible ;top: 40%;vertical-align: middle;margin-left: 350px;">
+            <div class="topRight">
+                <div class="topLeft">
+                    <img id="InlineEditDialogX" class="dialogClose" src="/s.gif" onclick="closeNodeCreate();" title="$SOAPi_Close" onmouseout="this.className = 'dialogClose'" onmouseover="this.className = 'dialogCloseOn'"/>
+                    <h2 id="InlineEditDialogTitle"  align="left">&nbsp;</h2>
+                </div>
+            </div>
+            <div class="middle">
+                <div id="InlineEditDialogContent" class="innerContent">
+                    <div class="activeField">
+                        <div class="inlineEditCompoundDiv" align="center">                        
+                            <div align="left" style="border:0px solid #888888;text-align: left;" >    
+                                 <apex:outputPanel > 
+                                    <apex:outputLabel value="New Request"/>                            
+                                    <input type="text" id="RequestName"/>
+                                    <apex:CommandButton value="OK" onclick="createNode('RequestName');return false;" title="OK" status="status" rerender="txtXmlResponse"/>
+                                 </apex:outputPanel>                                      
+                            </div> 
+                        </div>
+                    </div>
+                    <div></div>
+                    <div style="display: none;"></div>
+                </div>
+                <div class="bottomRight">
+                    <div class="bottomLeft"></div>
+                </div>
+            </div>
+        </div>
+        <div id="overlayBackground" class="overlayBackground" style=" width:100%;display: none; left: 0; top: 0px;height: 1700px;"></div>
+    </apex:form>
+    <apex:form id="theFileForm">
+        <apex:ActionStatus id="FileStatus" >
+        <apex:facet name="start">
+            <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Processing..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+        </apex:facet>
+        </apex:ActionStatus> 
+        <div align="center" id="InlineEditDialogFile" class="overlayDialog inlineEditDialog" style="height:70px;width:420px;  visibility: visible ;top: 40%;vertical-align: middle;margin-left: 350px;">
+            <div class="topRight">
+                <div class="topLeft">
+                    <img id="InlineEditDialogX" class="dialogClose" src="/s.gif" onclick="closeFile();" title="Close" onmouseout="this.className = 'dialogClose'" onmouseover="this.className = 'dialogCloseOn'"/>
+                    <h2 id="InlineEditDialogTitle">&nbsp;</h2>
+                </div>
+            </div>
+            <div class="middle">
+                <div id="InlineEditDialogContent" class="innerContent">
+                    <div class="activeField">
+                         <div class="inlineEditCompoundDiv" align="Left">                        
+                            <div align="Left" style="border:0px solid #888888;text-align: center;" >                                
+                                <apex:outputPanel >
+                                    <apex:outputLabel value="WSDL File"/>
+                                    <apex:inputfile id="wsdlFile" value="{!wsdlFile.body}" filename="{!fileName}"></apex:inputfile>
+                                    <apex:commandButton value="Upload File" action="{!transform}"/>
+                                </apex:outputPanel>
+                            </div>                                  
+                        </div>
+                    </div>
+                    <div></div>
+                    <div style="display: none;"></div>
+                </div>
+                <div class="bottomRight">
+                    <div class="bottomLeft"></div>
+                </div>
+            </div>
+        </div>
+        <div id="overlayBgFile" class="overlayBackground" style=" width:100%;display: none; left: 0; top: 0px;height: 1700px;"></div>
+    </apex:form>
+    <!-- don't delete this . it's using for IE-->
+    <div id="forIE" style="display:none;" />
+    <div id="requestBoxForIE" style="display:none;" />
+</apex:page>

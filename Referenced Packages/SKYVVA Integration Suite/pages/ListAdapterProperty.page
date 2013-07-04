@@ -1,0 +1,46 @@
+<apex:page id="plistProperty" standardController="skyvvasolutions__Adapter__c" extensions="skyvvasolutions.ClsNewEditViewProperty">
+<apex:form id="frmListProperty">
+
+  <apex:pageblock id="pbLProperty" title="Property" helpTitle="Property Help" helpUrl="/help/doc/user_ed.jsp?loc=help&target=co_relatedlist.htm&section=CustomObjects">
+  <apex:pageBlockButtons id="pbBtn" location="top">
+                <apex:commandButton value="New Property" action="{!btnNewProperty}" id="newPrperty"/>
+   </apex:pageBlockButtons>
+  <apex:pageblocksection id="pbsResult" columns="1">
+      <apex:pageblocktable id="pbTable" value="{!ps}" var="p"  rendered="{!ISNULL(error)}">
+      
+            <apex:column styleClass="actionColumn">
+                <apex:facet name="header">Action</apex:facet>
+                <apex:commandLink styleClass="actionLink" id="cmlEdit" action="{!lnkEdit}">Edit
+                	<apex:param name="propId" value="{!p.id}" assignTo="{!propId}"/>
+                </apex:commandLink>
+                &nbsp;|&nbsp;
+                <apex:commandLink styleClass="actionLink" id="cmlDelete" onclick="return confirmMsg();" action="{!lnkDel}">Del
+                	<apex:param name="propId" value="{!p.id}" assignTo="{!propId}"/>
+                </apex:commandLink>
+            </apex:column>
+            
+            <apex:column value="{!p.skyvvasolutions__Name__c}"/>
+            <apex:column value="{!p.skyvvasolutions__Value2__c}"/>
+            <apex:column value="{!p.CreatedDate}"/>
+            <apex:column value="{!p.LastModifiedDate}"/>
+            
+      </apex:pageblocktable>
+  </apex:pageblocksection>
+  
+  <apex:outputText value="{!error}" rendered="{!NOT(ISNULL(error))}"></apex:outputText>
+  
+  </apex:pageblock>
+</apex:form>
+
+ <script>
+       //confirm when delete button click
+       function confirmMsg(){
+            if(!confirm('Are you sure?')){
+               return false;
+            }
+            return true;
+        }
+
+</script>
+
+</apex:page>

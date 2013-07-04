@@ -1,0 +1,37 @@
+<apex:page controller="skyvvasolutions.ImportCSVXML" sidebar="false"  tabStyle="skyvvasolutions__Integration__c">
+<apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Import {!typ} from {!fileType} file"></apex:sectionHeader>
+
+<style>
+    .lblCol{
+    color:#333333;
+    font-size:91%;
+    font-weight:bold;
+    padding:2px 10px 2px 2px;
+    text-align:right;
+    }
+    
+    .lblCol2{
+}
+</style>
+
+<apex:form id="testForm" >
+
+    <apex:pageBlock id="testBlock" title="">
+    
+        <apex:pageblocksection id="testSection1">            
+            <apex:panelGrid columns="3" cellspacing="5" columnClasses="lblCol,lblCol2,lblCol2">
+                <apex:outputLabel >File</apex:outputLabel>
+                <apex:inputFile fileName="{!document.name}" value="{!document.body}" contentType="{!document.contentType}" size="80"/>   
+                <apex:commandButton id="upload" value="Upload" action="{!uploadFile}" title="click to upload"/>     
+            </apex:panelGrid>    
+        </apex:pageblocksection>
+        
+        <apex:pageblocksection columns="1">
+            <apex:outputText value="{!errFileType}" style="font-weight:bold; color:red;"></apex:outputText>
+        </apex:pageblocksection>
+    
+    </apex:pageBlock>
+
+</apex:form>
+
+</apex:page>

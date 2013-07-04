@@ -1,0 +1,16 @@
+<apex:page contentType="text/xml#{!exportName}.xml; charset=UTF-8" controller="skyvvasolutions.ExportIStructureToCSV">
+{!xmlHeader}
+<result>
+<apex:repeat value="{!IMappingValues}" var="ctx" id="theRepeat">
+<row>
+<field name="Type__c"><![CDATA[{!ctx.skyvvasolutions__Type__c}]]></field>
+<field name="Target__c"><![CDATA[{!ctx.skyvvasolutions__Target__c}]]></field>
+<field name="Target_Type__c"><![CDATA[{!ctx.skyvvasolutions__Target_Type__c}]]></field>
+<field name="Target_Object__c"><![CDATA[{!ctx.skyvvasolutions__Target_Object__c}]]></field>
+<field name="Source__c"><![CDATA[{!ctx.skyvvasolutions__Source_Long__c}]]></field>
+<field name="Source_Type__c"><![CDATA[{!ctx.skyvvasolutions__Source_Type__c}]]></field>
+<field name="EXT_ID__c"><![CDATA[{!ctx.skyvvasolutions__EXT_ID__c}]]></field>
+</row>
+</apex:repeat>
+</result>
+</apex:page>

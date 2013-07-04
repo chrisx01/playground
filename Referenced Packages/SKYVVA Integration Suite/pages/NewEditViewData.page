@@ -1,0 +1,93 @@
+<apex:page id="idata" standardController="skyvvasolutions__IData__c" extensions="skyvvasolutions.ClsNewEditViewData">
+
+<apex:form id="frmIData">
+
+    <apex:pageBlock id="pbEdit_New" title="Data" mode="edit" rendered="{!NOT(view)}">
+                <center><apex:outputText id="txtError" value="{!error}" rendered="{!NOT(ISNULL(error))}" styleClass="pbError"></apex:outputText></center>
+                <apex:pageBlockSection id="pbsData" columns="1">
+                       <apex:inputField id="message" value="{!data.skyvvasolutions__Message__c}" required="true"/>
+                       <apex:inputField id="name_c" value="{!data.skyvvasolutions__Name__c}" required="true"/>
+                      <apex:inputField id="value" value="{!data.skyvvasolutions__Value2__c}" style="width:400px; hieght:50px"/>
+                </apex:pageBlockSection>
+                
+            <apex:pageBlockButtons id="pbBBEdit_New">
+	            <apex:commandButton id="btnSave" value="Save" onclick="saveData();return false;"/>
+	            <apex:actionFunction name="saveData" action="{!save}" oncomplete="if('{!error}'=='')navigate2RUL('{!URLENCODE(data.skyvvasolutions__Message__c)}');" rerender="pbEdit_New" status="status"/>
+	            <apex:commandButton id="btnSaveAndNew" action="{!btnSaveAndNew}" value="Save & New" reRender="pbEdit_New" status="status"
+	            
+	             oncomplete="hideNoteAndAttachment();" />
+	            <apex:commandButton id="btnCancel" action="{!cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+    </apex:pageBlock>
+    
+    <apex:pageBlock id="pbDataView" title="Data Detail" mode="detail" rendered="{!view}">
+    
+        <apex:pageBlockSection id="pbsDataView" columns="1">
+               <apex:outputField id="message" value="{!data.skyvvasolutions__Message__c}"/>
+               <apex:outputField id="name_c" value="{!data.skyvvasolutions__Name__c}"/>
+               <apex:outputField id="value" value="{!data.skyvvasolutions__Value2__c}"/> 
+               <apex:outputField id="createdDate" value="{!data.CreatedDate}"/>
+               <apex:outputField id="lastModifiedDate" value="{!data.LastModifiedDate}"/>  
+        </apex:pageBlockSection>
+        
+        <apex:pageBlockButtons id="pbBBEdit_Delte">
+            <apex:commandButton id="btnEdit" action="{!btnEdit}" value="Edit" rerender="frmIData, notesAndAttachmentsList" status="status"/>
+            <apex:commandButton id="btnDelet" value="Delete" onclick="return confirmMsg();" action="{!btnDel}"/>
+            <apex:commandButton id="btnClone" action="{!btnClone}" value="Clone" rerender="frmIData, notesAndAttachmentsList" status="status"
+            oncomplete="hideNoteAndAttachment();" />
+	            <!-- 07022011 hide Attachment and Note related list when Clone -->
+        </apex:pageBlockButtons>
+    </apex:pageBlock>
+    
+    <apex:actionStatus id="status">
+        <apex:facet name="start">
+        <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+        </apex:facet>
+    </apex:actionStatus>
+</apex:form>
+
+<apex:relatedList id="notesAndAttachmentsList" subject="{!skyvvasolutions__IData__c}" list="NotesAndAttachments"  rendered="{!view}"/>    
+
+<script>
+       var id='idata:frmIData:pbEdit_New:';
+       
+       //confirm when delete button click
+       function confirmMsg(){
+            if(!confirm('Are you sure?')){
+               return false;
+            }
+            return true;
+        }
+        
+        function navigate2RUL(msgId){
+        
+            var msg=document.getElementById(id+'pbsData:message');
+            var name=document.getElementById(id+'pbsData:name_c');
+            //Error: Multiple items found. Select from drop-down or click icon to refine search.=> lookup will be changed  type(text) to hidden
+            if((msg.className!='error' && name.className!='error') && (msg.type==null || msg.type=='text')){
+                document.location.href='/'+msgId;
+            }
+        }
+        
+        function pressEnter(e){
+            try{
+                var evtobj=window.event? event : e;
+                var unicode=evtobj.charCode? evtobj.charCode : evtobj.keyCode;
+                
+                if(unicode=='13'){
+                    document.getElementById(id+'pbBBEdit_New:btnSave').click();
+                }
+            }catch(ex){
+                alert('Error: '+ex);
+            }
+        }
+        
+        function hideNoteAndAttachment() {
+        	var a = document.getElementById('idata:notesAndAttachmentsList');
+        	if(a!=null){
+        		a.innerHTML = '';
+        	}
+        }
+        
+</script>
+</apex:page>

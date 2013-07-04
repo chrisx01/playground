@@ -1,0 +1,2513 @@
+<apex:page id="page" standardcontroller="skyvvasolutions__Interfaces__c" extensions="skyvvasolutions.SC_Mapping" sidebar="false" showHeader="false" action="{!init}">
+    
+    <script src="/soap/ajax/25.0/connection.js" type="text/javascript"></script>
+    <script src="/soap/ajax/25.0/apex.js" type="text/javascript"></script>
+    <script type="text/javascript" src="/js/functions.js"></script>
+    <script src="/dJS/library.js" type="text/javascript"></script>
+
+
+    <link rel="stylesheet" type="text/css" href="/EXT/ext-2.2/resources/css/ext-all.css" />
+    <script type="text/javascript" src="/EXT/ext-2.2/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="/EXT/ext-2.2/ext.js"></script>
+
+	<style>
+
+        .remove {
+            background-image:url('/resource/1269239903000/skyvvasolutions__delete') !important;
+        }
+        .save {
+            background-image:url('/resource/1269239903000/skyvvasolutions__save') !important;
+        }
+        .cancel{
+            background-image:url('/resource/1269240959000/skyvvasolutions__cancel') !important;
+        }
+        .formula{
+            background-image:url('/resource/1285153070000/skyvvasolutions__formula') !important;
+        }
+        
+        .error {
+            color:red;
+        }
+        
+        .no-error{
+            color:#009900;
+        }
+        
+        .x-table-layout-cell {
+            vertical-align:top;
+        }
+        
+		
+		
+    </style>
+	
+	<apex:outputText value="{!errNoInterf}" style="font-weight:bold; color:red;" rendered="{!NOT(ISNULL(errNoInterf))}"></apex:outputText>	
+	<apex:form id="frm1">
+		<apex:inputHidden id="sfObjectSelected" value="{!sfObjectSelected}"/>
+    	<apex:inputHidden id="describeSObjectStr" value="{!describeSObjectStr}"/>
+    	<apex:inputHidden id="arrS" value="{!arrS}"/>
+    	<apex:inputHidden id="arrT" value="{!arrT}"/>
+    	<apex:inputHidden id="result"  value="{!result}"/>
+    	<apex:inputHidden id="iMappings" value="{!iMappings}"/>
+    	<apex:inputHidden id="taExpr" value="{!taExpr}"/>
+    	
+    	<apex:actionFunction name="doDescribeSObject" action="{!doDescribeSObject}" oncomplete="describeObjectComplete();" rerender="frm1"/>
+    	<apex:actionFunction name="doRemove" action="{!doRemove}" oncomplete="doRemoveComplete()" rerender="frm1"/>
+    	<apex:actionFunction name="saveMapping" action="{!saveMapping}" oncomplete="saveMappingComplete();" rerender="frm1"/>
+    	<apex:actionFunction name="testFormula" action="{!testFormula}" oncomplete="testFormulaComplete();" rerender="frm1"/>
+	</apex:form>
+	<apex:form id="frm">
+		
+    	
+    	<apex:messages style="font-weight:bold; height:45px; overflow:auto;" />
+    	
+    	
+    	<apex:actionStatus id="status">
+	       <apex:facet name="start">
+	           <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+	       </apex:facet>
+	   </apex:actionStatus>
+	   
+	   <apex:commandButton id="btnDescribeSObject" style="display:none;"  
+	   			value="describeSObject" onclick="doDescribeSObject(); return false;"/>
+    	
+    </apex:form>
+
+     <apex:PageBlock rendered="{!ISNULL(errNoInterf)}" id="pb1">
+    
+	 	<input type="button" class="btn" id="btnDescribeSObject" style="display:none;" value="describeSObject" onclick="doDescribeSObject();return false;"/> 
+	
+        <table align="center">
+            
+            <tr>
+                <td> <div id="xmlTree-div" style="overflow:auto; height:300px;width:300px;border:0px solid #c3daf9;align-vertical:top;"></div></td>
+                <td style="vertical-align:middle" align="center">
+                    <center>
+                    <b>Drag the Source fields right <br/> to the Target fields.<br/><br/>
+                    To remove a mapping, <br/>select a row and click Remove.
+                    
+                    <br/><br/>
+                    To reorder mappings, <br/>drag and drop <br/>in "Data Mapping" grid.
+                    </b>
+
+                    </center><br/><br/>
+                </td>
+                <td> <div id="tree-div" style="overflow:auto; height:300px;width:300px;border:0px solid #c3daf9;align-vertical:top;"></div></td>
+            </tr>
+            <tr></tr>
+            <tr>
+                <td width="100%" colspan="3"><div id="gridFieldMapping" ></div></td>
+            </tr>
+        </table>
+          <!-- Popup Window -->
+        <div id="popup-win" class="x-hidden">
+            <div class="x-window-header">Formula and Expression</div>
+        </div> 
+     
+	</apex:PageBlock>
+    
+        
+    <script>
+
+		var namespace='{!ns}';
+        var namespaceWS='{!nsWs}';
+
+        sforce.connection.sessionId = '{!$Api.Session_ID}';  
+        
+        
+
+        var allObj=new Array();
+        var grid, tree, xmlTree;
+
+        var src = "{!JSENCODE(intf.Source_Name__c)}";
+        var interfaceName = "{!JSENCODE(intf.Name__c)}" ;
+        var interfaceId= "{!JSENCODE(intf.Id)}"; 
+        var intfOperaType="{!JSENCODE(intf.OperationType__c)}".toLowerCase(); 
+        
+        var isInbound=true;
+        if("{!JSENCODE(intf.Type__c)}".toLowerCase()=="outbound")isInbound=false;
+        
+        var INLINE_INTERFACE=true;
+        if(interfaceId==null || interfaceId==''){
+            interfaceId = '{!JSENCODE($Request.interfaceid)}';
+            interfaceName ='{!JSENCODE($Request.interfacename)}';
+            
+            INLINE_INTERFACE=false;
+        }
+        //alert(location.href);
+                
+        //indicate that the mapping called from outside, not inside interface detail page
+        if(location.href.indexOf("&from=out")>0) {
+            INLINE_INTERFACE=false;
+        }
+
+        var NO_INTERFACE=false;
+        if(interfaceId==null || interfaceId==''){
+            NO_INTERFACE=true;
+        }
+        
+        //alert('INLINE_INTERFACE:'+INLINE_INTERFACE+', NO_INTERFACE:'+NO_INTERFACE);
+        //console.log('interfaceId ' + interfaceId);
+
+
+        var xmlFldNodeSelected, sfFldNodeSelected;
+        var sfNodeDragged, xmlNodeDragged;
+
+
+        var SF_TREE_TITLE='Salesforce', SF_TREE_DIV='tree-div';
+        var SF_ROOT_LBL='salesforce', SF_ROOT_ID='target';
+        
+        var XML_TREE_TITLE='Xml Source', XML_TREE_DIV='xmlTree-div';
+        var XML_ROOT_LBL=interfaceName, XML_ROOT_ID='source';
+        var SRC_COL_LBL=src + ' XML', SRC_COL='source';
+        var TAR_COL_LBL=src + ' Salesforce', TAR_COL='target';
+        var TSRC_COL_LBL='Source Type', TSRC_COL='sType';
+        var TTAR_COL_LBL='Target Type', TTAR_COL='tType';
+        var CHK_COL_LBL="Marks", CHK_COL='marks';
+        var FRM_COL_LBL="Formula", FRM_COL='formula';
+        var EXT_COL='extid', EXT_COL_LBL='Ext Id';
+        var OTAR_COL='targetobject', OTAR_COL_LBL='Target Object';
+        
+
+        var SUCCESS='Action was successful';
+        
+        
+        var lstXmlFlds=[]; //store xml field names
+        
+        //Popup window
+        var clickedRowIndex; //save the row index of the grid b4 open Popup
+        
+        var allSObjNames=[]; //store all described SObject names
+        var sObjs=[]; //store described SObject
+        
+        
+        var allObjectsMandatFields;
+        var allObjectsNonCreFields;
+
+
+        String.prototype.trim=function(){
+            return this.replace(/^\s*|\s*$/g,"");
+        }
+        
+        var mapStrucName_Desc;//for store Sample Content and Description by Structure name -> happened when Load tree.
+        
+        var oneDescObj;
+        
+        var tarNode;
+   		var calledF;//whcih function called describe sobject
+   		var tempRecord,tempStore;
+        
+        var lblStatus;
+        var cboTObjFlds;
+    </script>
+    
+    
+    
+        <script>
+            function Map(){
+                var arrkey=new Array();
+                var arrvalue=new Array();
+                
+                this.put=function(key,value){
+                    for(var i=0;i<arrkey.length;i++){
+                        if(arrkey[i]==key){
+                            arrvalue[i] = value;
+                            return;
+                        }
+                    }
+                    arrkey.push(key);
+                    arrvalue.push(value);
+                }
+                
+                this.get=function(key){
+                    for(var i=0;i<arrkey.length;i++){
+                        if(arrkey[i]==key){
+                            return arrvalue[i];
+                        }
+                    }
+                    return null;
+                }
+                this.size=function(){
+                    return arrkey.length;
+                }
+                
+                this.keyset=function(){
+                    return arrkey;
+                }
+                
+                this.values=function(){
+                    return arrvalue;
+                }
+                
+                this.isempty=function(){
+                    if(arrkey.length==0){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }
+                
+                this.remove=function(key){
+                    for(var i=0;i<arrkey.length;i++){
+                        if(arrkey[i]==key){
+                            arrkey.splice(i,1);
+                            arrvalue.splice(i,1);
+                            break;
+                        }
+                    }       
+                }
+                
+                this.clear=function(){
+                    arrkey.splice(0,arrkey.length);
+                    arrvalue.splice(0,arrkey.length);
+                }
+                this.equal=function(key){
+                    for(var i=0;i<arrkey.length;i++){
+                        if(arrkey[i]==key){
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            }
+            
+            
+    </script>
+    
+    <script>
+    	function doRemoveComplete(){
+    		var comp=document.getElementById("page:frm1:result");
+    		if(comp==null)comp=document.getElementById("page:pbv:pbsecMapping:incMapping::page:frm1:result");
+    		
+    		var result=comp.value;
+    		alert(result);
+    		if(result==SUCCESS || result==''){
+    			doSucess(tempRecords,tempStore);
+    		}
+    	}
+    	function saveMappingComplete(){
+    		var comp=document.getElementById("page:frm1:result");
+    		if(comp==null)comp=document.getElementById("page:pbv:pbsecMapping:incMapping:page:frm1:result");
+    		
+    		var result=comp.value;
+    		if(result==SUCCESS){
+                alert('Data successfully saved !');
+                if(INLINE_INTERFACE==true){
+                    top.location.href="/" + interfaceId;
+                }
+            }
+            else{
+                alert(result);
+            }
+    	}
+    	function testFormulaComplete(){
+    		try{
+	    		var comp=document.getElementById("page:frm1:result");
+	    		if(comp==null)comp=document.getElementById("page:pbv:pbsecMapping:incMapping:page:frm1:result");
+	    		
+	    		var result=comp.value;
+	    		if(result.indexOf('Error:')>-1){//failed
+	    			lblStatus.removeClass('no-error');
+	                lblStatus.addClass('error');
+	                lblStatus.setText('Output:  '+result);
+	    		}else{
+	    			lblStatus.removeClass('error');
+	                lblStatus.addClass('no-error');
+	                lblStatus.setText('Output:  '+result);
+	    		}
+    		}catch(e){
+    			alert(e);
+    		}
+    	}
+    </script>
+    
+    <script>
+        function setToolTip(treeNode){
+            var idn=6;
+            for(var i=0;i<treeNode.childNodes.length;i++){
+                var istruDesc=mapStrucName_Desc.get(treeNode.childNodes[i].text.replace('(text)',''));
+                istruDesc=istruDesc!=null?istruDesc:'No Description Available.';
+                var test=new Ext.ToolTip({
+                    target:'extdd-'+idn,
+                    width:200,
+                    html: istruDesc,
+                    trackMouse:true
+                });
+                idn+=3;  
+            }
+        }
+        
+        function findFn(fn,arrFn){
+                
+            if(fn==null || arrFn==null) return [];
+            
+            for(var i=0;i<arrFn.length;i++){
+                if(arrFn[i]!=null && arrFn[i].constructor==Array && arrFn[i].length>0)
+                if(arrFn[i][0]!=null && arrFn[i][0]==fn){
+                    return arrFn[i];
+                }
+            }
+            return [];
+        }
+        
+        //17022011 used to generate
+        //Array of Array (one record)
+        //eg: [{'Name1=Value1','Name2=Value2',...},{...},...]
+        function genRecordsInArrs(str){
+        
+	        ///console.log('genRecordsInArrs.str>'+str);
+	        
+	        var res = new Array();
+            if (str!=null && str.length>0){
+            	str=str.replace(/\r\n\r\n/g,'\n\n');//IE
+            	str=str.replace(/\r\n/g,'\n');//IE
+            	var records = str.split('\n\n');
+                
+                for(var rec  in records){
+                	if(records[rec].constructor==Function)continue;
+                	
+        	        ///console.log('genRecordsInArrs.rec>'+(records[rec]+''));
+        	        
+		    		var one = new Array();
+		    		var cols = (records[rec]+'').split('\n');
+                	for(var col in  cols){
+                		if(cols[col].constructor==Function)continue;
+                		
+                		///console.log('genRecordsInArrs.cols[col]>'+cols[col]);
+                		
+                        one.push(((cols[col]+'').indexOf('='))>-1 ? (cols[col]+'').substring((cols[col]+'').indexOf('=')+1) : cols[col]+'');
+                	}
+                	res.push(one);
+                }
+                
+                
+           	}
+           	return res;
+        }        
+        function genObjectsInArr(recs, objName){
+        	var rst = new Array();
+            if (recs.length>0){
+            	
+                for(var i in recs){
+                	if(recs[i].constructor==Function)continue;
+        	        
+        	        ///console.log('genObjectsInArr.recs[i]>'+recs[i]);
+        	        
+        	        var obj=new Object();
+        	        if(objName=='IStructure__c'){
+	                	//format obj = {Id:recs[i][0],Name:recs[i][1],namespace+'Type__c':recs[i][2],namespace+'Sample_Content__c':recs[i][3],namespace+'Description__c':recs[i][4]};
+	                	//obj = {Id:m.get('Id'),Name:m.get('Name'),skyvvasolutions__Type__c:m.get('Type__c'),skyvvasolutions__Sample_Content__c:m.get('Sample_Content__c'),skyvvasolutions__Description__c:m.get('Description__c')};
+	                	obj["Id"]=recs[i][0];
+	                	obj["Name"]=recs[i][1];
+	                	obj[namespace+'Type__c']=recs[i][2];
+	                	obj[namespace+'Sample_Content__c']=recs[i][3];
+	                	obj[namespace+'Description__c']=recs[i][4];
+                	}
+                	else if(objName=='IMapping__c'){
+						//format obj = {Id:recs[i][0],skyvvasolutions__EXT_ID__c:recs[i][1],skyvvasolutions__Target__c:recs[i][2],skyvvasolutions__Source_Long__c:recs[i][3],skyvvasolutions__Type__c:recs[i][4],skyvvasolutions__Target_Type__c:recs[i][5],skyvvasolutions__Source_Type__c:recs[i][6],skyvvasolutions__Target_Object__c:recs[i][7]};
+						obj["Id"]=recs[i][0];
+						obj[namespace+"EXT_ID__c"]=recs[i][1];
+						obj[namespace+"Target__c"]=recs[i][2];
+						obj[namespace+"Source_Long__c"]=recs[i][3];
+						obj[namespace+"Type__c"]=recs[i][4];
+						obj[namespace+"Target_Type__c"]=recs[i][5];
+						obj[namespace+"Source_Type__c"]=recs[i][6];
+						obj[namespace+"Target_Object__c"]=recs[i][7];
+					}
+					else if(objName=='IFunctions__c'){
+						//format obj = {Id:recs[i][0],Name:recs[i][1],skyvvasolutions__Expression__c:recs[i][2],skyvvasolutions__Description__c:recs[i][3],skyvvasolutions__GroupName__c:recs[i][4]};
+						obj["Id"]=recs[i][0];
+						obj["Name"]=recs[i][1];
+						obj[namespace+"Expression__c"]=recs[i][2];
+						obj[namespace+"Description__c"]=recs[i][3];
+						obj[namespace+"GroupName__c"]=recs[i][4];
+					}
+					//DescribeSobject
+					else if(objName=='DescribeSobject'){
+						obj = {name:recs[i][0],type:recs[i][1],label:recs[i][2],calculated:recs[i][3],nillable:recs[i][4],defaultedOnCreate:recs[i][5],createable:recs[i][6],updateable:recs[i][7],autoNumber:recs[i][8]};
+					}
+					
+                	if(obj!=null){
+                		rst.push(obj);
+                	}
+                }
+                
+            }
+            return rst;
+        }
+        
+       
+    </script>
+    <script>
+        
+        function addNode(root){
+        
+	       /*When SC_Mapping is used in include component, ajax toolkit is not supposed to use when page load first, 
+	       **So we can't use ajax toolkit in this case. We must use controller instead.
+	       */ 
+                        
+	           var str = '{!JSENCODE(describeGlobalStr)}';
+	           str=str.replace(/\\n/g,'\n').replace(/\\r/g,'\r');
+	           var arr = str.split(',');
+		        for(var i in arr){
+		        	if(arr[i].constructor==Function)continue;
+		        	root.appendChild(new Ext.tree.TreeNode({
+		                   text: '' + arr[i], leaf: false, cls: 'folder',
+		                   collapsible:true, expansible:true, draggable:false
+		               }));
+		           	allSObjNames.push(arr[i]);
+	           }
+	            
+       }
+       
+       
+    </script>
+    
+    <script>
+        
+        function doMapping(){
+        	var rsultData =new Array();
+            var store = grid.store;
+            var strSF='', sfType, oTarget;
+            var strXML='', xmlType;
+                        
+            
+            if(xmlFldNodeSelected==null){
+                alert('Please select a field in the '+ src_tree_tle);//04062010
+                return;
+            }
+            if(sfFldNodeSelected==null){
+                alert('Please select a field in the Salesforce tree');
+                return;
+            }
+            
+            var sfParentNode=sfFldNodeSelected.parentNode;
+            if(sfParentNode!= null){
+                rsultData[0]=strSF + sfFldNodeSelected.text.split('(')[0];
+                sfType =sfFldNodeSelected.text.split('(')[1].replace(/\)/g,'');
+                
+                oTarget=sfParentNode.text; //Target Object
+            }
+            
+            var xmlParentNode = xmlFldNodeSelected.parentNode;
+            if(xmlParentNode != null) {                
+                var ixSep = xmlFldNodeSelected.text.lastIndexOf('(');                
+                rsultData[1] = strXML + xmlFldNodeSelected.text.substring(0, ixSep);
+                xmlType = xmlFldNodeSelected.text.substring(ixSep+1).replace(/\)/g,'');
+            }
+            
+            
+            //it mean create Mapping record
+            var Mapping = Ext.data.Record.create([
+                {name:CHK_COL, type:'boolean'}, {name:TAR_COL, type:'string'},
+                {name:SRC_COL, type:'string'}, {name:FRM_COL, type:'boolean'},
+                {name:EXT_COL, type:'boolean'}, {name:TTAR_COL, type:'string'},
+                {name:TSRC_COL, type:'string'}
+            ]);
+            
+            if((rsultData[0]!='' || rsultData[0]!= null) && (rsultData[1]!='' || rsultData[1]!= null)){
+                if(isInbound==true && sfType=='formula'){
+                	alert('It is not possible to map to formula fields because they are read-only.');
+                	return;
+                }	
+                if(isMappingExists(store,rsultData)) return;                
+            }
+            
+            //create a new mapping record
+            //0: sf; 1: xml
+            var p;
+            if(isInbound){
+                p=new Mapping({extid:false,target:rsultData[0], source:rsultData[1], marks:false, formula:false, tType:sfType, sType:xmlType,targetobject:oTarget});
+            }
+            else{
+                p=new Mapping({extid:false,target:rsultData[1], source:rsultData[0], marks:false, formula:false, tType:xmlType, sType:sfType,targetobject:oTarget});
+            }
+            
+            if(rsultData[0]!='' || rsultData[1]!='' ){
+                grid.stopEditing();
+                store.insert(0,p);
+                grid.startEditing(0,1);
+            }
+                        
+            xmlTree.getSelectionModel().unselect(xmlTree.getSelectionModel().getSelectedNode());
+            tree.getSelectionModel().unselect(tree.getSelectionModel().getSelectedNode());
+            grid.render('gridFieldMapping');
+        
+        } //end function
+
+        /**
+        */
+        function doMapping2(tarNode){
+        	
+            var tarName, tarType, oTarget, srcType;
+            
+            if(sfNodeDragged==null && xmlNodeDragged==null){
+                return;
+            }
+            
+            var tarParentNode=tarNode.parentNode;
+            
+            if(tarParentNode!= null){
+            
+                var ixSep = tarNode.text.lastIndexOf('(');
+                tarName = tarNode.text.substring(0, ixSep);
+                tarType = tarNode.text.substring(ixSep+1).replace(/\)/g,'');
+                
+                if(isInbound){
+                    oTarget=tarParentNode.text; //Target Object
+                }
+            }
+            
+            //it mean create Mapping record
+            var Mapping = Ext.data.Record.create([
+                {name:CHK_COL, type:'boolean'}, {name:TAR_COL, type:'string'}, {name:SRC_COL, type:'string'},
+                {name:FRM_COL, type:'boolean'}, {name:EXT_COL, type:'boolean'},
+                {name:TTAR_COL, type:'string'}, {name:TSRC_COL, type:'string'}
+            ]);
+            
+            if(tarName!='' || tarName!= null){
+                if(isInbound==true && tarType=='formula'){
+                	alert('It is not possible to map to formula fields because they are read-only.');
+                	return;
+                }
+                if(isMappingExists2(grid,tarName)) return;
+            }
+            
+            
+            srcType=tarType;
+            if(isInbound){
+                srcType='text';
+            }
+            
+            //create a new mapping record
+            var p=new Mapping({extid:false,target:tarName, source:'', marks:false, formula:false, tType:tarType, sType:srcType,targetobject:oTarget});
+            
+            if(tarName!='' || tarName!= null){
+                grid.stopEditing();
+                grid.store.insert(0,p);
+                grid.startEditing(0,1);
+            }
+            
+            xmlTree.getSelectionModel().unselect(xmlTree.getSelectionModel().getSelectedNode());
+            tree.getSelectionModel().unselect(tree.getSelectionModel().getSelectedNode());
+            grid.render('gridFieldMapping');
+            
+            sfNodeDragged=null;
+            xmlNodeDragged=null;
+            
+        
+        } //end function
+
+    </script>
+    
+    <script>
+        
+        //----- create tree of salesforce target---//
+            
+        //find object name for query in All SObject Describe Results
+        function findObject(name){        
+        	
+            for(var i=0;i<allObj.length;i++){
+            
+                if(allObj[i]!=null && allObj[i].name==name)
+                    return allObj[i];
+                
+            }
+            return null;
+        }
+        
+        
+        
+        //Show All fields
+            function showAll(obj){
+            	
+            	
+                var oneObj=findObject(obj.text);
+                var mandFields=allObjectsMandatFields.get(obj.text);
+                var noncreaFields=allObjectsNonCreFields.get(obj.text);
+                if(mandFields==null){
+                    mandFields=new Map();
+                }
+                if(noncreaFields==null){
+                    noncreaFields=new Map();
+                }
+    			
+                if(oneObj!=null){
+                    var allFields=oneObj['fields'];
+                    
+                    var toSortFields=new Array();
+                    
+                    for(var i=0;i<allFields.length;i++) {
+                        var field = allFields[i];
+        			        				                                                
+                        var typ=(field['type']+'').toLowerCase();
+                        typ=typ=='string'?'text':typ;
+                        
+                        var isFormula=field['calculated']=='false' ? false : true;
+                        
+                        
+                        var isNullable=field["nillable"]=='false' ? false : true;
+                        var isRequired=(isNullable==false && field["defaultedOnCreate"]=='false' && field['createable']=='true' && typ!='boolean');
+                        
+                        if(isRequired==true){
+                              mandFields.put(field['name'],"true");
+                        }                        
+            
+                        toSortFields.push(field['name'] + '(' + (isFormula==true?'formula':typ) + ')'+(isRequired==true?'***':''));
+                        
+                        if(field['createable']=='false')noncreaFields.put(field['name'],field['name']);
+        
+                    } //end for loop
+                    
+                    allObjectsMandatFields.put(obj.text,mandFields);
+                    allObjectsNonCreFields.put(obj.text,noncreaFields);
+        
+                    toSortFields = toSortFields.sort();
+        
+                    for(var j in toSortFields){
+                    	if(toSortFields[j].constructor==Function)continue;
+                        var node = new Ext.tree.TreeNode({
+                            text: toSortFields[j],
+                            leaf: true, cls: '', isTarget:true,
+                            draggable:true, autoScroll:true,
+                            collapsible: true, animCollapse: true,
+                            expandable: false, expandsible:true,
+                            allowDrop:true, allowDrag:true
+                        });
+        
+                        obj.appendChild(node);
+                    }
+        
+                    obj.expand();
+    
+                } //end if
+    
+            }//end function
+    </script>
+    
+    <script>
+        
+            function findDescribedObj(obj){
+    			
+                for(var i in sObjs){
+    				if(sObjs[i].constructor==Function)continue;
+                    if(sObjs[i].name==obj)
+                    return sObjs[i];
+                }
+    
+                return null;
+            }
+            
+            //18022011 support PGE
+            function describeObject(objName){
+            	
+            	try {
+                   	oneDescObj=sforce.connection.describeSObject(objName);
+                
+                }catch(e){
+                
+                  	//Format:
+					//{fields:[{name:name1,},{}]
+					
+					var sfObjectSelected = document.getElementById('page:frm1:sfObjectSelected');
+					if(sfObjectSelected==null)sfObjectSelected = document.getElementById('page:pbv:pbsecMapping:incMapping:page:frm1:sfObjectSelected');
+				
+					if(sfObjectSelected!=null){
+						sfObjectSelected.value = objName;
+						var btn = document.getElementById('page:frm:btnDescribeSObject');
+						if(btn==null)btn = document.getElementById('page:pbv:pbsecMapping:incMapping:page:frm:btnDescribeSObject');
+						
+						btn.onclick();
+	                }
+               	}
+            }
+            //18022011 support PGE
+            function describeObjectComplete(){
+            	try{
+	            	var descCtl = document.getElementById('page:frm1:describeSObjectStr');
+	            	if(descCtl==null)descCtl = document.getElementById('page:pbv:pbsecMapping:incMapping:page:frm1:describeSObjectStr');
+	            	
+	            	descCtl.value=descCtl.value.replace(/<\/br\/><\/br\/>/g,'\n\n').replace(/<\/br\/>/g,'\n');
+					var describeSObjectStr = ''; // '{!JSENCODE(describeSObjectStr)}';
+					if(descCtl!=null) {
+						describeSObjectStr = descCtl.value;
+					}
+			        //console.log('describeSObjectStr>'+describeSObjectStr);
+			        if(describeSObjectStr!=''){
+			        	
+				        var fields;
+				        var recs = genRecordsInArrs(describeSObjectStr);
+				        fields =  genObjectsInArr(recs, 'DescribeSobject');
+				        
+				        var comp=document.getElementById('page:frm1:sfObjectSelected');
+				        if(comp==null)comp=document.getElementById('page:pbv:pbsecMapping:incMapping:page:frm1:sfObjectSelected');
+				        
+				        oneDescObj = {fields:fields,name:comp.value};
+	               		
+	               }
+	               
+	               //In case selected Target Tree    
+	                                   		
+	               if(calledF=='TarSelectionchange'){
+	               		
+	               		allObj.push(oneDescObj);
+	               		showAll(tarNode);
+	               		manageSFTreeStyle();
+	               }else if(calledF=='Select Targets'){
+	               		
+	               		sObjs.push(oneDescObj);
+	               		var comp=document.getElementById('page:frm1:sfObjectSelected');
+	               		if(comp==null)comp=document.getElementById('page:pbv:pbsecMapping:incMapping:page:frm1:sfObjectSelected');
+	               		
+	               		var oneObj=findDescribedObj(comp.value);
+	               		var fldNames=[];
+	               		var allFields=oneObj['fields'];
+	               		
+	                    createFieldNames(fldNames,allFields);
+	                    
+	                    fldNames.sort();
+	                    cboTObjFlds.store.removeAll();
+                        cboTObjFlds.store.loadData(fldNames);
+                        
+	               }
+	               calledF='';
+	            }catch(e){
+	            	alert(e);
+	            }                            		
+            }
+            
+            function getAllFldNames(obj){
+    			try{
+	                
+	                var fldNames=[];
+	                var oneObj=findDescribedObj(obj);
+	                
+	                if(oneObj==null){
+	                	describeObject(obj);
+	                	oneObj = oneDescObj;
+	                    if(oneObj!=null){
+	                    	sObjs.push(oneObj);
+	                    }
+	                }            
+	    
+	                if(oneObj!=null){
+	                    var allFields=oneObj['fields'];
+	    
+	                    for(var i=0;i<allFields.length;i++) {
+	                        fldNames.push(allFields[i]['name']);
+	                    }
+	                    fldNames.sort();
+	                    return fldNames;
+	                }
+	    
+	                return [];
+                }catch(e){
+                	alert(e);
+                }
+            }
+            
+            
+    
+    </script>
+    <script>
+    	function createFieldNames(fldNames,allFields){
+    		for(var i=0;i<allFields.length;i++) {
+                fldNames.push(allFields[i]['name']);
+            }
+    	}
+    </script>
+    <script>
+        function doRenderer(grid,record){
+            for(var i=0;i<grid.getStore().getCount();i++){
+                var rec=grid.getStore().getAt(i);
+                if(rec!=record)
+                    rec.set(EXT_COL, false);
+            }
+        }
+        
+        function doAColNames(aColNames,colName){
+            for(var i=0; i<colName.length; i++){
+                aColNames.push({name: colName[i]});
+            }
+        }
+        
+        function createStoreGripMapping(rst,arr){
+            for(var i=0;i<rst.length;i++){
+            	
+                arr.push([rst[i][namespace+'EXT_ID__c']=='false'?false:true, 
+                    rst[i][namespace+'Target__c'],
+                    rst[i][namespace+'Source_Long__c']!=null && rst[i][namespace+'Source_Long__c']!='' && rst[i][namespace+'Source_Long__c']!='null'
+                    	? rst[i][namespace+'Source_Long__c'] : rst[i][namespace+'Source__c'],
+                    rst[i][namespace+'Type__c']=='Flat'?false:true,
+                    rst[i][namespace+'Target_Type__c'], 
+                    rst[i][namespace+'Source_Type__c'], 
+                    rst[i][namespace+'Target_Object__c']]);
+            }
+        }
+        
+        //find all records which have been checked in the grid
+        function findCheckedRecords(grid){
+
+            try{
+                if(grid==null) return [];
+                var records=[];
+                for(var i=0;i<grid.getStore().getCount();i++){
+                    var rec=grid.getStore().getAt(i);
+                    if(rec.get(CHK_COL)==true) { // checked
+                        records.push(rec);
+                    }
+                }
+                return records;
+            }
+            catch(e){
+                alert('Error: findCheckedRecords() caused by\n'+e);
+                return [];
+            }
+        }
+    </script>
+    <script>
+        function doConfirm(records,arrS,arrT){
+            for(var i=0;i<records.length;i++){
+        
+                if(records[i]!=null){
+    				var s=records[i].get(SRC_COL)==''?' ':records[i].get(SRC_COL);
+                    var t=records[i].get(TAR_COL)==''?' ':records[i].get(TAR_COL);
+                    
+                    arrS.push(s);
+                    arrT.push(t);
+                }
+            }
+        }
+        
+        function doSucess(records,store){
+            for(var i=0;i<records.length;i++){
+                store.remove(records[i]);
+            }
+        }
+    </script>
+    <script>  
+        function validateAndSaveMappings(store,iMappings){
+            try{
+            
+                if(store.getCount()==0){
+                    return 'No mappings available';
+                }               
+                
+                //1- check mappings linked to more than one object              
+                var objects=new Map();
+                for(var i=0;i<store.getCount();i++){
+                    var tobj=store.getAt(i).get(OTAR_COL);
+                    if(tobj!=null){
+                        objects.put(tobj);
+                    }
+                }
+                if(objects.size()>1){
+                    return 'The mappings are linked to more than one objects: ['+ (objects.keyset()+'').replace(/,/g,', ')+
+                        ']. They must be linked to only one object.';
+                }   
+                
+                var objname=objects.keyset()[0];
+                    
+                //mappings linked to only one object
+                
+                //case inbound only
+                if(isInbound){  
+                
+                    var mandFields=allObjectsMandatFields.get(objname);
+                    var noncreaFields=allObjectsNonCreFields.get(objname);
+                    
+                    //when user reopen interface and click save mapping
+                    if(mandFields==null || noncreaFields==null){
+                        mandFields=new Map();
+                        noncreaFields=new Map();
+                        
+                        //18022011 support PGE
+                        try {
+                        	allObj=sforce.connection.describeSObjects([objname]);
+                        }
+                        catch(e){
+                        
+	                        describeObject(objname);
+	                    	 if(oneDescObj!=null){
+	                        	allObj.push(oneDescObj);
+                    		 }
+                        }
+                        
+                        var oneObj=findObject(objname);
+                        var allFields=oneObj!=null?oneObj['fields']:null;
+                        if(allFields!=null){
+                        	for(var i=0;i<allFields.length;i++) {
+                                var field = allFields[i];
+                                var typ=(field['type']+'').toLowerCase();  
+                                var isRequired=(field["nillable"]=='false' && field["defaultedOnCreate"]=='false' 
+                                                    && field['createable']=='true' &&  typ!='boolean');
+                                if(isRequired==true){
+                                      mandFields.put(field['name'],"true");
+                                } 
+                                if(field['createable']=='false')noncreaFields.put(field['name'],field['name']);
+                            } 
+                        }   
+                    }
+                    
+                    //2- check all mandatory fields
+                    var missMan=[];
+                    //alert('mandFields: '+mandFields.keyset());
+                    for(var v=0;v<mandFields.size();v++){
+                        var b=false;
+                        var mfn=mandFields.keyset()[v];
+                        for(var i=0;i<store.getCount();i++){
+                            var fTar=store.getAt(i).get(TAR_COL);
+                            //has this mand field
+                            if(mfn==fTar){
+                                b=true;
+                                break;
+                            }
+                        }
+                        //no this mand field
+                        if(b==false){
+                            //in case User, ProfileId no mapping or else it error when integrate (MIXED_DML_OPERATION_NOT_ALLOWED)
+                            if((objname=='User' && (mfn=='ProfileId' || mfn=='UserRoleId'))==false){
+                                missMan.push(mfn);  
+                            }                           
+                        }
+                    }
+                    if(missMan.length>0 && intfOperaType!="update"){
+                        return 'No mappings have been defined for these '+objname+'\'s mandatory fields: [' + (missMan+'').replace(/,/g,', ')+']';
+                    }
+                    //end check all mandatory fields
+                    
+                    //3- check all non-writable fields
+                    var missCrea=[];
+                    //alert('noncreaFields: '+noncreaFields.keyset());
+                    //for all nonwritable fields
+                    for(var v=0;v<noncreaFields.size();v++){
+                        var mfn=noncreaFields.keyset()[v];
+                        //for all mappings
+                        for(var i=0;i<store.getCount();i++){
+                            var fTar=store.getAt(i).get(TAR_COL);
+                            //has this non-writable field
+                            //except ID field
+                            if(mfn==fTar && fTar!='Id'){
+                                missCrea.push(mfn);
+                                break;
+                            }
+                        }
+                    }                                       
+                    //alert('missCrea: '+missCrea);
+                    if(missCrea.length>0){
+                        return 'The '+objname+ '\'s fields ['+(missCrea+'').replace(/,/g,', ')+'] are not writable in Salesforce. Please remove them from the mappings.';
+                    }
+                    //end check all non-writable fields
+                    
+                    //4- check external id
+                     var hasExtId=false;
+                     for(var i=0;i<store.getCount();i++){
+                         if(store.getAt(i).get(EXT_COL)){
+                             hasExtId=true;
+                             break;
+                         }
+                     }
+                     if(hasExtId==false && intfOperaType!='insert'){
+                         return 'No External Id mapping was found. Make sure there is one External Id mapping.';
+                     }
+                     //end check external id
+                    
+                }           
+                 
+                for(var i=0;i<store.getCount();i++){
+            
+                    var fSrc=store.getAt(i).get(SRC_COL);
+                    var fTar=store.getAt(i).get(TAR_COL);
+                    var fmula=store.getAt(i).get(FRM_COL)==false?'Flat':'Formula';
+                    var fSrcType=store.getAt(i).get(TSRC_COL);
+                    var fTarType=store.getAt(i).get(TTAR_COL);
+                    var oTarget=objname; //store.getAt(i).get(OTAR_COL)==null?'':store.getAt(i).get(OTAR_COL);
+                    var isExtId=store.getAt(i).get(EXT_COL);
+                    var iMap=createIMapping(fSrc,fTar,fSrcType, fTarType, oTarget, fmula, isExtId, (i+1));
+        
+                    //alert('imap ' + iMap);
+        
+                    if(iMap!=null) iMappings.push(iMap);                    
+                }
+                
+                return ''; //ok
+                
+            }catch(ex){
+                return 'validateAndSaveMappings>ERROR:'+ex;
+            }
+        }
+        </script>
+        <script>
+        //create an object of IMapping for WSIMappingIntegration web service
+        function createIMapping(fSrc,fTar,fSrcType, fTarType, oTarget, fmula, isExtId, seq){
+
+            try{
+            	var obj=new sforce.Xml("IMapping");
+                obj.fSrc=fSrc;
+                obj.fTar=fTar;
+                obj.fSrcType=fSrcType.replace(/[*]/g,'');
+                obj.fTarType=fTarType.replace(/[*]/g,'');
+                obj.oTarget=oTarget;
+                obj.fmula=fmula; //Flat or Formula
+                obj.isExtId=isExtId; //boolean
+                obj.seq = seq;
+	            return obj;
+            }
+            catch(e){
+                alert('Error createIMapping() caused by\n'+e);
+                return null;
+            }
+
+        }
+        
+        
+        
+        function doSrcFFN(lstXmlFlds,storeSrcFld,arrFn,storeFn){
+            for(var i=0;i<lstXmlFlds.length;i++){
+                storeSrcFld.push(lstXmlFlds[i]);
+            }
+            for(var i=0;i<arrFn.length;i++){
+                storeFn.push(arrFn[i][0]+'');
+            }
+        }
+    </script>
+    <script>
+        
+        
+        function doQuotedText(str,startQ,text,result){
+            for(var i=0;i<str.length;i++){
+                
+                if((str.charAt(i)=='\'' || str.charAt(i)=='\"') && !startQ){
+                    startQ=true;
+                }
+                else if(startQ && !(str.charAt(i)=='\'' || str.charAt(i)=='\"')){
+                    text+=str.charAt(i);
+                    //console.log('during text ' + text);
+                }
+                else if((str.charAt(i)=='\'' || str.charAt(i)=='\"') && startQ){
+                    startQ=false;
+                    //console.log('end text ' + text);
+                    if(text!='') {
+                        result.push(text);
+                        text = clearText();
+                    }
+                }
+            }
+        } 
+        //this function to avoid script error (Functions description show)       
+        function clearText(){
+            return '';
+        }
+        
+    </script>
+    <script>
+        function isMappingExists(store,rsultData){
+            var tarName=rsultData[0];
+            if(isInbound==false){
+                tarName=rsultData[1];
+            }
+            for(var i=0;i<store.getCount();i++){
+                if(store.getAt(i).get(TAR_COL)==tarName){
+                    alert('Field already mapped');
+                    return true;
+                }
+            }
+        }
+        
+        function isMappingExists2(grid,tarName){
+            for(var i=0;i<grid.store.getCount();i++){
+                if(grid.store.getAt(i).get(TAR_COL)==tarName){
+                    alert('Field already mapped');
+                    return true;
+                }
+            }
+        }
+        
+        function findStrInArr(str,arr){
+            if(str==null || arr==null) return false;
+            
+            for(var i=0;i<arr.length;i++){
+                if(arr[i]!=null && arr[i]==str){
+                    return true;
+                }
+            }
+            return false;
+        }
+    </script>
+    
+    <script>
+        var src_div,tar_div;
+        var src_tree_tle=XML_TREE_TITLE;
+        if(isInbound){
+            src_div=XML_TREE_DIV;
+            tar_div=SF_TREE_DIV;
+        }else{
+            src_div=SF_TREE_DIV;
+            tar_div=XML_TREE_DIV;
+            src_tree_tle='Target Structures'
+        }
+        
+        function manageSFTreeStyle(){
+    
+            var tt=document.getElementById(SF_TREE_DIV);
+            if(tt){
+                tt.style.overflow='auto';
+            }
+        }
+        
+        Ext.onReady(function(){
+            allObjectsMandatFields=new Map();
+            allObjectsNonCreFields=new Map();
+            mapStrucName_Desc=new Map();
+            //----- create tree of xml tree source---//
+            
+            function addNodeSource(root){
+                
+                var rst;
+                var qObject;
+                
+                try {
+                    qObject=sforce.connection.query("select Id, Name,"+namespace+"Name__c,"
+                                       +namespace+"Type__c,"+namespace+"Description__c,"+namespace+"Sample_Content__c from "
+                                       +namespace+"IStructure__c where "+namespace+"Interface__c='" + interfaceId + "' order by Name");
+	                //console.log(' qObject ' + qObject);
+	                if (qObject.size>0){
+                    	rst = qObject.getArray('records');
+                    }
+                }
+                catch(e){}
+                
+                if(rst==null){
+                	
+	            	/*
+	            	sample format of "structures":
+	            	Id=a0A900000021jpwEAA 
+	            	Name=ISCLOSED 
+	            	Type__c=String 
+	            	Sample_Content__c=false 
+	            	Description__c=false 
+	            	
+	            	Id=a0A900000021jpsEAA 
+	            	Name=ORIGIN
+	            	Type__c=String 
+	            	Sample_Content__c=null 
+	            	Description__c=Email 
+	            	*/
+	            	var structures = '{!JSENCODE(structures)}';
+			        ///console.log('structures>'+structures);
+			        structures=structures.replace(/\\n/g,'\n').replace(/\\r/g,'\r');
+			        var recs = genRecordsInArrs(structures);
+			        rst = genObjectsInArr(recs, 'IStructure__c');
+                }
+        
+                if (rst!=null){
+                    //add all fields name
+                    for(var rec in rst){
+		            	var one = rst[rec];
+		            	if(one.constructor==Function)continue;
+		            	
+		            	var structName = one[namespace+'Name__c']!=null && one[namespace+'Name__c']!='' 
+                                         && one[namespace+'Name__c']!='null' ? one[namespace+'Name__c'] : one['Name'];
+                                         
+		                mapStrucName_Desc.put(structName, one[namespace+'Description__c']);
+		                lstXmlFlds.push(structName);
+		
+		                var typ=(one[namespace+'Type__c']+'').toLowerCase();
+		                typ=typ=='string'?'text':typ;
+		                var fieldname=structName + '(' + typ + ')';
+		                fieldname=Ext.util.Format.htmlEncode(fieldname);
+		                var node = new Ext.tree.TreeNode({
+		                    text: fieldname,
+		                    leaf: true,
+		                    collapsible:true,
+		                    draggable:true
+		                });
+		                root.appendChild(node);
+		            }
+		            Ext.QuickTips.init();
+                }
+            }
+    
+    
+            var xmlRootNode = new Ext.tree.TreeNode({id: XML_ROOT_ID, text:XML_ROOT_LBL, draggable:false,draggable:false});
+    
+            xmlTree= new Ext.tree.TreePanel({
+                //id: 'tree-panel',
+                el:src_div, title: src_tree_tle,
+                region: 'center', margins: '2 2 0 2',
+                autoScroll: true, animCollapse: true,
+                frame: false, containerScroll: true,
+                ddGroup:'TreeDD', enableDD:true,
+                enableDrag:true, enableDrop: true,
+                animate:true,
+                dropConfig: {
+    
+                    onNodeOver : function(n, dd, e, data){
+        
+                        var pt = this.getDropPoint(e, n, dd);
+                        var node = n.node;
+            
+                        // auto node expand check
+                        if(!this.expandProcId && pt == "append" && node.hasChildNodes() && !n.node.isExpanded()){
+                            this.queueExpand(node);
+                        }else if(pt != "append"){
+                            this.cancelExpand();
+                        }
+            
+                        if(node.leaf!=null && node.leaf==true && dd.id=='ext-gen9'){
+                            return this.dropNotAllowed;
+                        }
+            
+                        if(node.leaf!=null && node.leaf==true){
+                            return 'x-tree-drop-ok-append';
+                        }
+                        else{
+                            return this.dropNotAllowed;
+                        }
+                    }
+                },
+    
+                listeners: {
+        
+                    'render': function(tp){
+                        tp.getSelectionModel().on('selectionchange', function(tree, node){
+                
+                            if(node!=null && node.leaf!=null && node.leaf==true){
+                                xmlFldNodeSelected=node;
+                
+                
+                            }else if(node!=null && (node.leaf==null || node.leaf==false)){
+                                xmlFldNodeSelected=null;
+                            }
+                
+                
+                        })
+                    },
+        
+                    /**Fires when a tree node is being targeted for a drag drop, return false to signal drop not allowed.
+                    The dragOverEvent passed to handlers has the following properties:
+                    tree - The TreePanel; target - The node being targeted for the drop
+                    data - The drag data from the drag source; point - The point of the drop - append, above or below
+                    source - The drag source ; rawEvent - Raw mouse event; dropNode - Drop node(s) provided by the source.
+                    cancel - Set this to true to signal drop not allowed.*/
+                    'nodedragover': function(e){
+        
+                        e.cancel=true;
+        
+                        //make sure that the two nodes are both leaf nodes
+                        if(e.dropNode.leaf!=null && e.dropNode.leaf==true && e.target.leaf!=null && e.target.leaf==true){
+                        
+                            if(xmlRootNode.contains(e.target) && xmlRootNode.contains(e.dropNode)){
+                                //alert('The source and target are in the same tree');
+                            }
+                            else{
+                                //drag from sf to xml
+                                xmlFldNodeSelected=e.target;
+                                sfFldNodeSelected=e.dropNode;
+        
+                                //add data to grid
+                                doMapping();
+        
+                                //clear selected node
+                                xmlFldNodeSelected=null;
+                                sfFldNodeSelected=null;
+        
+                                sfNodeDragged=null;
+                                xmlNodeDragged=null;
+        
+                                //selected the target node
+                                this.getSelectionModel().select(e.target);
+                            }
+                        }
+                    }
+                    
+                    ,
+    
+                    /**
+                    Fires when a node start being dragged
+                    Listeners will be called with the following arguments:
+                    this : Ext.tree.TreePanel; node : Ext.tree.TreeNode; e : event The raw browser event
+                    */
+                    'startdrag': function(node, e){
+                        if(isInbound==false){
+                            xmlNodeDragged=node;
+                            //console.log('start drag xmlNodeDragged: ' + xmlNodeDragged);
+                        }
+                    },
+                    
+                    'enddrag': function(node, e){
+                        if(isInbound==false){
+                            xmlNodeDragged=null;
+                            //console.log('end drag xmlNodeDragged: ' + xmlNodeDragged);
+                        }
+                    }
+        
+                }
+            });
+    
+            
+            //If has Interface
+            if(!NO_INTERFACE){
+                xmlTree.setRootNode(xmlRootNode);
+                xmlTree.render();
+    
+                //add Node to xml tree
+                addNodeSource(xmlRootNode);
+                xmlRootNode.expand();
+                setToolTip(xmlRootNode);
+            }
+       
+            
+            
+    
+    
+            var root = new Ext.tree.TreeNode({text:SF_ROOT_LBL,draggable:false,id:SF_ROOT_ID,draggable:false});
+    		
+            tree = new Ext.tree.TreePanel({
+    
+                //el:SF_TREE_DIV, title: SF_TREE_TITLE,
+                el:tar_div, title: SF_TREE_TITLE,
+                region: 'center', margins: '2 2 0 2',
+                autoScroll: true,
+                //containerScroll: true,
+                animCollapse: true,
+                frame: false,
+                ddGroup:'TreeDD', enableDD:true,
+                enableDrag:true, enableDrop: true,
+                animate:true,
+                dropConfig: {
+    
+                    onNodeOver : function(n, dd, e, data){
+        
+                        var pt = this.getDropPoint(e, n, dd);
+                        var node = n.node;
+            
+                        // auto node expand check
+                        if(!this.expandProcId && pt == "append" && node.hasChildNodes() && !n.node.isExpanded()){
+                            this.queueExpand(node);
+                        }else if(pt != "append"){
+                            this.cancelExpand();
+                        }
+            
+                        if(node.leaf!=null && node.leaf==true && dd.id=='ext-gen50'){
+                            return this.dropNotAllowed;
+                        }
+            
+                        if(node.leaf!=null && node.leaf==true){
+                            return 'x-tree-drop-ok-append';
+                        }
+                        else{
+                            return this.dropNotAllowed;
+                        }
+                    }
+                },
+    
+                listeners: {
+    
+                    'render': function(tp){
+                        tp.getSelectionModel().on('selectionchange', function(tree, node){
+        
+                            if(node !=null){
+                                if(node.text==SF_TREE_TITLE) return ;
+            
+                                if((node.parentNode!=null && node.parentNode.text==SF_ROOT_LBL) || node.isLeaf()== false){
+                                    sfFldNodeSelected=null;
+            
+                                    if(node.hasChildNodes()==false){
+                                   		//18022011 support PGE
+                                    	
+                                    	try{
+                                        	allObj=sforce.connection.describeSObjects([node.text]);
+                                        	showAll(node);
+            	                            manageSFTreeStyle();
+            	                            
+                                        }catch(e){
+                                        
+                                       		tarNode=node;
+                                       		calledF='TarSelectionchange';
+                                        	describeObject(node.text);
+                                        	
+                                        }
+                                        
+                                        
+                                    }
+                                }
+                                else if(node.isLeaf()==true){
+                                    sfFldNodeSelected = node;
+            
+                                    //alert(sfFldNodeSelected.text);
+                                }
+                            }
+        
+                        })
+                    },
+    
+                    //Other possible event beforenodedrop : ( Object dropEvent )
+                    
+                    /**Fires when a tree node is being targeted for a drag drop, return false to signal drop not allowed.
+                    The dragOverEvent passed to handlers has the following properties:
+                    tree - The TreePanel; target - The node being targeted for the drop
+                    data - The drag data from the drag source; point - The point of the drop - append, above or below
+                    source - The drag source ; rawEvent - Raw mouse event; dropNode - Drop node(s) provided by the source.
+                    cancel - Set this to true to signal drop not allowed.*/
+                    'nodedragover': function(e){
+                    
+                        e.cancel=true;
+        
+                        if(root.contains(e.target) && root.contains(e.dropNode)){
+                            //alert('The source and target are in the same tree');
+                        }
+                        else{
+        
+                            //make sure that the two nodes are both leaf nodes
+                            if(e.dropNode.leaf!=null && e.dropNode.leaf==true && e.target.leaf!=null && e.target.leaf==true){
+        
+                                //drag from xml to sf
+                                xmlFldNodeSelected=e.dropNode;
+                                sfFldNodeSelected=e.target;
+            
+                                //add data to grid
+                                doMapping();
+        
+                                //clear selected node
+                                xmlFldNodeSelected=null;
+                                sfFldNodeSelected=null;
+        
+                                sfNodeDragged=null;
+                                xmlNodeDragged=null;
+        
+                                //selected the target node
+                                this.getSelectionModel().select(e.target);
+                            }
+        
+                        }
+                    },
+    
+                    /**
+                    Fires when a node start being dragged
+                    Listeners will be called with the following arguments:
+                    this : Ext.tree.TreePanel; node : Ext.tree.TreeNode; e : event The raw browser event
+                    */
+                    'startdrag': function(node, e){
+                        if(isInbound){
+                            sfNodeDragged=node;
+                            //console.log('start drag sfNodeDragged: ' + sfNodeDragged);
+                        }
+                    },
+                    'enddrag': function(node, e){
+                        if(isInbound){
+                            sfNodeDragged=null;
+                            //console.log('end drag sfNodeDragged: ' + sfNodeDragged);
+                        }
+                    }
+    
+                }
+    
+            }); //end sf tree
+    
+            //If has Interface
+            if(!NO_INTERFACE){
+    
+                tree.setRootNode(root);
+                tree.render();   
+                //add node (sf object) to tree root (sf)             
+                addNode(root); 
+                
+                
+                root.expand();
+            }
+    
+    
+            // -------- Check Column --------- //
+            Ext.grid.CheckColumn = function(config){
+                Ext.apply(this, config);
+                if(!this.id){
+                    this.id = Ext.id();
+                }
+                this.renderer = this.renderer.createDelegate(this);
+            };
+    
+            Ext.grid.CheckColumn.prototype ={
+                init : function(grid){
+                    this.grid = grid;
+                    this.grid.on('render', function(){
+                        var view = this.grid.getView();
+                        view.mainBody.on('mousedown', this.onMouseDown, this);
+                    }, this);
+                },
+    
+                onMouseDown : function(e, t){
+                    if(t.className && t.className.indexOf('x-grid3-cc-'+this.id) != -1){
+                        e.stopEvent();
+                        var index = this.grid.getView().findRowIndex(t);
+                        var record = this.grid.store.getAt(index);
+                        record.set(this.dataIndex, !record.data[this.dataIndex]);
+                    }
+                },
+    
+                renderer : function(v, p, record){
+    
+                    if(record.get(EXT_COL)==true){
+                    	
+                    	//INBOUND can have >1 ext Mapping
+                    	//OUTBOUND if have, only one (eg SF2Agent)
+                    	if(!isInbound) {
+                        	doRenderer(grid,record);
+                        }
+                        
+                    }
+    
+    
+                    p.css+=' x-grid3-check-col-td';
+                    return '<div class="x-grid3-check-col'+(v?'-on':'')+' x-grid3-cc-'+this.id+'">&#160;</div>';
+                }
+            }; //End check Column
+    
+    
+            //---table grid Mapping ---//
+            Ext.onReady(function(){ //inner
+    
+                Ext.QuickTips.init();
+                Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+    
+                //grid columns
+                var colName;
+                colName = [EXT_COL, TAR_COL, SRC_COL, FRM_COL, TTAR_COL, TSRC_COL, OTAR_COL];
+                
+                var aColNames = new Array();
+                doAColNames(aColNames,colName);
+                
+    
+                var reader = new Ext.data.ArrayReader({}, aColNames);
+                var store = new Ext.data.Store({reader:reader});
+    
+                var checkColumn = new Ext.grid.CheckColumn({
+                    header:CHK_COL_LBL, dataIndex:CHK_COL, width:55, sortable:false, hideable:false
+                });
+                var checkColumnExt = new Ext.grid.CheckColumn({
+                    header:EXT_COL_LBL, dataIndex:EXT_COL, width:55, sortable:false, hideable:false
+                });
+                var checkColumnFrm = new Ext.grid.CheckColumn({
+                    header:FRM_COL_LBL, dataIndex:FRM_COL, width:55, sortable:false, hideable:false
+                });
+                
+    
+                var cmm=[];
+                cmm.push(checkColumn);
+                cmm.push(checkColumnExt);
+                
+                var colTar={
+                        id:TAR_COL, header:'Target', dataIndex:TAR_COL,
+                        width: 250, sortable:true, hideable:false
+                        //, editor:new Ext.form.TextField({allowBlank:true})
+                    };
+                var colSrc={
+                        id:SRC_COL, header:'Source', dataIndex:SRC_COL,
+                        width:250, sortable:true, hideable:false
+                    };
+    
+                cmm.push(colTar);
+                cmm.push(colSrc);   
+                
+                var colTTar={
+                    id:TTAR_COL, header:TTAR_COL_LBL, dataIndex:TTAR_COL,
+                    width: 55, sortable:false, hidden:true
+                };
+                var colTSrc={
+                    id:TSRC_COL, header:TSRC_COL_LBL, dataIndex:TSRC_COL,
+                    width:55, sortable:false, hidden:true
+                };
+                
+                cmm.push(colTTar);
+                cmm.push(colTSrc);
+                    
+                cmm.push({
+                    id:OTAR_COL, header:OTAR_COL_LBL, dataIndex:OTAR_COL,
+                    width:75, sortable:false, hideable:false
+                });
+    
+                cmm.push(checkColumnFrm);
+                
+                //17022011 support PGE
+                var stObject;
+                var rst;
+                var arr=[];
+               
+                try {
+	                stObject=sforce.connection.query("select "+namespace+"Source__c, "+namespace+"Source_Long__c, "+namespace+"Target__c, "+namespace+"Type__c, "+namespace
+	                    +"Source_Type__c, "+namespace+"Target_Type__c, "+namespace+"EXT_ID__c, "+namespace+
+	                    "Target_Object__c,"+namespace+"Sequence__c from "+namespace+"IMapping__c where "+namespace+"Interface__c='" + interfaceId + "'"
+	                    + " order by "+namespace+"Sequence__c");
+	                if (stObject.size>0){
+	                    rst = stObject.getArray('records');
+	                    //console.log(rst);
+	                }
+                }
+                catch(e){}
+                
+                if(rst==null){
+                
+                	//Format: Id=id1\nEXT_ID__c=true\nTarget__c=xxx\nSource_Long__c=sample1\nType__c=formula\nTarget_Type__c=xxx\nSource_Type__c=xxx\nTarget_Object__c=xxx
+                	var mappings = '{!JSENCODE(mappings)}';
+                	mappings = mappings.replace(/\\n/g,'\n').replace(/\\r/g,'\r');
+                	
+			        ///console.log('mappings>'+mappings);
+			        
+			        var recs = genRecordsInArrs(mappings);
+			        rst = genObjectsInArr(recs, 'IMapping__c');
+                }
+                
+                if(rst!=null) {    
+                    createStoreGripMapping(rst, arr);
+                    
+                    store.loadData(arr);
+                }
+    
+                
+                //------------- create editor grid ---------------//
+                grid = new Ext.grid.EditorGridPanel({
+                
+                    ddGroup: 'gridDDGroup',
+                    region: 'west',
+                    selModel: new Ext.grid.RowSelectionModel({singleSelect : true}),
+    
+                    store:store,
+                    columns:cmm,
+                    
+                    enableColumnMove:false,                      
+                    enableDragDrop:true,                    
+                    enableHdMenu:false,
+                    stripeRows:true, height:300, width:780,
+                    enableColLock:false, title:'Data Mapping',
+                    frame:true, clicksToEdit:1,
+    
+                    plugins:[checkColumn, checkColumnExt, checkColumnFrm],
+    
+                    tbar: [{
+                        text:'Remove', tooltip:'Remove selected field mappings', iconCls:'remove',
+                        handler:function(){
+                            try{
+                                var records=findCheckedRecords(grid);
+                                if(records.length==0){
+                                    alert('Please select at least one row');
+                                    return;
+                                }
+    
+                                //console.log('records '+records.length);
+    
+                                // ----------- confirm action remove mark --------//
+                                if(confirm('Are you sure you want to remove these selected mappings? \nThey will be deleted from the database.')){
+                                    var arrS=[], arrT=[];
+                                    doConfirm(records,arrS,arrT);
+                                    
+    
+                                    //console.log('arrS ' + arrS + 'arrT ' + arrT);
+                                   
+                                    try{
+                                    	
+	                                    var result = sforce.apex.execute(namespaceWS+'WSIMappingIntegration' ,'remove',{arg:arrS,arg1:arrT,arg2:interfaceId});
+	                                    alert(result);
+	    
+	                                    if(result==SUCCESS || result==''){
+	                                        //remove from grid
+	                                        doSucess(records,store);
+	                                        
+	                                    }
+	                                  
+                                    }catch(e){//PE
+                                   
+                                    	var arrSCon=document.getElementById("page:frm1:arrS");
+                                    	if(arrSCon==null)arrSCon=document.getElementById("page:pbv:pbsecMapping:incMapping:page:frm1:arrS");
+	                                    var arrTCon=document.getElementById("page:frm1:arrT");
+	                                    if(arrTCon==null)arrTCon=document.getElementById("page:pbv:pbsecMapping:incMapping:page:frm1:arrT");
+	                                   
+	                                    tempRecords=records;
+	                                    tempStore=store;
+	                                    
+	                                    for(var i=0;i<arrS.length;i++){
+	                                    	arrSCon.value+=arrS[i].replace(/\n\r/g,'\r').replace(/\r\n/g,'\r').replace(/\n/g,'\r')+"\n";
+	                                    	arrTCon.value+=arrT[i]+"\n";
+	                                    }
+	                                    //console.log('>arrSCon.value='+arrSCon.value);
+	                                    //console.log('>arrTCon.value='+arrTCon.value);
+                                    	doRemove();
+                                    }
+                                }
+                            }catch(e){
+                                alert('Error when remove mapping, caused by:\n'+e);
+                            }
+                        }
+                    },
+                    {
+                        text:'Save', tooltip:'Save field mappings', iconCls:'save',
+                        handler:function(){
+                            try{
+                                if(store.getCount()==0){
+                                    alert('No records');
+                                }
+                                else{
+    
+                                    var iMappings=[];
+    
+                                    Ext.Msg.wait('',"Saving your data, please wait...",{text:'Saving...'});
+                                    var rs=validateAndSaveMappings(store,iMappings);
+                                    if(rs!=''){
+                                        alert(rs);
+                                        return;                   
+                                    }
+                                     
+                                    var objname;
+                                    if(store.getCount()>0)objname=store.getAt(0).get(OTAR_COL)==null?'':store.getAt(0).get(OTAR_COL);
+                                    
+                                    try{
+                                    	
+	                                    var result = sforce.apex.execute(namespaceWS+'WSIMappingIntegration', 'save2', {arg:interfaceId,arg1:iMappings,arg2:objname});
+	                                    if(result==SUCCESS){
+	                                        //grid.getStore().commitChanges();
+	                                        alert('Data successfully saved !');
+	                                        if(INLINE_INTERFACE==true){
+	                                            top.location.href="/" + interfaceId;
+	                                        }
+	                                    }
+	                                    else{
+	                                        alert(result);
+	                                    }
+	                                   
+                                    }catch(e){
+                                    	
+                                    	var strIMappings=document.getElementById("page:frm1:iMappings");
+                                    	if(strIMappings==null)strIMappings=document.getElementById("page:pbv:pbsecMapping:incMapping:page:frm1:iMappings");
+                                    	
+                                    	for(var i=0;i<iMappings.length;i++){
+                                    		strIMappings.value+=iMappings[i].fSrc.replace(/\n\r/g,'\r').replace(/\r\n/g,'\r').replace(/\n/g,'\r')+"\n";
+                                    		strIMappings.value+=iMappings[i].fTar+"\n";
+                                    		strIMappings.value+=iMappings[i].fSrcType+"\n";
+                                    		strIMappings.value+=iMappings[i].fTarType+"\n";
+                                    		strIMappings.value+=iMappings[i].oTarget+"\n";
+                                    		strIMappings.value+=iMappings[i].fmula+"\n";
+                                    		strIMappings.value+=iMappings[i].isExtId+"\n";
+                                    		strIMappings.value+=iMappings[i].seq+"\n\n";
+                                    	}
+                                    	//console.log(">strIMappings.value="+strIMappings.value);
+                                    	var comp=document.getElementById("page:frm1:sfObjectSelected");
+                                    	if(comp==null)comp=document.getElementById("page:pbv:pbsecMapping:incMapping:page:frm1:sfObjectSelected");
+                                    	
+                                    	comp.value=objname;
+                                    	saveMapping();	
+                                    }
+                                }
+    
+                            }catch(e){
+                                alert('Save mappings Error:\n' + e);
+    
+                            }
+                            finally {
+                                Ext.MessageBox.hide();
+                            }
+                        }
+                    }] //end toolbar buttons
+    
+                });//end grid
+    
+                //If has Interface
+                if(!NO_INTERFACE){
+                
+                    grid.render('gridFieldMapping');
+                    
+                    
+                    // This will make sure we only drop to the view container
+	                var targetGrid =  grid.body.dom;
+	            
+	                var formPanelDropTarget = new Ext.dd.DropTarget(targetGrid, {
+	                    ddGroup     : 'gridDDGroup',
+	                    copy       : true,
+	                    notifyEnter : function(ddSource, e, data) {
+	            
+	                        //Add some flare to invite drop.
+	                        ddSource.grid.body.stopFx();
+	                        ddSource.grid.body.highlight();
+	                    },
+	                    notifyDrop  : function(ddSource, e, data){
+	                        // Reference the record (single selection) for readability
+	                        var selectedRecord = ddSource.dragData.selections[0];
+	                        
+	                        var targetIndex=grid.getView().findRowIndex(e.target);
+	                        
+	                        if(targetIndex==false && targetIndex==0)
+	                            targetIndex=0;
+	                        else if(targetIndex==false && targetIndex>=grid.store.getCount())
+	                            targetIndex=grid.store.getCount()-1;    
+	                        
+	                        // Delete record from the grid.  not really required.
+	                        ddSource.grid.store.remove(selectedRecord);
+	                        // Load the record into the form
+	                        ddSource.grid.getStore().insert(targetIndex,selectedRecord);
+	            
+	                        
+	                        
+	                        return(true);
+	                    }
+	                 });  
+                    
+                }
+                
+    
+                /**
+                Popup Windows
+                */
+                
+                /**
+                Solve Combobox inner list not aligning list items properly
+                **/
+                Ext.override(Ext.form.ComboBox, {
+                    initList: function(){
+                        if(!this.list){
+                            var cls = 'x-combo-list';
+                            this.list = new Ext.Layer({
+                                shadow: this.shadow, cls: [cls, this.listClass].join(' '), constrain:false
+                            });
+                            var lw = this.listWidth || Math.max(this.wrap.getWidth(), this.minListWidth);
+                            this.list.setWidth(lw);
+                            this.list.swallowEvent('mousewheel');
+                            this.assetHeight = 0;
+                            if(this.title){
+                                this.header = this.list.createChild({cls:cls+'-hd', html: this.title});
+                                this.assetHeight += this.header.getHeight();
+                            }
+                            this.innerList = this.list.createChild({cls:cls+'-inner'});
+                            this.innerList.on('mouseover', this.onViewOver, this);
+                            this.innerList.on('mousemove', this.onViewMove, this);
+                            this.innerList.setWidth(lw - this.list.getFrameWidth('lr'));
+                            if(this.pageSize){
+                                this.footer = this.list.createChild({cls:cls+'-ft'});
+                                this.pageTb = new Ext.PagingToolbar({
+                                    store:this.store,
+                                    pageSize: this.pageSize,
+                                    renderTo:this.footer
+                                });
+                                this.assetHeight += this.footer.getHeight();
+                            }
+                            if(!this.tpl){
+                                this.tpl = '<tpl for="."><div class="'+cls+'-item">{' + this.displayField + '}</div></tpl>';
+                            }
+                            this.view = new Ext.DataView({
+                                applyTo: this.innerList,
+                                tpl: this.tpl,
+                                singleSelect: true,
+                                selectedClass: this.selectedClass,
+                                itemSelector: this.itemSelector || '.' + cls + '-item',
+                                stateful: false
+                            });
+                            this.view.on('click', this.onViewClick, this);
+                            this.bindStore(this.store, true);
+                            if(this.resizable){
+                                this.resizer = new Ext.Resizable(this.list, {
+                                    pinned:true, handles:'se'
+                                });
+                                this.resizer.on('resize', function(r, w, h){
+                                    this.maxHeight = h-this.handleHeight-this.list.getFrameWidth('tb')-this.assetHeight;
+                                    this.listWidth = w;
+                                    this.innerList.setWidth(w - this.list.getFrameWidth('lr'));
+                                    this.restrictHeight();
+                                }, this);
+                                this[this.pageSize?'footer':'innerList'].setStyle('margin-bottom', this.handleHeight+'px');
+                            }
+                        }
+                    }
+                });
+    
+                var win;
+                var isVerified=false;
+                var w=1/2;
+    
+                //array of array (0: fn name, 1: syntax; 2:fn desc)
+                var arrFn=new Array();
+               
+                //17022011 support PGE
+                var rst1;
+              
+                try {
+	                var lstIFunction=sforce.connection.query("select Name, "+namespace+"GroupName__c, "+namespace+"Expression__c, "+namespace+"Description__c From "+namespace+"IFunctions__c order by Name");	    
+	                if (lstIFunction.size>0){
+	                    rst1 = lstIFunction.getArray('records');
+	                }
+                }catch(e){}
+              
+                
+                if(rst1==null){
+                	//Id=id1\nName=name1\nExpression__c=xxx\nDescription__c=descr1\nGroupName__c=g1\n\n
+                	var functions = '{!JSENCODE(functions)}';
+                	functions=functions.replace(/\\n/g,'\n').replace(/\\r/g,'\r');
+			        //console.log('functions>'+functions);
+			        var recs = genRecordsInArrs(functions);
+			        rst1 = genObjectsInArr(recs, 'IFunctions__c');
+                }
+                
+                if(rst1!=null){
+                    for(var i in rst1){
+		        		if(rst1[i].constructor==Function)continue;
+		        		//console.log('rst1[i]>'+rst1[i]['Name']+':'+rst1[i][namespace+'Expression__c']+':'+rst1[i][namespace+'Description__c']);
+		                arrFn.push(new Array(
+		                    rst1[i]['Name'],
+		                    rst1[i][namespace+'Expression__c'],
+		                    rst1[i][namespace+'Description__c']
+		                ));
+		            }//end for
+                }//end if
+    
+    
+                /**
+                Data stores for all Combo
+                */
+                var storeTObjFlds = [];
+                var storeTObjs=allSObjNames;
+                var storeOp=['+', '-', '*', '/', '&', '<' , '<=' , '>' , '>=' , '<>' ,'=','|'];
+                var storeFn=[];
+                var storeSrcFld=[];
+                
+                doSrcFFN(lstXmlFlds,storeSrcFld,arrFn,storeFn);
+                
+                //console.log('storeSrcFld ' + storeSrcFld + ';storeFn ' + storeFn);
+                
+                
+                
+    
+                /**
+                Ext form components
+                ***/
+                lblStatus = new Ext.form.Label({cls:'x-form-item',autoWidth:true,height:43,style:'padding-left:105px;overflow:auto;', rendered:false});
+                var lblFnDesc = new Ext.form.Label({html:'',cls:'x-form-item', rendered:false, style:'padding-top:5px;', width:200});
+                var lblFnLbl = new Ext.form.Label({html:'Functions:',cls:'x-form-item', rendered:false, style:'padding-top:5px;', width:100});
+                
+                
+                
+                var taExpr=new Ext.form.TextArea({
+                    id:'taExpr', name:'taExpr', allowBlank:true, fieldLabel:'Expression', //labelStyle:'width:80px;',
+                    inputType:'text', width:450, height:200, rendered:false,
+                    listeners:{
+                        'focus' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                            
+                        }
+                    }
+                });
+    
+                var cboSrcFld=new Ext.form.ComboBox({
+                    id:'cboSrcFld', name:'cboSrcFld', fieldLabel:'Source Fields', //labelStyle:'width:80px;',
+                    store:storeSrcFld, triggerAction: 'all', typeAhead: true, forceSelection: true,
+                    emptyText:'Select a field...', width:170, rendered:false,resizable:true,
+                    listeners: {
+                        'select': function(rec, ind){
+                            taExpr.setValue(taExpr.getValue() + ' ' + this.getValue());
+                            taExpr.focus();
+                        },
+                        'focus' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                        },
+                        'expand' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                        }
+                    }
+                });
+    
+                var cboOperator=new Ext.form.ComboBox({
+                    id:'cboOperator', name:'cboOperator', fieldLabel:'Operators', //labelStyle:'width:80px;',
+                    store:storeOp, forceSelection: true, typeAhead: true, triggerAction: 'all',
+                    emptyText:'Select an operator...', width:170, rendered:false,resizable:true,
+                    listeners: {
+                        'select': function(rec, ind){
+                            taExpr.setValue(taExpr.getValue() + ' ' + this.getValue());
+                            taExpr.focus();
+                        },
+                        'focus' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                        },
+                        'expand' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                        }
+                    }
+                });
+    
+                var cboFn=new Ext.form.ComboBox({
+                    id:'cboFn', name:'cboFn', //labelStyle:'width:80px;',
+                    store: storeFn, triggerAction: 'all', typeAhead: true, forceSelection: true,
+                    emptyText:'Select a function...', width:170, rendered:false,resizable:true,
+                    listeners: {
+                    
+                        /**show selected function desc*/
+                        'select': function(rec, ind){
+                            var arr=findFn(this.getValue(),arrFn);
+                            if(arr!=null && arr.length>0)
+                            if(arr[2]!=null){
+                                lblFnDesc.setText(arr[2]);
+                            }
+                        },
+            
+                        'focus' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                        },
+                        'expand' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                        }
+                    }
+                });
+    
+                var btnInsertFn=new Ext.Button({
+                    text:'Insert Selected Function', tooltip:'Insert the selected function', rendered:false,
+                    style:'padding-top:5px;',
+                    
+                    /**insert the selected function syntax to taExpr**/
+                    handler: function(){
+                    
+                        if(cboFn.getValue()=='Select a function...'){
+                            alert('Pls, select a function');
+                        }
+                        else{
+                            var arr=findFn(cboFn.getValue(),arrFn);
+                            if(arr!=null && arr.length>0){
+                                if(arr[1]!=null){
+                                    taExpr.setValue(taExpr.getValue() + ' ' + arr[1]);
+                                    taExpr.focus();
+                                }
+                            }
+                        }
+                    }
+                });
+    
+    
+                /**
+                */
+                cboTObjFlds=new Ext.form.ComboBox({
+                    id:'cboTObjFlds', name:'cboTObjFlds', store:storeTObjFlds, fieldLabel:'Target Fields', //labelStyle:'width:80px;',
+                    typeAhead: true, forceSelection: true, triggerAction: 'all', width:170,
+                    emptyText:'Select a field...', rendered:false,resizable:true,
+                    listeners: {
+                        'select': function(rec, ind){
+                            taExpr.setValue(taExpr.getValue() + ' ' + this.getValue());
+                            taExpr.focus();
+                        },
+                        'focus' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                        },
+                        'expand' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                        }
+                    }
+                });
+                var cboTObjs=new Ext.form.ComboBox({
+                    id:'cboTObjs', name:'cboTObjs', store:storeTObjs, fieldLabel:'Targets', //labelStyle:'width:80px;',
+                    typeAhead: true, forceSelection: true, triggerAction: 'all', width:170,
+                    emptyText:'Select an SObject...', rendered:false,resizable:true,
+                    listeners: {
+                    
+                        'select': function(rec, ind){
+                        	
+                        	oneDescObj=null;//clear old describe Sobject
+                            var allF=getAllFldNames(this.getValue());
+                            
+                            if(allF.length>0){
+                                cboTObjFlds.store.removeAll();
+	                            cboTObjFlds.store.loadData(allF);
+	                            
+                            }else{
+                            	calledF='Select Targets';
+                            }
+                        },
+                        'focus' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                        },
+                        'expand' : function(){
+                            lblStatus.setText('');
+                            lblStatus.removeClass('error');
+                    		lblStatus.addClass('no-error');
+                        }
+                    }
+                });
+                var btnInsertTObj=new Ext.Button({
+                    text:'Insert', tooltip:'Insert the selected target object', rendered:false, width:75,
+                    
+                    /**insert the selected sobject to taExpr**/
+                    handler: function(){
+                    
+                        if(cboTObjs.getValue()=='Select an SObject...'){
+                            alert('Pls, select a target object');
+                        }
+                        else{
+                            taExpr.setValue(taExpr.getValue() + ' ' + cboTObjs.getValue());
+                            taExpr.focus();
+                        }
+                    }
+                });
+    
+                function searchQuotedText(str){
+                    var startQ=false;
+                    var text='';
+                    var result=[];
+                    doQuotedText(str,startQ,text,result);
+                    
+                    return result;
+                }
+    
+                function doVerify(){
+                
+                    isVerified=false;
+                    var err;
+                    
+                    if(taExpr.getValue()!=null && taExpr.getValue().length>0){
+                    
+                        var quotedStr=searchQuotedText(taExpr.getValue());
+                        //console.log('quotedStr ' + quotedStr);
+                        if(quotedStr.length==0) quotedStr.push(" ");
+                        
+                        //do evaluation
+                        var re=sforce.apex.execute(namespaceWS+'WSIMappingIntegration','verifyExpression',{arg:taExpr.getValue(), arg1:quotedStr, arg2:lstXmlFlds});
+                        //console.log('evaluate result ' + re);
+                        
+                        //error or invalid fields
+                        if(re!=''){
+                        
+                            isVerified=false;
+                            re=re+'';
+                            
+                            //some errors
+                            if(re.search(/#FAILED/)!=-1){
+                                err=re.replace('#FAILED','');
+                            }
+                            //some invalid fields
+                            else{
+                                err='Error: Field(s) ' + re + ' do not exist';
+                            }
+                        }
+                        
+                        //No error and no invalid fields
+                        else{
+                        isVerified=true;
+                        }
+                    }
+                    else{
+                    
+                        isVerified=false;
+                        err='Error: expression value requires';
+                    }
+                    
+                    //adjust lbl font color (error or not)
+                    lblStatus.removeClass((isVerified==true?'error':'no-error'));
+                    lblStatus.addClass((isVerified==true?'no-error':'error'));
+                    lblStatus.setText(isVerified==true?'No errors':err);
+                    
+                    //console.log('isVerified: ' + isVerified);
+                }
+                    
+                var lblOutput = new Ext.form.Label({cls:'x-form-item', width:200, style:'height:70px;', rendered:false});
+    
+                /**
+                Popup form
+                */
+                var fm = new Ext.FormPanel({
+                    id:'frmExpr', frame:true, width: 850,height:400,
+                    bodyStyle:'padding:5px 5px 0',
+                    layout:'table', layoutConfig:{columns:2},
+                    items:[
+                    
+                        new Ext.Panel({
+                            id:'pnl1', width:620, height:340,
+                            items:[
+                                new Ext.Panel({
+                                    id:'pnl1-1', layout:'column', width:620,
+                                    items:[
+                                        {
+                                            columnWidth:.55, height:30, layout:'form',
+                                            items:[cboSrcFld]
+                                        },
+                                        {
+                                            columnWidth:.45, height:30, layout:'form',
+                                            items:[cboOperator]
+                                        }
+                                    ]
+                                }),
+                                new Ext.Panel({
+                                    id:'pnl1-2', layout:'column', width:620, height:30,
+                                    items:[
+                                        {
+                                            columnWidth:.45, height:30, layout:'form',
+                                            items:[cboTObjs]
+                                        },
+                                        {
+                                            columnWidth:.10, height:30, layout:'form',
+                                            items:[btnInsertTObj]
+                                        },
+                                        {
+                                            columnWidth:.45, height:30, layout:'form',
+                                            items:[cboTObjFlds]
+                                        }
+                                    ]
+                                }),
+                                
+                                new Ext.Panel({
+                                    id:'pnl1-3', layout:'column', width:550, height:260,
+                                    items:[
+                                        {
+                                            height:260,
+                                            layout:'form',
+                                            items:[taExpr,lblStatus]
+                                        }
+                                    ]
+                                
+                                })
+                            ]
+                        })
+                        ,
+                        
+                        new Ext.Panel(
+                            {
+                                id:'pnl2', layout:'column', height:340, width:200,
+                                items:[
+                                    {
+                                        items:[lblFnLbl, cboFn, btnInsertFn, lblFnDesc,lblOutput]
+                                    }
+                                ]
+                            }
+                        )
+                        
+                    ],
+                        
+                    buttons: [
+                        
+                        /*{
+                        text:'Verify', tooltip:'Verify the formula expression',
+                        iconCls:'verify', enableRowBody: true,
+                        handler: function(){
+                        doVerify();
+                        }
+                        },
+                        */
+                        {
+                            text:'Save', tooltip:'Save the formula expression',
+                            iconCls:'save', enableRowBody: true,
+                            handler: function(){
+                            
+                                if(clickedRowIndex!=null){
+                                    //doVerify();//not used anymore
+                                    
+                                    //Update xml column cell
+                                    //if(isVerified){
+                                    grid.getStore().getAt(clickedRowIndex).set(SRC_COL,taExpr.getValue());
+                                    clickedRowIndex=null; //release
+                                    win.hide();
+                                    //}
+                                }
+                            }
+                        },
+                        {
+                            text:'Test Formula', tooltip:'Test Sample Content from Istructure',
+                            iconCls:'formula',enableRowBody: true,
+                            handler: function(){
+                                
+                                try{
+                                  	
+                                    var result = sforce.apex.execute(namespaceWS+'WSIMappingIntegration', 'testFormula', {arg1:taExpr.getValue(),arg2:interfaceId});
+                                    lblStatus.removeClass('error');
+                                    lblStatus.addClass('no-error');
+                                    lblStatus.setText('Output:  '+result);
+                                    
+                                }catch(e){
+                                
+                                    if(e.faultcode!=null && e.faultcode.toUpperCase().search(/API_DISABLED_FOR_ORG/i)>0){
+                                   		var comp=document.getElementById("page:frm1:taExpr");
+                                   		if(comp==null)comp=document.getElementById("page:pbv:pbsecMapping:incMapping:page:frm1:taExpr"); 
+                                   		
+                                    	comp.value=taExpr.getValue();
+                                    	testFormula();
+                                    	
+                                    	return;
+                                    }
+                                   
+                                    var err = e.faultstring?e.faultstring:null;
+                                    if(err==null) {
+                                        err = e.message?e.message:e;
+                                    } 
+                                    lblStatus.removeClass('no-error');
+                                    lblStatus.addClass('error');
+                                    lblStatus.setText('Output:  '+err);
+                                   
+                                }
+                            }
+                        },
+                        {
+                            text:'Cancel', tooltip:'Cancel',
+                            iconCls:'cancel', enableRowBody: true,
+                            handler: function(){
+                                clickedRowIndex=null; //release
+                                win.hide();
+                            }
+                        }
+                    ]
+                }); 
+    
+                /**
+                Popup window
+                */
+                win = new Ext.Window({
+                    applyTo:'popup-win',
+                    layout:'fit', modal:true,
+                    width:860, height:450,
+                    closeAction:'hide', plain:true,
+                    //resizable:false,
+                    
+                    items:fm,
+                    
+                    onEsc:function(){
+                        clickedRowIndex=null;
+                    },
+                    listeners: {
+                        'beforehide':function(){
+                            clickedRowIndex=null;
+                        }
+                    }
+                });
+    
+                function initWindowText(){
+                
+                    if(cboSrcFld!=null) cboSrcFld.setValue('Select a field...');
+                    if(cboFn!=null) cboFn.setValue('Select a function...');
+                    if(cboOperator!=null) cboOperator.setValue('Select an operator...');
+                    
+                    if(taExpr!=null) taExpr.setValue('');
+                    if(lblStatus!=null) {
+                    	lblStatus.removeClass('error');
+                        lblStatus.addClass('no-error');
+                        lblStatus.setText('');
+                    }
+                    if(lblFnDesc!=null) lblFnDesc.setText('');
+                    
+                    if(cboTObjs!=null) cboTObjs.setValue('Select an SObject...');
+                    if(cboTObjFlds!=null){
+	                    cboTObjFlds.store.removeAll();
+	                    cboTObjFlds.setValue('Select a field...');
+                    }
+                }
+    
+                function showComps(){
+                
+                    if(cboSrcFld!=null) {
+                        cboSrcFld.rendered=true;
+                        //var cb=document.getElementById('x-form-el-cboSrcFld');
+                        //if(cb) cb.style.paddingLeft='5px';
+                    }
+                    
+                    if(cboOperator!=null) {
+                        cboOperator.rendered=true;
+                    }
+                    
+                    if(cboTObjs!=null) {
+                        cboTObjs.rendered=true;
+                    }
+                    if(cboTObjFlds!=null){
+                        cboTObjFlds.rendered=true;
+                    }
+                    
+                    if(btnInsertTObj!=null) btnInsertTObj.rendered=true;
+                    
+                    
+                    if(cboFn!=null) {
+                        cboFn.rendered=true;
+                    }
+                    if(btnInsertFn!=null) btnInsertFn.rendered=true;
+                    
+                    if(taExpr!=null) {
+                        taExpr.rendered=true;
+                    }
+                    
+                    if(lblStatus!=null) lblStatus.rendered=true;
+                    if(lblFnDesc!=null) lblFnDesc.rendered=true;
+                    if(lblFnLbl!=null) lblFnLbl.rendered=true;
+                
+                
+                }
+    
+                /**End Popup Window*/
+                
+                
+                /**Grid Events*/
+                grid.on({
+                
+                    /**Show Popup Window*/
+                    cellclick : function(grid, rowIndex, columnIndex, e) {
+                    
+                        //alert('grid cell clicked');
+                        var record = grid.getStore().getAt(rowIndex); // Get the Record
+                        if(record.get(FRM_COL)==true){
+                            initWindowText();
+                            win.show();
+                            showComps();
+                            
+                            lblOutput.setText('');//Clear output formula
+                            
+                            if(taExpr!=null){
+                                taExpr.setValue(record.get(SRC_COL));
+                            }
+                            
+                            clickedRowIndex=rowIndex;
+                        }
+                    },
+                    
+                    mouseup: function(e){
+                        
+                        if(isInbound){
+                    
+                            //console.log('grid mouse up sfNodeDragged: ' + sfNodeDragged);
+                            if(sfNodeDragged!=null){
+                                var n=tree.getSelectionModel().getSelectedNode();
+                                //console.log('grid mouse up sfNodeDragged: ' + n + ' text: ' + n.text + ' parent: ' + n.parentNode);
+                                if(n.leaf!=null && n.leaf==true)
+                                    doMapping2(n);
+                            }
+                        }
+                        
+                        //Outbound
+                        else{
+                            //console.log('grid mouse up sfNodeDragged: ' + sfNodeDragged);
+                            if(xmlNodeDragged!=null){
+                                var n=xmlTree.getSelectionModel().getSelectedNode();
+                                //console.log('grid mouse up xmlNodeDragged: ' + n + ' text: ' + n.text + ' parent: ' + n.parentNode);
+                                if(n.leaf!=null && n.leaf==true)
+                                    doMapping2(n);
+                            }
+                        }
+                        
+                    }
+                
+                });
+    
+            }); //end ext.onready (inner)
+
+
+        }); //end for ext.onReady
+
+		
+    </script>
+    
+    
+    
+
+</apex:page>

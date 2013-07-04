@@ -1,0 +1,68 @@
+<apex:page id="thePage" standardController="skyvvasolutions__Interfaces__c" extensions="skyvvasolutions.XmlFileUploadController" showHeader="false" sidebar="false">
+    
+    <script src="/soap/ajax/24.0/connection.js" type="text/javascript"></script> 
+    <script src="/soap/ajax/24.0/apex.js" type="text/javascript"></script> 
+    
+    <apex:form id="theForm">
+      <apex:pageBlock id="theBlock"  >
+ 
+          <apex:pageBlockSection id="theSection" columns="3" >             
+             
+                <apex:outputlabel for="theFile" >Xml File</apex:outputlabel>
+                <apex:inputFile id="theFile" size="50" value="{!document.body}" filename="{!document.name}" contentType="{!document.contentType}"
+                    onchange="document.getElementById('thePage:theForm:theBlock:theSection:upl').click();"/>
+                
+                <apex:panelGrid columns="2">
+                    <apex:commandButton disabled="{!NOT(isXml)}" value="Save" onclick="saveWS();"/>
+                    <apex:commandButton action="{!doUploadData}" id="upl" style="display:none;"/>
+                </apex:panelGrid>
+          </apex:pageBlockSection>
+          <apex:messages style="font-weight:bold;" />
+          
+       </apex:pageBlock>      
+    </apex:form>
+    
+    <script>        
+    
+    	var NAMESPACE = "{!nsWs}";
+    	sforce.connection.sessionId = '{!$Api.Session_ID}';  
+        
+        function refresh(){
+            try{    
+                
+                if (window.top!=window.self);
+                  {
+                  
+                  top.opener.location.href='/apex/IntegrationStudio?id={!URLENCODE(integrationId)}' // +integrationId;
+                  window.top.close();
+                  }
+                   
+
+            }catch(e){
+                alert('Failure when refresh page caused by:' + e);
+            }
+        }
+        
+        function saveWS(){            
+          
+          try{    
+
+              document.body.style.cursor='wait';              
+              
+              if('{!isXml}'=='true' && '{!JSENCODE(allFields)}'!=''){
+                sforce.apex.execute(NAMESPACE+"XmlFileUploadController", "wsSaveStructures", {interfaceid:'{!JSENCODE(interfaceId)}', flds:'{!JSENCODE(allFields)}'});
+                alert('IStructures saved successfully');                          
+                refresh();
+              }
+                  
+          }catch(e){
+              alert('Failure when saving Structures, by ' + e);
+          }
+          finally{
+            document.body.style.cursor='default';
+          }
+        }
+        
+    </script>
+    
+</apex:page>

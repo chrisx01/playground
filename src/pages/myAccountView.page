@@ -1,0 +1,34 @@
+<apex:page tabstyle="Account" standardController="Account" recordSetVar="accounts" >
+<!-- Begin Default Content REMOVE THIS -->
+<h1>My Account View</h1>
+
+   <apex:form > <b>View:</b>
+ <apex:selectList value="{!filterid}" size="1">
+           <apex:selectOptions value="{!listviewoptions}"/>
+             <apex:actionSupport event="onchange" rerender="list"/>
+       </apex:selectList>
+         </apex:form>
+           <apex:form >
+    	         <apex:outputLink value="/ui/list/FilterEditPage?ftype=a&retURL={!$CurrentPage.URL}" id="newLinl">Create New View</apex:outputLink>
+            &nbsp;|&nbsp;
+            <apex:outputLink value="/ui/list/FilterEditPage?id={!FilterId}&retURL={!$CurrentPage.URL}" id="editlink">Edit</apex:outputLink>
+          <apex:pageBlock title="Recent Accounts">
+           <apex:pageBlockButtons >
+        <apex:commandButton action="{!create}" value="new" />
+     <select  id="hotlist_mode" name="hotlist_mode" onchange="submit();" title="Display Selection">
+    	<option value="2">Recently Created</option>
+		<option value="1">Recently Modified</option>
+		<option value="3" selected="selected">Recently Viewed</option>
+	</select>
+         </apex:pageBlockButtons>
+    <apex:pageBlockTable value="{!accounts}"  var="a" id="list">
+      <apex:column > <apex:outputLink value="/apex/myaccounteditsingle?id={!a.Id}&retURL={!$CurrentPage.URL}" id="theEdit"> {!a.Name} </apex:outputLink></apex:column>
+         <apex:column value="{!a.BillingCity}"/>
+            <apex:column value="{!a.phone}"/>
+    </apex:pageBlockTable>
+  </apex:pageBlock>
+  
+  
+  
+   </apex:form>
+</apex:page>

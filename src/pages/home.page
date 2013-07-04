@@ -1,0 +1,8 @@
+<apex:page controller="IncController"  showHeader="false" sidebar="false">
+
+    <apex:messages />
+    <apex:include pageName="header"/>
+    <apex:actionSupport event="onClick"  action="{!save}"  rerender="greeting"/>
+    <apex:outputText id="greeting" rendered="{!showGreeting}" value="Hello {!nameField}"/>
+    <apex:include pageName="footer"/>
+</apex:page>

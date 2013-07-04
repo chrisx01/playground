@@ -1,0 +1,37 @@
+<apex:page standardController="Store__c" extensions="SampleController">
+    <style type="text/css">
+        .cLabel {
+            vertical-align: middle !important;
+        }
+        
+        .cBox {
+            width: 30px;
+        }
+ 		.changed {
+    		color: #fc0 !important;   		
+          font-size:200% !important;
+    
+		} 
+    </style>
+	<apex:form >
+		<apex:commandButton action="{!call}" value="call" />
+
+	</apex:form>
+	<apex:dataList value="{!stores}" var="s">
+	<b>{!s}</b>
+	</apex:dataList>
+	<apex:pageBlock >
+	 <apex:pageBlockSection title="Information" columns="2" id="information" >
+                <apex:outputField value="{!emp.Id}" id="hR_System__c" />
+              
+               <apex:pageBlockSectionItem dataStyle="width:auto;">
+                <apex:outputField value="{!emp.Name}" id="name" /> </apex:pageBlockSectionItem>
+          
+                  <apex:pageBlockSectionItem dataStyle="width:auto;color:red; ">
+          	  <apex:outputField value="{!emp.Name}" id="old_name" styleClass="changed"  style="color:blue  !important;  font-style:italic  !important; "  rendered="{!IF((emp.Name ==emp.Name),'true','false')}"/>
+           
+             </apex:pageBlockSectionItem>
+            
+        </apex:pageBlockSection>        
+        </apex:pageBlock>
+</apex:page>

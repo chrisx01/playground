@@ -1,0 +1,712 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Integration : represents one interface for the integration
+
+PLEASE DO NOT TOUCH</description>
+    <enableActivities>false</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <fields>
+        <fullName>AdapterId__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>Each outbound interface needs an adapter</description>
+        <externalId>false</externalId>
+        <label>Outbound Adapter</label>
+        <referenceTo>Adapter__c</referenceTo>
+        <relationshipLabel>Interfaces</relationshipLabel>
+        <relationshipName>Interfaces</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Asynchronize__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>this field make interface outbound as asynchronous or synchronous callout</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Check this field to set this interface as asynchronous callout</inlineHelpText>
+        <label>Asynchronize</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Batch_Job_Id__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Batch Job Id</label>
+        <length>18</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Batch_Mode__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>If checked, then use Batch Processing
+An example case: calling the integrate() web service, if this field is checked, it will process as batch mode</description>
+        <externalId>false</externalId>
+        <inlineHelpText>If checked, then use Batch Processing.
+An example case: calling the integrate() web service, if this field is checked, it will process as batch mode</inlineHelpText>
+        <label>Batch Mode</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>ChainedInterfaceId__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>No longer used, use object IChained_Interfaces instead. 
+Previously used to chain interface.
+Example if you receive data from account and contact on one call and you want to create/update account &amp; contact at the same time</description>
+        <externalId>false</externalId>
+        <label>Chained Interface</label>
+        <referenceTo>Interfaces__c</referenceTo>
+        <relationshipLabel>Interfaces (Chained Interface)</relationshipLabel>
+        <relationshipName>Interfaces</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Connect_with_Middleware__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Connect with Middleware</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Custom_Mapping_Class__c</fullName>
+        <deprecated>false</deprecated>
+        <description>The custom processing class full name (including namespace if any) in case custom processing is used</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The custom processing class full name (including namespace if any) in case custom processing is used</inlineHelpText>
+        <label>Custom Processing Class</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Custom_Processing__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Tick this in case the business logic for integration is very complex that automatic processing is not possible to manage. And it needs a custom apex class to handle this custom processing for this interface</inlineHelpText>
+        <label>Custom Processing</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Description__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <required>false</required>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>ExtId__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <description>Use to make the interface of an integration unique</description>
+        <externalId>false</externalId>
+        <label>ExtId</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>External_Mapping__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>No longer used. PI field is used instead.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>The mapping and business logic is managed by an external system (PI Checkbox on Interface is Active)</inlineHelpText>
+        <label>External Mapping</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>IStructure_Repository__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>IStructure Repository</label>
+        <referenceTo>IStructure_Repository__c</referenceTo>
+        <relationshipLabel>Interfaces</relationshipLabel>
+        <relationshipName>Interfaces</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Initialization_Query__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Initialization Filter</label>
+        <length>32000</length>
+        <type>LongTextArea</type>
+        <visibleLines>10</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Initialization__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>This field is used to indicate whether we are in initialization mode or not,</description>
+        <externalId>false</externalId>
+        <label>Initialization</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Integration__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Integration</label>
+        <referenceTo>Integration__c</referenceTo>
+        <relationshipLabel>Interfaces</relationshipLabel>
+        <relationshipName>Interfaces</relationshipName>
+        <relationshipOrder>0</relationshipOrder>
+        <type>MasterDetail</type>
+        <writeRequiresMasterRead>false</writeRequiresMasterRead>
+    </fields>
+    <fields>
+        <fullName>Interface_Adapter_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(ISPICKVAL( Type__c , &quot;InBound&quot;),  TEXT(Source_Adapter__r.Type__c) ,
+IF(ISPICKVAL( Type__c , &quot;OutBound&quot;), TEXT( AdapterId__r.Type__c), &quot;&quot;))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Interface Adapter Type</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Interface_Mode__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Set interface process Asyn or Syn</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Information for SAP Netweaver/PI only. Defines if you want to call a BAPI (Sync) or IDOC (Async).</inlineHelpText>
+        <label>Interface Mode</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Asynchronous</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Synchronous</fullName>
+                <default>true</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Interface__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>This will indicate the outbound interface to be called after processing an inbound message or the inbound interface to be called after processing an outbound message</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicate the outbound interface to be called after processing an inbound message or the inbound interface to be called after processing an outbound message</inlineHelpText>
+        <label>Invoke Callout/Callin</label>
+        <referenceTo>Interfaces__c</referenceTo>
+        <relationshipLabel>Interfaces</relationshipLabel>
+        <relationshipName>Interfaces_Invoke</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Last_Data__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Monitor Last Import/Export Data from/to other system (for example Agent to SF; Email to SF; HTTP to SF; SF to SAP; ...)</inlineHelpText>
+        <label>Last Data</label>
+        <length>32000</length>
+        <type>LongTextArea</type>
+        <visibleLines>4</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Mapping_in_SFDC__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Creates Inbound IStructure on the Interface</inlineHelpText>
+        <label>Mapping in SFDC</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Message_Name_Expression__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Message Name Expression</label>
+        <length>3900</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Message_Name_InFixToPostFix__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Message Name InFixToPostFix</label>
+        <length>32000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>Name__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Name</label>
+        <length>80</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Nb_of_batches_to_clear_completed_message__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Number of batches/executes to delete completely processed messages once, used in batch job processing to reduce some storage usage</inlineHelpText>
+        <label>Nb of batches to clear completed message</label>
+        <precision>3</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Next_Run__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Next Run</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>No_Import_NULL_value__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>Uncheck this when you want to import any data with NULL values; 
+Check this when you do not want to override fields in case that imported data is NULL, for example, you do not want to update fields filled in value with NULL imported data.</inlineHelpText>
+        <label>No Import NULL value</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Not_For_Agent__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Indicate whether the interface will be used for integration agent.
+True: Not used; False: used for agent</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicate whether the interface will be used for integration agent.
+True: Not used; False: used for agent</inlineHelpText>
+        <label>Not For Agent</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Number_of_Records_Per_Batch__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>indicating nb of records to be processed per upload, for example used for Batch Data Loader from Buffer or for Right90.</inlineHelpText>
+        <label>Number of Records Per Batch/Upload</label>
+        <precision>7</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>OperationType__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Picklist indicating the type of operation : upsert, update, insert</description>
+        <externalId>false</externalId>
+        <label>Operation Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>upsert</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>update</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>insert</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>delete</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>PI__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>PI inbound integration</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Indicate the interface is over PI (SAP-PI-SF). In this case, no mappings required. In another word, the mapping and business logic is managed by an external system</inlineHelpText>
+        <label>External Mapping</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Parent_Interface__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Parent Interface</label>
+        <referenceTo>Interfaces__c</referenceTo>
+        <relationshipLabel>Interfaces (Parent Interface)</relationshipLabel>
+        <relationshipName>Interfaces1</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Query__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>In the case of database-related integration (for example ODBC-SF), it is a SELECT statement.
+In the case of outbound integration (for example SF-SAP), it is a Salesforce SOQL statement.</inlineHelpText>
+        <label>Filter</label>
+        <length>32000</length>
+        <type>LongTextArea</type>
+        <visibleLines>5</visibleLines>
+    </fields>
+    <fields>
+        <fullName>R90_File_Header__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>The exact format and column names that need to be part of the data file to be uploaded to Right90, based on the File Type value</inlineHelpText>
+        <label>File Header</label>
+        <length>1000</length>
+        <type>LongTextArea</type>
+        <visibleLines>3</visibleLines>
+    </fields>
+    <fields>
+        <fullName>R90_File_Separator__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>File Separator</label>
+        <picklist>
+            <picklistValues>
+                <fullName>,</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>;</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>R90_File_Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <inlineHelpText>input a File Type based on the data you are trying to load to Right90 system (for example, Forecast Price; Forecast Quantity; etc)</inlineHelpText>
+        <label>File Type</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>SAP2SFWebserviceSolution__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Invoke Callout: Configuration on the response interface for asynchronous message handling.</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Invoke Callout: Configuration on the response interface for asynchronous message handling.</inlineHelpText>
+        <label>Async Response Interface</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>SOAPi_Request__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>SOAPi Request</label>
+        <referenceTo>iSOAP_Request__c</referenceTo>
+        <relationshipLabel>Interfaces</relationshipLabel>
+        <relationshipName>Interfaces</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Sequence2__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Sequence</label>
+        <precision>2</precision>
+        <required>false</required>
+        <scale>0</scale>
+        <type>Number</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Source_Adapter__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Inbound Adapter</label>
+        <referenceTo>Adapter__c</referenceTo>
+        <relationshipLabel>Interfaces (Source Adapter)</relationshipLabel>
+        <relationshipName>Interfaces1</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Source_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <description>In case of Inbound Interface, it is an object API name (for example Account, Buffer__c, ...), the object that the integration for this interface is linked to</description>
+        <externalId>false</externalId>
+        <inlineHelpText>In case of Inbound Interface, it is an object API name (for example Account, Buffer__c, ...), the object that the integration for this interface is linked to</inlineHelpText>
+        <label>Source Name</label>
+        <length>255</length>
+        <required>true</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Development</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Deployed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>InBound</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>OutBound</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <label>Interface</label>
+    <nameField>
+        <displayFormat>I-{YYYY}{MM}-{0000}</displayFormat>
+        <label>ID</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <pluralLabel>Interfaces</pluralLabel>
+    <searchLayouts>
+        <lookupDialogsAdditionalFields>Name__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Source_Name__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Type__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Status__c</lookupDialogsAdditionalFields>
+        <lookupDialogsAdditionalFields>Integration__c</lookupDialogsAdditionalFields>
+    </searchLayouts>
+    <sharingModel>ControlledByParent</sharingModel>
+    <validationRules>
+        <fullName>NoInBAdp4OutboundInterface</fullName>
+        <active>true</active>
+        <description>Cannot add inbound adapter for outbound interface</description>
+        <errorConditionFormula>ISPICKVAL(Type__c, &apos;OutBound&apos;)  &amp;&amp;   LEN( Source_Adapter__c)&gt;0</errorConditionFormula>
+        <errorDisplayField>Source_Adapter__c</errorDisplayField>
+        <errorMessage>Cannot add inbound adapter for outbound interface</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>NoOutBAdp4InboundInterface</fullName>
+        <active>true</active>
+        <description>Cannot add outbound adapter for inbound interface</description>
+        <errorConditionFormula>ISPICKVAL(Type__c, &apos;InBound&apos;)  &amp;&amp;   LEN(AdapterId__c)&gt;0</errorConditionFormula>
+        <errorDisplayField>AdapterId__c</errorDisplayField>
+        <errorMessage>Cannot add outbound adapter for inbound interface</errorMessage>
+    </validationRules>
+    <validationRules>
+        <fullName>adapterforoutbound</fullName>
+        <active>true</active>
+        <description>adapter is required for all outbound message</description>
+        <errorConditionFormula>ISPICKVAL(Type__c, &apos;OutBound&apos;)  &amp;&amp;   LEN( AdapterId__c)=0</errorConditionFormula>
+        <errorDisplayField>AdapterId__c</errorDisplayField>
+        <errorMessage>An outbound adapter is required for outbound interface</errorMessage>
+    </validationRules>
+    <webLinks>
+        <fullName>AddInterfaces</fullName>
+        <availability>online</availability>
+        <description>Add Interfaces to IStructure Repository</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Add Interfaces</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>window.location.href=&apos;/apex/skyvvasolutions__AddInterfaceToIStructureRepository?id={!IStructure_Repository__c.Id}&apos;;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Message_Name_Format</fullName>
+        <availability>online</availability>
+        <displayType>link</displayType>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>page</linkType>
+        <masterLabel>Message Name Format</masterLabel>
+        <openType>newWindow</openType>
+        <page>MessageNameEditorPage</page>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+    </webLinks>
+    <webLinks>
+        <fullName>Messages_Board</fullName>
+        <availability>online</availability>
+        <description>Go to Message Board page</description>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Messages Board</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>//override the window
+window.location.href=&quot;/apex/skyvvasolutions__DynamicIntegrationMessagePage?integid={!Interfaces__c.IntegrationId__c}&amp;intfid={!Interfaces__c.Id}&quot;;
+//open new window
+//window.open()</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Preview</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Preview</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>//Not used</url>
+    </webLinks>
+    <webLinks>
+        <fullName>ReOrder</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>ReOrder</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>window.open(&quot;/apex/skyvvasolutions__ReOrder?integrationid={!Integration__c.Id}&quot;,&quot;Interface&quot;,&quot;width=280,height=255&quot;);</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Run_Batch_Interface</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Run Batch Interface</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/10.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/12.0/apex.js&quot;)}
+
+var nspacePrefix=&apos;skyvvasolutions.&apos;;// &quot;skyvvasolutions.&quot;
+var integrationId = &apos;{!Integration__c.Id}&apos;
+	
+var records = {!GETRECORDIDS($ObjectType.Interfaces__c)}; 
+if(records[0]==null){
+	alert(&apos;Please select one record&apos;);
+}else if(records.length&gt;1){
+	alert(&apos;Please select only one record&apos;);
+}else{
+
+	//15022011 regen records in form of 15Ids
+	for(i=0;i&lt;records.length;i++){
+		records[i] = records[i].substr(0,15);
+	}	
+
+	//override the window
+	//window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=Interfaces__c&amp;btn=Run_Batch_Interface&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+	
+	try{
+		//14022011 let&apos;s try with the web service call, if error API_DISABLED_FOR_ORG, then try with the vf page
+		sforce.connection.sessionId = &apos;{!$Api.Session_ID}&apos;;
+		var result = &apos;&apos;+sforce.apex.execute(nspacePrefix+&apos;IAdapterScheduler&apos;,&apos;runBatchInterface&apos;,{interfId:records[0]});
+		if(result!=&apos;&apos;){
+			//invalid/expired/no license key send request ?
+			if(result.search(/license key/i)!=-1){
+
+				//Chea:17012011 =&gt; This functionality requires a valid license key. Do you want to contact customer support from SKYVVA //and request a valid license key for your organization (OrgName/ OrgNr)?
+				//?if(confirm(result+&apos; \n\nDo you want to request a new license key?&apos;)){
+				if(confirm(&apos;This functionality requires a valid license key. Do you want to contact customer support from SKYVVA and request a valid license key for your organization (OrgName/ OrgNr)?&apos;)){
+					result = &apos;&apos;+sforce.apex.execute(namespaceWS+&apos;IAdapterScheduler&apos;,&apos;sendLicenseKeyReqMail&apos;,{});
+					alert(result);
+				}
+			}
+			else{
+				alert(result);
+			}
+		}else{
+			top.location.href=&apos;/{!Integration__c.Id}&apos;;
+		}
+	}
+	catch(e){
+		//14022011 PE GE
+		//ERROR {faultcode:&apos;sf:API_DISABLED_FOR_ORG&apos;, faultstring:&apos;API_DISABLED_FOR_ORG: API is not enabled for this //Organization or Partner&apos;, }
+		if(e.faultcode!=null &amp;&amp; e.faultcode.search(/API_DISABLED_FOR_ORG/i)&gt;0){
+			//override the window
+			window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=Interfaces__c&amp;btn=Run_Batch_Interface&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+		}
+		else alert(e);
+	}
+}</url>
+    </webLinks>
+</CustomObject>

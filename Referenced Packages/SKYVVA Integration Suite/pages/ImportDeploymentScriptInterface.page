@@ -1,0 +1,269 @@
+<apex:page id="page" standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.GenerateDeploymentScript" sidebar="false" tabStyle="skyvvasolutions__Integration__c">
+<apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Import Interfaces from XML file"></apex:sectionHeader>
+
+    
+<style>
+    
+        .lblCol{
+            color:#333333;
+            font-size:91%;
+            font-weight:bold;
+            padding:2px 10px 2px 2px;
+            text-align:right; 
+        }
+        
+        .lblCol2{}
+        
+</style>
+
+<script>
+
+        function confirmMsg(){
+           
+            try {
+                var rows=document.getElementById('theTbl').rows;
+               
+                var strDtoInterfaces=document.getElementById('page:frm1:strDtoInterfaces');
+                var strNames=document.getElementById('page:frm1:strNames');
+                
+                strDtoInterfaces.value='';//clear dtoInterface
+                strNames.value='';//clear interface names
+                
+                for(var i=1;i<rows.length;i++){
+                    var chains;
+                    var workflows;
+                    var invokeCallout;
+                    
+                    var cells = rows[i].cells;
+                    var c=cells[0];
+                    var v=getValue(c,'checkbox');
+                    //alert(v);
+                    if(v==true){
+                        strNames.value+=(cells[1].innerHTML+'</br/>');
+                        if(cells.length>2){
+                          var ch=cells[2].innerHTML;
+                          //alert(ch);
+                          chains=('chains:'+getChainWF(ch));
+                        }
+                        if(cells.length>3){
+                          var ch=cells[3].innerHTML;
+                          workflows=('workflows:'+getChainWF(ch));
+                        
+                        }
+                        if(cells.length>4){
+                          invokeCallout=('invokeCallout:'+(cells[4].innerHTML!=null?cells[4].innerHTML.replace('<BR>','\n'):cells[4].innerHTML));
+                        
+                        }
+                        strDtoInterfaces.value+='{'+chains+'</br/>'+workflows+'</br/>'+invokeCallout+'}';
+                    }
+                    
+                }
+                
+                if(strDtoInterfaces.value=='' || strDtoInterfaces.value==null){
+                    alert('Please select interface(s) to import.');
+                }else{
+                    checkRT();
+                }
+            }catch(e){
+                alert(e);
+            }
+            
+       }
+       
+       function confirmMsgResult(){
+            var missing=document.getElementById('page:frm1:strMissing').value;
+            if(missing=='true') {
+               if(confirm('Some selected interfaces have missing relations, not selected. Do you want to continue?')){
+                   save();
+               }
+            }
+            else {
+                save();
+            }
+       }
+  </script>
+
+    
+<apex:form id="frm">
+
+    <apex:inputHidden value="{!contentFile}" id="contentFile"/>
+    <apex:inputHidden value="{!intgId}" id="intgId"/>
+    
+    <apex:outputText id="error" value="{!er}" style="font-weight:bold; color:red;" rendered="{!NOT(ISNULL(er))}"></apex:outputText>
+        <apex:pageBlock id="pbImp" rendered="{!ISNULL(er)}">
+            <apex:pageBlockButtons id="pbButton">
+                <apex:commandButton id="back" value="Back" action="{!btnBack}"/>
+                
+                <apex:commandButton id="btnImport" value="Import Interfaces" title="Import selected interfaces into the current integration" 
+                onclick="confirmMsg();return false;" rendered="{!hasInterface}"/>
+                
+                <apex:actionFunction name="save" action="{!save}"/>
+                
+            </apex:pageBlockButtons>
+            <apex:panelGrid id="integration" columns="2" cellspacing="5" columnClasses="lblCol,lblCol2">
+                  <apex:outputLabel >Integration</apex:outputLabel>
+                  <apex:outputText value="{!integName}" />
+            </apex:panelGrid>
+            <apex:pageblocksection id="blsUpload" title="Upload Data" collapsible="true" columns="1">
+                <apex:panelGrid columns="3" cellspacing="5" columnClasses="lblCol,lblCol2,lblCol2">
+                    <apex:outputLabel >File</apex:outputLabel>
+                    <apex:inputFile id="theFile" fileName="{!document.name}" value="{!document.body}" contentType="{!document.contentType}" size="50"/>   
+                    <apex:commandButton id="upload" value="Upload" action="{!uploadFile}"/>
+                    
+                </apex:panelGrid>
+            </apex:pageblocksection>
+            
+            <apex:pageblocksection columns="1">
+                <apex:outputText value="{!errFileType}" style="font-weight:bold; color:red;"></apex:outputText>
+            </apex:pageblocksection>
+            
+            <apex:outputPanel id="bpsInterfaces" title="Interfaces" rendered="{!hasInterface}">
+                
+                <center>
+                    <apex:outputtext value="{!infoMsg}" style="color:green;font-weight:bold;font-size:14px;" rendered="{!isImport}"/>
+                </center>
+                <table id="theTbl" class="list" cellspacing="0" cellpadding="0" border="0" width="100%">                   
+                
+                     <tr class="headerRow">
+                         <th class="actionColumn" scope="col">
+                             <apex:inputCheckbox id="allBox" value="{!checkeAll}"
+                                         onclick="selAllOrNoneByCheckbox(this);"/>
+                             <apex:outputLabel >Action</apex:outputLabel>
+                         </th>
+                         <th scope="col">
+                             Interfaces
+                         </th>
+                         <th scope="col">
+                             Chain Interface
+                         </th>
+                         <th scope="col">
+                             Workflow (Interface Target)
+                         </th>
+                         <th scope="col">
+                             Invoke Callout/Callin
+                         </th>
+                            
+                     </tr>               
+                    <apex:repeat value="{!dtoInfefaces}" var="f">
+                        <tr class="dataRow even first" onmouseover="if (window.hiOn){hiOn(this);}" onmouseout="if (window.hiOff){hiOff(this);}" onfocus="if (window.hiOn){hiOn(this);}" onblur="if (window.hiOff){hiOff(this);}">
+                            <th class="actionColumn" scope="row" style="vertical-align:middle">
+                                <apex:inputCheckbox value="{!f.isCheck}" id="row_ids"
+                                   onclick="javascript:updateToggleAllBox(this.form,'row_ids',this.checked);"/>
+                            </th>
+                             <td class="dataCell" scope="row" style="vertical-align:middle"><apex:outputtext value="{!f.inf.skyvvasolutions__Name__c}"/></td>
+                             <td class="dataCell" scope="row" style="vertical-align:middle">
+                                 <apex:repeat value="{!f.chains}" var="val" id="recordChs">            
+                                         {!val}<BR/>                           
+                                 </apex:repeat>
+                              </td>
+                             <td class="dataCell" scope="row" style="vertical-align:middle">
+                                 <apex:repeat value="{!f.workflows}" var="val" id="recordWF">
+                                         {!val}<BR/>
+                                 </apex:repeat>
+                             </td>
+                             <td class="dataCell" scope="row" style="vertical-align:middle"><apex:outputtext value="{!f.invokeCallout}"/></td>
+                        </tr>
+                    </apex:repeat>
+              </table>
+            </apex:outputPanel>
+            
+        </apex:pageBlock>
+    </apex:form>
+    <apex:form id="frm1">
+    
+        <apex:inputHidden value="{!strMissing}" id="strMissing"/>
+        <apex:inputHidden value="{!strDtoInterfaces}" id="strDtoInterfaces"/>
+        <apex:inputHidden value="{!strNames}" id="strNames"/>
+        
+        <apex:actionFunction name="checkRT" action="{!checkRT}" oncomplete="confirmMsgResult();" status="status" rerender="frm1"/>
+        <apex:actionStatus id="status">
+            <apex:facet name="start">
+                <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+            </apex:facet>
+        </apex:actionStatus>
+    </apex:form>
+    
+    <script>
+    
+    
+    function getInputElm(oCell, inputType) {
+    
+        var arElms;
+        if(inputType.toLowerCase()=='textarea'){
+            arElms=oCell.getElementsByTagName('TEXTAREA');
+            if(arElms!=null){
+              return arElms[0];
+            } 
+        }
+        arElms = oCell.getElementsByTagName('INPUT');     
+        for (var i=0; i<arElms.length; i++) {
+           if (arElms[i].getAttribute('type').toLowerCase() == inputType) return arElms[i];
+        }
+    }
+    function getValue(oCell,inputType) {
+        var e=getInputElm(oCell,inputType); 
+        if(e==null && inputType.toLowerCase()=='textarea')return '';    
+        if(inputType.toLowerCase()=='textarea'){
+          return e.value;
+        }
+        if(e.getAttribute('type').toLowerCase()=='checkbox')return e.checked;
+        return e.value;
+    }
+    
+    </script>
+       
+    <script>
+       //return array of chains or workflows
+       function getChainWF(val){
+           var br="<BR>";
+           //NOTE: on IE <BR>
+           var vals =[];
+           val=val.trim().replace(/<br>/ig, br);
+           if(val!=''){//eg: val=A<BR>B<BR>
+               val=val.substring(0,val.lastIndexOf(br));
+               var arr=val.split(br);
+               for(var i=0;i<arr.length;i++){
+                   vals.push(arr[i].trim());
+               }
+           }
+           return vals;
+       }
+       function updateToggleAllBox(form, element_name, val) {
+           // Can be undefined when 0 items in list:
+           allBox = document.getElementById('page:frm:pbImp:allBox');
+           if (allBox) {
+               allBox.checked = allChecked(form, element_name);
+           }
+           
+       }
+       function allChecked(form, element_name) {
+           var i = 0;
+           for (i = 0; i < form.elements.length; i++) {
+               var el = form.elements[i];
+               if (el.name.search(element_name)!=-1 && el.type=="checkbox" && el.checked == false) {
+                   return false;
+               }
+           }
+           return true;
+       }
+       
+       function selAllOrNoneByCheckbox(obj){
+           try{
+               var rowId = document.getElementById('page:frm:pbImp:allBox');
+               var form = document.forms['page:frm'];
+               var value = rowId.checked;
+               for (i = 0; i < form.elements.length; i++) {
+                   var el = form.elements[i];
+                   if (el.type=="checkbox") {           
+                      el.checked = value;         
+                   }
+               }
+           }catch(ex){
+               alert(ex);
+           }
+       }
+       String.prototype.trim = function() {
+            return this.replace(/^\s+|\s+$/g,"");
+        } 
+    </script>
+</apex:page>

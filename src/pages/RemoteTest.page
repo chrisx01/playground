@@ -1,0 +1,68 @@
+<apex:page controller="RemoteController">
+    <script type="text/javascript">
+    function getRemoteString() {
+        var storeName = document.getElementById('search').value;
+
+        Visualforce.remoting.Manager.invokeAction(
+            '{!$RemoteAction.RemoteController.getStore}',
+            storeName, 
+            function(result, event){
+                if (event.status) {
+                    // Get DOM IDs for HTML and Visualforce elements like this
+                    document.getElementById('remoteAcctId').innerHTML = result.Id
+                    document.getElementById(
+                        "{!$Component.resForm.block.blockSection.secondItem.inputStoreName}"
+                        ).value = result.StoreName__c;
+                } else if (event.type === 'exception') {
+                    document.getElementById("responseErrors").innerHTML = event.message;
+                } else {
+                    document.getElementById("responseErrors").innerHTML = event.message;
+                }
+            }, 
+            {escape: true}
+        );
+    }
+    search = (function () {
+        var storeName = document.getElementById('search').value;
+
+        RemoteController.getStore(storeName, 
+            function(result, event){
+                if (event.status) {
+                    // Get DOM IDs for HTML and Visualforce elements like this
+                    document.getElementById('remoteAcctId').innerHTML = result.Id;
+                   
+                        document.getElementById(
+                        "{!$Component.resForm.block.blockSection.secondItem.inputStoreName}"
+                        ).innerHTML = result.StoreName__c;
+                } else if (event.type === 'exception') {
+                    document.getElementById("responseErrors").innerHTML = event.message;
+                } else {
+                    document.getElementById("responseErrors").innerHTML = event.message;
+                }
+            }, 
+            {escape: true}
+        );
+    });
+    
+   
+    </script>
+
+    <input id="search" type="text"/>
+    <button onclick="getRemoteString()">Test Me </button> <button onclick="search()">hit Me</button>
+    <div id="responseErrors"></div>
+<apex:form id="resForm">
+    <apex:pageBlock id="block">
+        <apex:pageBlockSection id="blockSection" columns="2">
+            <apex:pageBlockSectionItem id="firstItem">
+                <span id="remoteAcctId"/>
+            </apex:pageBlockSectionItem>
+            <apex:pageBlockSectionItem id="secondItem">
+              	<apex:outputLabel value="{!$ObjectType.Store__c.Fields.StoreName__c.Label}" />
+                 <apex:outputField id="inputStoreName" value="{!store.StoreName__c}" >
+               <apex:inlineEditSupport event="ondblclick" showOnEdit="saveButton"   hideOnEdit="editButton"/>
+            </apex:outputField>
+            </apex:pageBlockSectionItem>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+    </apex:form>
+</apex:page>

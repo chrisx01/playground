@@ -1,0 +1,179 @@
+<apex:page id="EditIWorkFlow" standardController="skyvvasolutions__IWorkFlow__c" extensions="skyvvasolutions.EditIWorkFlow" action="{!init}">
+<style>
+
+    .lblCol{
+        color:#333333;
+        font-size:91%;
+        font-weight:bold;
+        padding:2px 10px 2px 2px;
+        text-align:right;
+    }
+    
+    .lblCol2{}
+    
+    .lblCol3{
+       visibility:hidden;
+       padding:0px 10px 0px 2px;
+    }
+    
+    .lblCol4{width:461px;}
+    
+</style>
+
+    <script>
+        String.prototype.trim = function() {
+            return this.replace(/^\s+|\s+$/g,"");
+        }
+        String.prototype.ltrim = function() {
+            return this.replace(/^\s+/,"");
+        }
+        String.prototype.rtrim = function() {
+            return this.replace(/\s+$/,"");
+        }        
+       
+        var idPre='EditIWorkFlow:formWorkFlow:pageBlockWF:'; 
+        var taId = idPre+ 'condictionSection:txtArea';
+        
+        function getSelectedItem(elementId){           
+                    
+            var textArea=document.getElementById(taId);
+            
+            var cbo=document.getElementById(idPre+elementId);
+            var newStr=cbo.value;
+            if(newStr!=null && newStr!=''){
+            
+                if(textArea.value==null || textArea.value.trim()==''){
+
+                    textArea.value=newStr;
+                }
+                else{
+
+                    textArea.value=textArea.value.trim()+' ' +newStr;
+                }
+            }
+            textArea.focus;
+            
+        }
+        
+        function checkTextAreaNullValue(){
+            var txtArea=document.getElementById('EditIWorkFlow:formWorkFlow:pageBlockWF:condictionSection:txtArea');
+            var result=document.getElementById('EditIWorkFlow:formWorkFlow:pageBlockWF:condictionSectionResult:result');
+            if(txtArea.value==''){
+                result.innerHTML='';
+                alert('Please input Condition to test!');
+                return true;
+            } 
+            return false;
+        }
+
+    </script>
+
+
+    <apex:form id="formWorkFlow">
+    
+    <apex:actionStatus id="status">
+        <apex:facet name="start">
+        <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+        </apex:facet>
+
+    </apex:actionStatus>
+    
+        <apex:pageBlock id="pageBlockWF" title="IWorkFlow">
+            <apex:actionFunction action="{!refreshStructure}" rerender="errMSG, cboSource,txtSequence" name="actionF" status="status"/>
+           
+                <center><apex:outputText id="errMSG" value="{!error}" rendered="{!NOT(ISNULL(error))}" styleClass="pbError"></apex:outputText></center>
+                
+                <apex:pageBlockSection id="wfDataSection" columns="1">
+
+                    <apex:panelGrid columns="2" cellspacing="5" columnClasses="lblCol,lblCol2">
+                      <apex:outputLabel >Sequence</apex:outputLabel>
+                      <apex:inputText id="txtSequence" value="{!sequence}" disabled="true"/>
+                      
+                      <apex:outputLabel >WF Criteria Active</apex:outputLabel>
+                      <apex:inputField id="active" value="{!skyvvasolutions__IWorkFlow__c.skyvvasolutions__Active__c}"/>
+                      
+                      <apex:outputLabel >Filter Messages</apex:outputLabel>
+                      <apex:inputField id="filterMessage" value="{!skyvvasolutions__IWorkFlow__c.skyvvasolutions__Filter_Messages__c}"/>
+                      
+                      <apex:outputLabel >Interface Source</apex:outputLabel>
+                      <apex:selectList size="1" id="intfSource" onchange="actionF();" style="width:160px;" value="{!interfaceScr}">
+                            <apex:selectoptions value="{!lIntfIdNames}"/>
+                      </apex:selectList>
+
+                      <apex:outputLabel >Target</apex:outputLabel>
+                      <apex:selectList size="1" id="intfTarget" style="width:160px;" value="{!interaceTarget}">
+                            <apex:selectoptions value="{!lIntfIdNames}"/>
+                      </apex:selectList>
+                       
+                      <apex:outputLabel >Operation Type</apex:outputLabel>
+                      <apex:inputField id="operation_type" value="{!skyvvasolutions__IWorkFlow__c.skyvvasolutions__Operation_Type__c}"/>
+                      
+                      <apex:outputLabel >Description</apex:outputLabel>
+                      <apex:inputField id="description" value="{!skyvvasolutions__IWorkFlow__c.skyvvasolutions__Description__c}" style="width:450px; height:50px"/>   
+                      
+                      <apex:outputLabel >Check Next</apex:outputLabel>
+                      <apex:inputField id="checknext" value="{!skyvvasolutions__IWorkFlow__c.skyvvasolutions__CheckNext__c}"/>
+                   </apex:panelGrid>                  
+                </apex:pageBlockSection>
+                
+                <apex:pageBlockSection id="formulaSection" columns="1" title="Condition" collapsible="false">
+    
+                    <apex:panelGrid columns="6" cellspacing="2" columnClasses="lblCol,lblCol2">
+                    
+                        <apex:outputLabel >Source Fields</apex:outputLabel>    
+                        <apex:selectList size="1" id="cboSource" onchange="getSelectedItem('formulaSection:cboSource');" style="width:160px;">
+                        <apex:selectoptions value="{!lstSourceFields}"/>
+                        
+                        </apex:selectList>
+ 
+                            
+                        <apex:outputLabel >Operators</apex:outputLabel>
+                        <apex:selectList size="1" id="cboOper" onchange="getSelectedItem('formulaSection:cboOper');"  style="width:160px;">                        
+                            <apex:selectoptions value="{!lstOperator}"/>
+                        </apex:selectList>
+                        
+                        <apex:outputLabel >Functions</apex:outputLabel>
+                        <apex:selectList size="1" value="{!fDesc}" id="cboFunction">                       
+                            <apex:selectoptions value="{!lstIFunction}"/>
+                            <apex:actionsupport event="onchange" action="{!displayDesc}" rerender="functionDesc"/>  
+                        </apex:selectList>
+                        <apex:outputLabel />
+                        <apex:outputLabel />
+                        <apex:outputLabel />
+                        <apex:outputLabel />
+                        <apex:outputLabel />
+
+                    
+                        <apex:commandButton value="Insert Function" onclick="getSelectedItem('formulaSection:cboFunction');return false;"/>
+                        
+                    </apex:panelGrid>
+                </apex:pageBlockSection>    
+                    
+                <apex:pageBlockSection id="condictionSection" columns="1">
+                    <apex:panelGrid columns="3" cellspacing="2" columnClasses="lblCol,lblCol2,lblCol2"> 
+                        <apex:outputLabel style="margin-left:22px;" >Condition</apex:outputLabel>
+                        <apex:inputField value="{!skyvvasolutions__IWorkFlow__c.skyvvasolutions__Condition__c}" style="width:461px; height:200px" id="txtArea" required="false"/>
+                        
+                        <apex:outputLabel value="{!fDesc}" id="functionDesc"/>
+                    </apex:panelGrid>
+                </apex:pageBlockSection>
+                
+                <apex:pageBlockSection id="condictionSectionResult" columns="1">
+                    <apex:panelGrid columns="3" cellspacing="2" columnClasses="lblCol3,lblCol4,lblCol4">
+                        <apex:outputLabel style="margin-left:22px;" >Condition</apex:outputLabel>
+                        <apex:outputText value="{!result}" style="color:{!IF(resultError, 'red' , '#009900')};" id="result">&nbsp;</apex:outputText>
+                    </apex:panelGrid>
+             </apex:pageBlockSection>
+                
+            <apex:pageBlockButtons id="pbButtons">
+                <apex:actionFunction name="saveData" action="{!save}" rerender="pageBlockWF"
+                 oncomplete="if('{!error}'=='') document.location.href='/{!URLENCODE(previousePageId)}';" status="status"/> 
+                <apex:commandButton id="btnSave"  onclick="saveData();return false;" value="Save"/>
+                <apex:commandButton action="{!testFormula}" onClick="if(checkTextAreaNullValue()) return false;" value="Test Formula" rerender="result, errMSG" status="status"/>
+                <apex:commandButton action="{!cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+                        
+        </apex:pageBlock>
+    </apex:form>
+    
+</apex:page>

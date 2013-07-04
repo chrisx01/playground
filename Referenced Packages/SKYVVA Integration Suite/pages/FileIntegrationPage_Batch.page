@@ -1,0 +1,75 @@
+<apex:page id="thePage" standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.FileIntegrationController" sidebar="true">
+    <apex:sectionHeader title="SKYVVA Integration Suite" subtitle="Batch Manual Load"></apex:sectionHeader>
+    
+    <script src="/soap/ajax/24.0/connection.js" type="text/javascript"></script>
+    
+    <apex:form id="theForm">
+    	
+    	<apex:inputHidden value="{!isPE}" id="hdIsPE"/>
+    	<apex:actionFunction name="init" action="{!init}" rerender="hdIsPE"/>
+    	<apex:commandButton id="btnIsPE" style="display:none;"  value="Is PE" onclick="init(); return false;"/>
+    
+	    <apex:pageBlock id="theBlock">
+	    
+		    <apex:pageblocksection id="manualoadd_flx" title="Batch Manual DataLoader" collapsible="false" columns="1"> <!-- collapsible="true" -> it refresh the flex control, thus cannot collapse -->
+	    
+	    		<apex:outputPanel id="pnlFlexFileUpload">
+	    		
+	    			<!-- Use this to prevent alert warning popup on IE (This page contains both secure and nonsecure items.) -->
+					<object classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000"
+					  id="Manual_Load_Batch_flx" width="905" height="770" 
+					  codebase="https://fpdownload.macromedia.com/get/flashplayer/current/swflash.cab">
+					  <param name="movie" value="{!$Resource.Manual_Load_Batch_flx}" />
+					  <param name="quality" value="high" />
+					  <param name="bgcolor" value="#869ca7" />
+					  <param name="allowScriptAccess" value="sameDomain" />
+					  <param name="flashvars" value="fileTypes=CSV,XML&mode=attachment&debug=false&sid={!sessionId}&surl={!$Api.Partner_Server_URL_120}&integId={!intgId}&integName={!integName}&ns={!ns}&attachmentLikeName={!attachmentLikeName}&linesPerAttachment={!linesPerAttachment}&nbAttachmentAllowed={!nbAttachmentAllowed}&onces={!onces}&seps={!seps}" />
+					  <embed src="{!$Resource.Manual_Load_Batch_flx}" quality="high" bgcolor="#869ca7"
+					     width="905" height="770" name="Manual_Load_Batch_flx" align="middle"
+					    play="true"
+					    loop="false"
+					    flashvars="fileTypes=CSV,XML&mode=attachment&debug=false&sid={!sessionId}&surl={!$Api.Partner_Server_URL_120}&integId={!intgId}&integName={!integName}&ns={!ns}&attachmentLikeName={!attachmentLikeName}&linesPerAttachment={!linesPerAttachment}&nbAttachmentAllowed={!nbAttachmentAllowed}&onces={!onces}&seps={!seps}"   
+					    allowScriptAccess="sameDomain"
+					    type="application/x-shockwave-flash"
+					    pluginspage="http://www.adobe.com/go/getflashplayer">
+					  </embed>
+					</object>
+					
+				</apex:outputPanel>
+				
+			</apex:pageblocksection>
+			
+		</apex:pageBlock>
+	
+	</apex:form>
+	
+	<script>
+	
+		sforce.connection.sessionId = '{!$Api.Session_ID}';		
+		window.onload = function() {
+			var hd = document.getElementById('thePage:theForm:hdIsPE');
+			var btn = document.getElementById('thePage:theForm:btnIsPE');
+			if(hd!=null && btn!=null) {
+				var pe = hd.value;
+				//alert('>isPE>'+pe);
+				//No key__c entity for isPE yet
+				if(pe==null || pe=='') {
+					pe = 'false';
+					try {
+						//let's try to see if api enabled or not for this org
+						sforce.connection.query("select Id from Account limit 0");
+					}catch(e){
+						if(e.faultcode!=null && e.faultcode.search(/API_DISABLED_FOR_ORG/i)>0){
+							pe = 'true';
+						}
+					}
+				
+					hd.value = ''+pe;
+		    		btn.click();
+	    		}
+    		}
+		}
+	
+	</script>
+	
+</apex:page>

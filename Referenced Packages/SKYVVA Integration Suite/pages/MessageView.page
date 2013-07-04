@@ -1,0 +1,4 @@
+<apex:page id="MessageView" standardController="skyvvasolutions__IMessage__c">
+<apex:detail relatedList="false" title="true"/>
+<apex:include pageName="skyvvasolutions__ListMessageData" id="ListData"/>
+</apex:page>

@@ -1,0 +1,170 @@
+<apex:page standardController="skyvvasolutions__Integration__c" extensions="skyvvasolutions.ILogsView" id="pageAtt">
+
+    <style type="text/css">
+    
+        .lblCol{
+            color:#333333;
+            font-size:91%;
+            font-weight:bold;
+            padding:2px 10px 2px 2px;
+            text-align:right; 
+        }
+        
+        .lblCol2{}
+        .customPopup{
+            background-color: white;
+            border-style:ridge !important;
+            border-width: 1px;
+            left: 50%;
+            padding:10px;
+            position: absolute;
+            z-index: 9999;
+            width: 475px;
+            margin-left: -240px;
+            bottom:150px;
+        }
+        .popupBackground{
+            background-color:black;
+            opacity: 0.20;
+            filter: alpha(opacity = 20);
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 9998;
+        }
+    </style>
+
+	<script>
+	
+		function retrieveMain(){
+			var comCont="";
+            var shHeader="{!showHeader}";
+            if(shHeader=="false")
+                comCont="mainPage:tabILogsView:";
+            return comCont;
+        }
+		function selAllOrNoneByCheckboxAtt(obj){
+			try{
+		        var rowId = document.getElementById(retrieveMain()+'pageAtt:frmAtt:pbAtt:pbSecAtt:pbTblAtt:allBoxAtt');
+                var form = document.forms[retrieveMain()+'pageAtt:frmAtt'];
+           		var value = rowId.checked;
+                for (i = 0; i < form.elements.length; i++) {
+                    var el = form.elements[i];
+                    if (el.type=="checkbox") {
+                       el.checked = value;       
+                    }
+                }
+            }catch(ex){
+                alert(ex);
+            }
+        }
+        function updateToggleAllBoxAtt(form, element_name, val) {
+            
+            // Can be undefined when 0 items in list:
+            var allBoxAtt = document.getElementById(retrieveMain()+'pageAtt:frmAtt:pbAtt:pbSecAtt:pbTblAtt:allBoxAtt');
+            if (allBoxAtt) {
+            	allBoxAtt.checked = allCheckedAtt(form, element_name);
+            }
+            
+        }
+        function allCheckedAtt(form, element_name) {
+            var i = 0;
+        
+            for (i = 0; i < form.elements.length; i++) {
+                var el = form.elements[i];
+                if (el.name.search(element_name)!=-1 && el.type=="checkbox" && el.checked == false) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        //check if attachment was selected or not 
+        function checkAtt(){
+        	var form = document.forms[retrieveMain()+'pageAtt:frmAtt'];
+        	for (var i = 0; i < form.elements.length; i++) {
+                var el = form.elements[i];
+                if (el.name.search('row_idsAtt')!=-1 && el.type=="checkbox" && el.checked == true) {
+                    return true;
+                }
+            }
+            alert('Please select at least one record');
+            return false;
+        }
+        
+        function showPopupComplete() {
+            var c=document.getElementById(retrieveMain()+'pageAtt:frmAtt:pbAtt:logFileName');
+            if(c) {
+                c.focus();    
+            }            
+        }
+        function checkValidName(){
+            var c=document.getElementById(retrieveMain()+'pageAtt:frmAtt:pbAtt:logFileName');
+            if(c && c.value.toLowerCase().indexOf('{!JSENCODE(agentLogName)}')==0) {
+                alert('The specified log name has already been used for Integration Agent log file name format. Please use another name.');
+                return false;
+            }
+            return true;
+        }
+        
+	</script>
+	
+	<apex:form id="frmAtt">
+		<apex:pageBlock title="Process Logs (Attachments)" id="pbAtt">
+			<apex:pageBlockButtons id="pbBtnAtt">
+				<apex:commandButton value="Clear" action="{!deleteSelectedAtt}" disabled="{!NOT(hasAtt)}" onclick="if(checkAtt()==false)return false;if(confirm('Are you sure?')==false)return false;" status="statusAtt" rerender="frmAtt" id="clearAtt"/>
+				<apex:commandButton value="Clear All" action="{!deleteAllAtt}" disabled="{!NOT(hasAtt)}" onclick="if(confirm('Are you sure?')==false)return false;" status="statusAtt" rerender="frmAtt" id="clearAllAtt"/>
+				<apex:commandButton id="changeLogFileName" value="Change Log File Name" action="{!showPopup}" 
+				       oncomplete="showPopupComplete();" status="statusAtt" rerender="popup" />
+			</apex:pageBlockButtons>
+			
+	        <apex:outputPanel id="popup">	  
+	            <apex:outputPanel styleClass="popupBackground" layout="block" rendered="{!displayPopUp}"/>       
+		            <apex:outputPanel styleClass="customPopup" layout="block" rendered="{!displayPopup}">
+		               <apex:panelGrid columns="2" cellspacing="5" columnClasses="lblCol,lblCol2">
+		                <apex:outputLabel >Default Log File Name</apex:outputLabel>
+	                    <apex:outputText id="deflogFileName" value="{!deflogFileName}"/>
+	                    <apex:outputLabel >New Log File Name</apex:outputLabel>
+	                    <apex:inputText maxlength="255" size="50" id="logFileName" value="{!logFileName}"/>
+	                    <apex:outputLabel />
+	                    <apex:outputLabel >(Leave it blank if you do not want to change the default name.<br/>
+	                                        It will also update all integration existing logs accordingly.)</apex:outputLabel>
+	                </apex:panelGrid>
+	                <center>
+                        <apex:commandButton id="btnChangeLogFileName" value="Save" action="{!changeLogFileName}"
+                            onclick="if(!checkValidName()) return false;" 
+                            status="statusAtt" rerender="popup, pbTblAtt"/>
+                        <apex:commandButton value="Cancel" action="{!cancelChangeLogFileName}" status="statusAtt" rerender="popup"/>
+                    </center>
+	            </apex:outputPanel>
+	        </apex:outputPanel>
+			
+			<apex:outputLabel value="No records to display" rendered="{!NOT(hasAtt)}"/>
+			<apex:pageBlockSection columns="1" id="pbSecAtt" rendered="{!hasAtt}">
+				<apex:pageBlockTable value="{!dtos}" var="dto" id="pbTblAtt">
+					<apex:column >
+						<apex:facet name="header">
+							<apex:inputCheckbox id="allBoxAtt" title="Select all rows for this page" onclick="selAllOrNoneByCheckboxAtt(this);"/>
+						</apex:facet>
+						<apex:inputCheckbox value="{!dto.checked}" id="row_idsAtt" onclick="updateToggleAllBoxAtt(this.form,'row_idsAtt',this.checked);"/>
+					</apex:column>
+					<apex:column >
+						<apex:facet name="header">
+							<apex:outputLabel value="Title"/>
+						</apex:facet>
+						<apex:outputLink value="/{!dto.att.Id}" target="_blank">{!dto.att.Name}</apex:outputLink>
+					</apex:column>
+					<apex:column value="{!dto.att.LastModifiedDate}"/>
+					<apex:column value="{!dto.att.CreatedById}"/>
+				</apex:pageBlockTable>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+		<apex:actionStatus id="statusAtt">
+        <apex:facet name="start">
+            <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+        </apex:facet>
+    </apex:actionStatus>
+	</apex:form>
+	
+</apex:page>

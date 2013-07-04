@@ -1,0 +1,5 @@
+<apex:page id="adapterView" standardController="skyvvasolutions__Adapter__c">
+<apex:detail relatedList="true" title="true"/>
+<apex:include pageName="skyvvasolutions__ListAdapterProperty" id="adpViewListProperty"/>
+<!--<apex:relatedList list="NotesAndAttachments" />-->
+</apex:page>

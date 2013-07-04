@@ -1,0 +1,67 @@
+<apex:page standardController="skyvvasolutions__IStructure__c" extensions="skyvvasolutions.ClsIStructure" tabStyle="skyvvasolutions__IStructure__c" id="page">
+	<apex:sectionHeader title="{!title}" subtitle="{!subtitle}"/>
+	<apex:form id="frm">
+	    <apex:pageBlock title="{!pageBlockTitle}" mode="detail" rendered="{!view}">
+	    	<apex:pageBlockButtons >
+                <apex:commandButton action="{!editIStructure}" value="Edit"/>
+	            <apex:commandButton value="Delete" onclick="if(confirmMsg()==false)return false;" action="{!deleteIStructure}" rerender="frm,error" status="status"/>
+	            <apex:commandButton action="{!cloneIStructure}" value="Clone" rerender="frm,error" status="status"/>
+            </apex:pageBlockButtons>	
+            
+	    	<center><apex:outputText value="{!error}" styleClass="pbError" id="error"></apex:outputText></center>
+	        
+	        <apex:pageBlockSection >
+	            <apex:outputField value="{!istruc.skyvvasolutions__Name__c}"/>
+	            <apex:outputField value="{!istruc.OwnerId}"/>
+	            <apex:outputField value="{!istruc.skyvvasolutions__Interface__c}"/>
+	            <apex:outputField value="{!istruc.skyvvasolutions__Description__c}"/>
+	            <apex:outputField value="{!istruc.skyvvasolutions__Type__c}"/>
+	            <apex:outputField value="{!istruc.skyvvasolutions__Sample_Content__c}"/>
+	            <apex:outputField value="{!istruc.skyvvasolutions__IStructure_Repository__c}"/>
+	            <apex:outputLabel />
+           		<apex:outputField value="{!istruc.CreatedById}"><apex:outputLabel value=", "/><apex:outputField value="{!istruc.CreatedDate}"/></apex:outputField>
+           		<apex:outputField value="{!istruc.LastModifiedById}"><apex:outputLabel value=", "/><apex:outputField value="{!istruc.LastModifiedDate}"/></apex:outputField>
+            </apex:pageBlockSection>
+	    </apex:pageBlock>
+	    
+	    <apex:pageBlock title="{!pageBlockTitle}" mode="edit" rendered="{!NOT(view)}" id="pbEdit">
+	    	<apex:pageBlockButtons >
+	            <apex:commandButton action="{!upsertIStructure}" value="Save" rerender="frm,error1" status="status"/>
+	            <apex:commandButton action="{!saveAndNew}" value="Save & New" rerender="frm,error1" status="status"/>
+            	<apex:commandButton action="{!cancel}" value="Cancel"/>
+  				         
+            </apex:pageBlockButtons>
+            
+            	 <center><apex:outputText value="{!error}" styleClass="pbError" id="error1"></apex:outputText></center>
+	        
+	        <apex:pageBlockSection id="pbSec">
+	        	<apex:inputField value="{!istruc.skyvvasolutions__Name__c}" required="true" style="width:350px;"/>
+        		<apex:inputtext style="display:none"/>
+        		<apex:outputField value="{!istruc.skyvvasolutions__Interface__c}"/>
+        		<apex:inputField value="{!istruc.skyvvasolutions__Description__c}" style="width:250px;"/>
+       			<apex:inputField value="{!istruc.skyvvasolutions__Type__c}"/>
+        		<apex:inputField value="{!istruc.skyvvasolutions__Sample_Content__c}" style="width:250px;"/>
+        		<apex:inputField value="{!istruc.skyvvasolutions__IStructure_Repository__c}" />
+        		<apex:inputtext style="display:none"/>
+        	</apex:pageBlockSection>
+	        
+	    </apex:pageBlock>
+	    
+	    <apex:actionStatus id="status">
+	        <apex:facet name="start">
+	        <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+	        </apex:facet>
+	    </apex:actionStatus>
+	</apex:form>
+	
+	<script>
+       
+       function confirmMsg(){
+            if(!confirm('Are you sure?')){
+               return false;
+            }
+            return true;
+        }
+        
+	</script>
+</apex:page>

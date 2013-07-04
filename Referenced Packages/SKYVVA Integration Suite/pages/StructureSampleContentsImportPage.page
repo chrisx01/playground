@@ -1,0 +1,61 @@
+<apex:page standardController="skyvvasolutions__IMessage__c" extensions="skyvvasolutions.StructureSampleContentsImport" sidebar="false" id="page">
+	<script>
+		function checkIStructureComplete(){
+			try{
+				var fieldMissmatch=document.getElementById('page:frm:fieldMissmatch').value;
+				if(fieldMissmatch!=''){
+					var savedMismatchedIStructure=document.getElementById('page:frm:savedMismatchedIStructure');
+					if(confirm('There are the following fields in this message, which are not matching the interface source structure, '+
+									'do you want to add also these mismatched fields to your interface IStructure?\n\n['+fieldMissmatch+']')){
+						savedMismatchedIStructure.checked=true;
+					}else{
+						savedMismatchedIStructure.checked=false;
+					}
+				}
+				upsertSampleContent();
+			}catch(e){
+				alert(e);
+			}
+		}
+	</script>
+	<apex:form id="frm">
+		<apex:inputHidden value="{!msgId}" id="msgId"/>
+		<apex:inputHidden value="{!fieldMissmatch}" id="fieldMissmatch"/>
+		<apex:inputCheckbox value="{!savedMismatchedIStructure}" id="savedMismatchedIStructure" style="display:none"/>
+		<apex:actionFunction name="checkIStructureFields" action="{!checkIStructureFields}" oncomplete="checkIStructureComplete();" status="status" rerender="frm"/>
+		<apex:actionFunction name="upsertSampleContent" action="{!upsertSampleContent}" oncomplete="alert('The action was successful.');window.top.close();top.opener.location.href='/'+document.getElementById('page:frm:msgId').value;" status="status" rerender="frm"/>  
+		<apex:pageBlock id="pb">
+			<apex:pageBlockButtons id="pbBtn">
+				<apex:commandButton value="Upsert Sample Content" onclick="checkIStructureFields();return false;" disabled="{!NOT(hasStructure)}" id="btnUpsertSampleContent"/>
+				<apex:commandButton value="Cancel" onclick="window.top.close();"/>
+			</apex:pageBlockButtons>
+			<center><apex:outputText value="{!infoMsg}" rendered="{!IF(infoMsg='',false,true)}" styleClass="pbError"/></center>
+			<apex:pageBlockSection columns="1">
+				<apex:pageBlockSectionItem >
+					<apex:outputLabel value="Interface Name"/>
+					<apex:selectList value="{!intfId}" size="1">
+						<apex:selectOptions value="{!intfs}"/>
+						<apex:actionSupport event="onchange" action="{!changeInterface}" status="status" rerender="frm"/>
+					</apex:selectList>
+				</apex:pageBlockSectionItem>
+				
+				<apex:pageBlockTable value="{!lstDtoIstructure}" var="dto" rendered="{!hasStructure}">
+					<apex:column value="{!dto.structure}" headerValue="IStructure"/>
+					<apex:column value="{!dto.exStructure}" headerValue="External Structure"/>
+					<apex:column value="{!dto.sampleContentFml}" headerValue="Sample Content"/>
+					<apex:column >
+						<apex:facet name="header">
+							<apex:outputLabel value="Match"/>
+						</apex:facet>
+						<apex:image value="{!IF(dto.match==true,'/img/samples/color_green.gif','/img/samples/color_red.gif')}" width="25" height="15"/>
+					</apex:column>
+				</apex:pageBlockTable>
+			</apex:pageBlockSection>
+		</apex:pageBlock>
+		<apex:actionStatus id="status">
+	        <apex:facet name="start">
+	            <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..." messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+	        </apex:facet>
+	    </apex:actionStatus>
+	</apex:form>
+</apex:page>

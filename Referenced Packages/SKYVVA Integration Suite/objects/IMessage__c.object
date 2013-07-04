@@ -1,0 +1,603 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <content>MessageView</content>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>This object represent one record : in/out
+one record contains many IData (key,value)
+
+PLEASE DO NOT TOUCH</description>
+    <enableActivities>false</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>true</enableReports>
+    <fields>
+        <fullName>Comment__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Will contain the error message</description>
+        <externalId>false</externalId>
+        <label>Comment</label>
+        <required>false</required>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>Creation_Date__c</fullName>
+        <defaultValue>Now()</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Creation Date</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>ExtValue__c</fullName>
+        <deprecated>false</deprecated>
+        <description>evaluated value from ext id mapping</description>
+        <externalId>false</externalId>
+        <inlineHelpText>evaluated value from ext id mapping</inlineHelpText>
+        <label>External Value</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Ext_Id__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Ext Id</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>External_Id2__c</fullName>
+        <caseSensitive>true</caseSensitive>
+        <deprecated>false</deprecated>
+        <externalId>true</externalId>
+        <label>External Id</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>External_Id__c</fullName>
+        <caseSensitive>false</caseSensitive>
+        <deprecated>false</deprecated>
+        <description>upsert message by extId</description>
+        <externalId>true</externalId>
+        <label>External Id</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>true</unique>
+    </fields>
+    <fields>
+        <fullName>FRelated_To__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF(LEN(Related_To__c)=0,&quot;&quot;, HYPERLINK(&quot;/&quot; &amp;  Related_To__c , &quot;Related_To&quot;) )</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Related To</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>FlagStatus__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>IF (ISPICKVAL(Status__c,&quot;Failed&quot;), IMAGE(&quot;/img/samples/color_red.gif&quot;, &quot;red&quot;, 15, 25),
+     IF(ISPICKVAL(Status__c,&quot;Completed&quot;), IMAGE(&quot;/img/samples/color_green.gif&quot;, &quot;green&quot;, 15, 25),
+     IF(ISPICKVAL(Status__c,&quot;Pending&quot;), IMAGE(&quot;/img/samples/color_yellow.gif&quot;, &quot;yellow&quot;, 15, 25),
+     IMAGE(&quot;/img/samples/color_yellow.gif&quot;, &quot;yellow&quot;, 15, 25)
+
+)
+)
+)</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Status</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Integration__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Integration</label>
+        <referenceTo>Integration__c</referenceTo>
+        <relationshipLabel>Messages</relationshipLabel>
+        <relationshipName>Messages</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Interface__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <description>The record refers to an interface</description>
+        <externalId>false</externalId>
+        <label>Interface</label>
+        <referenceTo>Interfaces__c</referenceTo>
+        <relationshipLabel>Messages</relationshipLabel>
+        <relationshipName>Messages</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Is_Alerted__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <description>Indicating if the message has been alerted with task</description>
+        <externalId>false</externalId>
+        <label>Is Alerted</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Modification_Date__c</fullName>
+        <defaultValue>Now()</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Modification Date</label>
+        <required>false</required>
+        <type>DateTime</type>
+    </fields>
+    <fields>
+        <fullName>Name2__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Evaluated formula message name if existing</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Evaluated formula message name if existing</inlineHelpText>
+        <label>Name (formula)</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Related_To__c</fullName>
+        <deprecated>false</deprecated>
+        <description>This field stored the result of the message, it is equal to Id of object successfully created</description>
+        <externalId>false</externalId>
+        <label>Related</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Status__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Status</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Completed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Failed</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Pending</fullName>
+                <default>true</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <fields>
+        <fullName>Target__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <formula>Interface__r.Name__c</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <label>Target</label>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>Inbound</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Outbound</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <label>Message</label>
+    <nameField>
+        <label>Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>Messages</pluralLabel>
+    <searchLayouts>
+        <excludedStandardButtons>New</excludedStandardButtons>
+        <excludedStandardButtons>ChangeOwner</excludedStandardButtons>
+        <searchFilterFields>NAME</searchFilterFields>
+    </searchLayouts>
+    <sharingModel>ReadWrite</sharingModel>
+    <webLinks>
+        <fullName>Back</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Back</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>//invoke integrationId
+var integrationId;
+
+var getVars = new Array();
+var locvartemp = ( window.location.href.indexOf( &quot;?&quot; ) + 1 ) ? window.location.href.substr( window.location.href.indexOf( &quot;?&quot; ) + 1 ) : &quot;&quot;;
+locvartemp = locvartemp.split( &quot;&amp;&quot; );
+for( var x = 0; x &lt; locvartemp.length; x++ ) {
+    var lvTempVar = locvartemp[x].split( &quot;=&quot; );
+    getVars[ unescape( lvTempVar[0] ) ] = unescape( lvTempVar[1] );
+    integrationId=(getVars[ unescape( lvTempVar[0] ) ]);
+}
+ top.document.location.href=&quot;/&quot; + integrationId;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Clear</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Clear</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/10.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/12.0/apex.js&quot;)}
+
+var records = {!GETRECORDIDS($ObjectType.IMessage__c)};
+var newRecords = [];
+if (records[0] == null) {
+	alert(&quot;Please select at least one row&quot;);
+}
+else {
+	if(confirm(&quot;Are you sure you want to delete ?&quot;)){
+		//ok
+		
+		//15022011 regen records in form of 15Ids
+		for(i=0;i&lt;records.length;i++){
+			records[i] = records[i].substr(0,15);
+		}	
+		
+		// invoke the webservice
+		var integrationId = &quot;{!Integration__c.Id}&quot;;
+		
+		//override the window
+		//window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMessage__c&amp;btn=Clear&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+		
+		var param = {messageIds:records};
+		try {
+			//14022011 let&apos;s try with the web service call, if error API_DISABLED_FOR_ORG, then try with the vf page
+			var result = sforce.apex.execute(&quot;skyvvasolutions.IServices&quot;, &quot;deleteMessages&quot;,param);
+			top.document.location.href=&quot;/&quot; + integrationId;
+		}
+		catch (e) {
+			//14022011 PE GE
+			//ERROR {faultcode:&apos;sf:API_DISABLED_FOR_ORG&apos;, faultstring:&apos;API_DISABLED_FOR_ORG: API is not enabled for this //Organization or Partner&apos;, }
+			if(e.faultcode!=null &amp;&amp; e.faultcode.search(/API_DISABLED_FOR_ORG/i)&gt;0){
+				//override the window
+				window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMessage__c&amp;btn=Clear&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+			}
+			else alert(e);
+		}
+	}
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Clear1</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Clear</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/10.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/12.0/apex.js&quot;)}
+
+//invoke integrationId
+var integrationId;
+
+var getVars = new Array();
+var locvartemp = ( window.location.href.indexOf( &quot;?&quot; ) + 1 ) ? window.location.href.substr( window.location.href.indexOf( &quot;?&quot; ) + 1 ) : &quot;&quot;;
+locvartemp = locvartemp.split( &quot;&amp;&quot; );
+for( var x = 0; x &lt; locvartemp.length; x++ ) {
+    var lvTempVar = locvartemp[x].split( &quot;=&quot; );
+    getVars[ unescape( lvTempVar[0] ) ] = unescape( lvTempVar[1] );
+    integrationId=(getVars[ unescape( lvTempVar[0] ) ]);
+}
+
+var records = {!GETRECORDIDS($ObjectType.IMessage__c)};
+var newRecords = [];
+if (records[0] == null) {
+	alert(&quot;Please select at least one row&quot;);
+}
+else {
+	if(confirm(&quot;Are you sure you want to delete ?&quot;)){
+		//ok
+		
+		//15022011 regen records in form of 15Ids
+		for(i=0;i&lt;records.length;i++){
+			records[i] = records[i].substr(0,15);
+		}	
+		
+		// invoke the webservice
+		var param = {messageIds:records};
+		
+		//override the window
+		//window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMessage__c&amp;btn=Clear1&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+				
+		try {
+			//14022011 let&apos;s try with the web service call, if error API_DISABLED_FOR_ORG, then try with the vf page
+			var result = sforce.apex.execute(&quot;skyvvasolutions.IServices&quot;, &quot;deleteMessages&quot;,param);
+			window.location.href=&apos;/&apos;+integrationId;
+		}
+		catch (e) {
+			//14022011 PE GE
+			//ERROR {faultcode:&apos;sf:API_DISABLED_FOR_ORG&apos;, faultstring:&apos;API_DISABLED_FOR_ORG: API is not enabled for this //Organization or Partner&apos;, }
+			if(e.faultcode!=null &amp;&amp; e.faultcode.search(/API_DISABLED_FOR_ORG/i)&gt;0){
+				//override the window
+				window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMessage__c&amp;btn=Clear1&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+			}
+			else alert(e);
+		}
+	}
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Import_Sample_Data</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <hasMenubar>false</hasMenubar>
+        <hasScrollbars>true</hasScrollbars>
+        <hasToolbar>false</hasToolbar>
+        <height>600</height>
+        <isResizable>true</isResizable>
+        <linkType>page</linkType>
+        <masterLabel>Import Sample Data</masterLabel>
+        <openType>newWindow</openType>
+        <page>StructureSampleContentsImportPage</page>
+        <position>none</position>
+        <protected>false</protected>
+        <showsLocation>false</showsLocation>
+        <showsStatus>false</showsStatus>
+    </webLinks>
+    <webLinks>
+        <fullName>List</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>List</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>window.location.href=&apos;/apex/skyvvasolutions__DynamicIntegrationMessagePage?integid={!Integration__c.Id}&apos;
+
+//window.location.href=&apos;/a0E?rlid={!Integration__c.Id}&apos;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Messages_Board</fullName>
+        <availability>online</availability>
+        <description>Go to the Message Board page</description>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Messages Board</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>//override the window
+window.location.href=&quot;/apex/skyvvasolutions__DynamicIntegrationMessagePage?integid={!IMessage__c.IntegrationId__c}&amp;intfid={!IMessage__c.InterfaceId__c}&quot;;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Process</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Process</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/10.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/12.0/apex.js&quot;)} 
+
+var records = {!GETRECORDIDS($ObjectType.IMessage__c)};
+var newRecords = [];
+if (records[0] == null) {
+	alert(&quot;Please select at least one row&quot;);
+}
+else {
+	//alert(records.length);
+	if(confirm(&quot;Are you sure you want to re process the selected messages ?&quot;)){
+	
+		//15022011 regen records in form of 15Ids
+		for(i=0;i&lt;records.length;i++){
+			records[i] = records[i].substr(0,15);
+		}	
+
+		// invoke the webservice
+		var integrationId = &quot;{!Integration__c.Id}&quot;;
+		
+		//override the window
+		//window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMessage__c&amp;btn=Process&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+        
+		var param = {messageIds:records};
+		try {
+			//14022011 let&apos;s try with the web service call, if error API_DISABLED_FOR_ORG, then try with the vf page
+			var result = sforce.apex.execute(&quot;skyvvasolutions.IServices&quot;, &quot;reprocess&quot;,param);
+			top.document.location.href=&quot;/&quot; + integrationId;
+		}
+		catch (e) {
+			//14022011 PE GE
+			//ERROR {faultcode:&apos;sf:API_DISABLED_FOR_ORG&apos;, faultstring:&apos;API_DISABLED_FOR_ORG: API is not enabled for this //Organization or Partner&apos;, }
+			if(e.faultcode!=null &amp;&amp; e.faultcode.search(/API_DISABLED_FOR_ORG/i)&gt;0){
+				//override the window
+				window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMessage__c&amp;btn=Process&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+			}
+			else alert(e);
+        }
+	}
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Process1</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Process</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/10.0/connection.js&quot;)}
+{!REQUIRESCRIPT(&quot;/soap/ajax/12.0/apex.js&quot;)} 
+
+//invoke integrationId
+var integrationId;
+
+var getVars = new Array();
+var locvartemp = ( window.location.href.indexOf( &quot;?&quot; ) + 1 ) ? window.location.href.substr( window.location.href.indexOf( &quot;?&quot; ) + 1 ) : &quot;&quot;;
+locvartemp = locvartemp.split( &quot;&amp;&quot; );
+for( var x = 0; x &lt; locvartemp.length; x++ ) {
+    var lvTempVar = locvartemp[x].split( &quot;=&quot; );
+    getVars[ unescape( lvTempVar[0] ) ] = unescape( lvTempVar[1] );
+    integrationId=(getVars[ unescape( lvTempVar[0] ) ]);
+}
+
+var records = {!GETRECORDIDS($ObjectType.IMessage__c)};
+var newRecords = [];
+if (records[0] == null) {
+	alert(&quot;Please select at least one row&quot;);
+}
+else {
+	//alert(records.length);
+	if(confirm(&quot;Are you sure you want to re process the selected messages ?&quot;)){
+	
+		//15022011 regen records in form of 15Ids
+		for(i=0;i&lt;records.length;i++){
+			records[i] = records[i].substr(0,15);
+		}	
+	
+		//override the window
+		//window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMessage__c&amp;btn=Process1&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+
+		// invoke the webservice
+		var param = {messageIds:records};
+		try {
+			//14022011 let&apos;s try with the web service call, if error API_DISABLED_FOR_ORG, then try with the vf page
+			var result = sforce.apex.execute(&quot;skyvvasolutions.IServices&quot;, &quot;reprocess&quot;,param);
+			top.document.location.href=&quot;/&quot; + integrationId;
+		}
+		catch (e) {
+			//14022011 PE GE
+			//ERROR {faultcode:&apos;sf:API_DISABLED_FOR_ORG&apos;, faultstring:&apos;API_DISABLED_FOR_ORG: API is not enabled for this //Organization or Partner&apos;, }
+			if(e.faultcode!=null &amp;&amp; e.faultcode.search(/API_DISABLED_FOR_ORG/i)&gt;0){
+				//override the window
+				window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMessage__c&amp;btn=Process1&amp;par=&quot;+integrationId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+			}
+			else alert(e);
+        }
+	}
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Reprocess</fullName>
+        <availability>online</availability>
+        <displayType>button</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Reprocess</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/10.0/connection.js&quot;)} 
+{!REQUIRESCRIPT(&quot;/soap/ajax/12.0/apex.js&quot;)} 
+
+
+var records = []; 
+var status = &apos;{!IMessage__c.Status__c}&apos;;
+var parentId = &apos;{!IMessage__c.Id}&apos;; //&apos;{!IMessage__c.IntegrationId__c}&apos;;
+
+if (status==&apos;Completed&apos;) { 
+	alert(&quot;The message has already been completed.&quot;); 
+} 
+else { 
+	if(confirm(&quot;Are you sure you want to reprocess the message?&quot;)){ 
+	
+		records.push(&apos;{!IMessage__c.Id}&apos;);
+		//15022011 regen records in form of 15Ids
+		for(i=0;i&lt;records.length;i++){
+			records[i] = records[i].substr(0,15);
+		}	
+		//alert(records);
+		
+		// invoke the webservice 
+		var param = {messageIds:records}; 
+		try { 
+			//14022011 let&apos;s try with the web service call, if error API_DISABLED_FOR_ORG, then try with the vf page
+			var result = sforce.apex.execute(&quot;skyvvasolutions.IServices&quot;, &quot;reprocess&quot;,param); 
+			document.location.reload(); 
+		} 
+		catch (e) { 
+			//14022011 PE GE
+			//ERROR {faultcode:&apos;sf:API_DISABLED_FOR_ORG&apos;, faultstring:&apos;API_DISABLED_FOR_ORG: API is not enabled for this //Organization or Partner&apos;, }
+			if(e.faultcode!=null &amp;&amp; e.faultcode.search(/API_DISABLED_FOR_ORG/i)&gt;0){
+				//override the window
+				window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IMessage__c&amp;btn=Reprocess&amp;par=&quot;+parentId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+			}
+			else alert(e);
+		}
+	}
+
+}</url>
+    </webLinks>
+</CustomObject>

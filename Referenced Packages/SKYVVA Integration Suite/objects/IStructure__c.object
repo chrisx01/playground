@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionOverrides>
+        <actionName>Accept</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Clone</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Delete</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Edit</actionName>
+        <content>IStructurePage</content>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>List</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>New</actionName>
+        <content>IStructurePage</content>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>Tab</actionName>
+        <type>Default</type>
+    </actionOverrides>
+    <actionOverrides>
+        <actionName>View</actionName>
+        <content>IStructurePage</content>
+        <skipRecordTypeSelect>false</skipRecordTypeSelect>
+        <type>Visualforce</type>
+    </actionOverrides>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <deprecated>false</deprecated>
+    <description>Used by Integration Mapping</description>
+    <enableActivities>false</enableActivities>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>false</enableHistory>
+    <enableReports>false</enableReports>
+    <fields>
+        <fullName>Description__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Description</label>
+        <required>false</required>
+        <type>TextArea</type>
+    </fields>
+    <fields>
+        <fullName>IStructure_Repository__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>IStructure Repository</label>
+        <referenceTo>IStructure_Repository__c</referenceTo>
+        <relationshipLabel>IStructure</relationshipLabel>
+        <relationshipName>IStructure</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Interface__c</fullName>
+        <deleteConstraint>SetNull</deleteConstraint>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Interface</label>
+        <referenceTo>Interfaces__c</referenceTo>
+        <relationshipLabel>IStructure</relationshipLabel>
+        <relationshipName>IStructure</relationshipName>
+        <required>false</required>
+        <type>Lookup</type>
+    </fields>
+    <fields>
+        <fullName>Is_Displayed__c</fullName>
+        <defaultValue>false</defaultValue>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Is Displayed</label>
+        <type>Checkbox</type>
+    </fields>
+    <fields>
+        <fullName>Name__c</fullName>
+        <deprecated>false</deprecated>
+        <description>since the standard name field (max 80), it is used to store longer structure names/sources</description>
+        <externalId>false</externalId>
+        <label>Name</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Sample_Content__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Sample Content</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Source_Name__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Source Name</label>
+        <length>255</length>
+        <required>false</required>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>Type__c</fullName>
+        <deprecated>false</deprecated>
+        <externalId>false</externalId>
+        <label>Type</label>
+        <picklist>
+            <picklistValues>
+                <fullName>String</fullName>
+                <default>true</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Double</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Date</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Number</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Boolean</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>Currency</fullName>
+                <default>false</default>
+            </picklistValues>
+            <picklistValues>
+                <fullName>DateTime</fullName>
+                <default>false</default>
+            </picklistValues>
+            <sorted>false</sorted>
+        </picklist>
+        <type>Picklist</type>
+    </fields>
+    <label>IStructure</label>
+    <nameField>
+        <label>IStructure Name</label>
+        <type>Text</type>
+    </nameField>
+    <pluralLabel>IStructure</pluralLabel>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <webLinks>
+        <fullName>Clear</fullName>
+        <availability>online</availability>
+        <description>Clear the selected structures</description>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Delete</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>{!REQUIRESCRIPT(&quot;/soap/ajax/10.0/connection.js&quot;)} 
+{!REQUIRESCRIPT(&quot;/soap/ajax/12.0/apex.js&quot;)} 
+
+var records = {!GETRECORDIDS($ObjectType.IStructure__c)}; 
+var newRecords = []; 
+if (records[0] == null) { 
+	alert(&quot;Please select at least one row&quot;); 
+} 
+else { 
+	//alert(records.length); 
+	if(confirm(&quot;The selected structures and their corresponding mappings will be deleted.\n\nAre you sure you want to continue?&quot;)){ 
+
+        //15022011 regen records in form of 15Ids
+		for(i=0;i&lt;records.length;i++){
+			records[i] = records[i].substr(0,15);
+		}	
+		
+		// invoke the webservice 
+		var interfaceId= &quot;{!Interfaces__c.Id}&quot;; 
+		
+		//override the window
+		//window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IStructure__c&amp;btn=Clear&amp;par=&quot;+interfaceId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+		
+		var param = {ids:records}; 
+		try { 
+			//14022011 let&apos;s try with the web service call, if error API_DISABLED_FOR_ORG, then try with the vf page
+			var result = sforce.apex.execute(&quot;skyvvasolutions.IServices&quot;, &quot;deleteStructures&quot;,param); 
+			top.document.location.href=&quot;/&quot; + interfaceId; 
+		} 
+		catch (e) { 
+			//14022011 PE GE
+			//ERROR {faultcode:&apos;sf:API_DISABLED_FOR_ORG&apos;, faultstring:&apos;API_DISABLED_FOR_ORG: API is not enabled for this //Organization or Partner&apos;, }
+			if(e.faultcode!=null &amp;&amp; e.faultcode.search(/API_DISABLED_FOR_ORG/i)&gt;0){
+				//override the window
+				window.location.href=&quot;/apex/skyvvasolutions__IObjectCustomButtonPGE?obj=IStructure__c&amp;btn=Clear&amp;par=&quot;+interfaceId+&quot;&amp;ids=&quot;+records.join(&apos;,&apos;);
+			}
+			else alert(e);
+		}
+	}		
+
+}</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Create_from_Repository</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Create from Repository</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>document.location.href=&apos;/apex/skyvvasolutions__CreateIStructureFromRepository?id={!Interfaces__c.Id}&apos;;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Export_As_XML</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Export Fields Definition</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>function popup(url)
+{
+var width = 400;
+var height = 400;
+var left = (screen.width - width)/2;
+var top = (screen.height - height)/2;
+var params = &apos;width=&apos;+width+&apos;, height=&apos;+height;
+params += &apos;, top=&apos;+top+&apos;, left=&apos;+left;
+params += &apos;, directories=no&apos;;
+params += &apos;, location=no&apos;;
+params += &apos;, menubar=no&apos;;
+params += &apos;, resizable=no&apos;;
+params += &apos;, scrollbars=no&apos;;
+params += &apos;, status=no&apos;;
+params += &apos;, toolbar=no&apos;;
+newwin=window.open(url,&apos;windowname5&apos;, params);
+if (window.focus) {newwin.focus()}
+return false;
+}
+
+popup(&apos;/apex/skyvvasolutions__ExportIStructureXML?interfaceId={!Interfaces__c.Id}&amp;typ=s&apos;);</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Import_XML</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>javascript</linkType>
+        <masterLabel>Import Fields Definition</masterLabel>
+        <openType>onClickJavaScript</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>window.location.href=&apos;/apex/skyvvasolutions__ImportCSVXMLPage?interfaceId={!Interfaces__c.Id}&amp;type=IStructure&amp;filetype=XML&apos;</url>
+    </webLinks>
+    <webLinks>
+        <fullName>Mass_Update</fullName>
+        <availability>online</availability>
+        <displayType>massActionButton</displayType>
+        <linkType>url</linkType>
+        <masterLabel>Mass Update</masterLabel>
+        <openType>replace</openType>
+        <protected>false</protected>
+        <requireRowSelection>true</requireRowSelection>
+        <url>/apex/skyvvasolutions__MassUpdateIStructuresPage?Id={!Interfaces__c.Id}</url>
+    </webLinks>
+</CustomObject>

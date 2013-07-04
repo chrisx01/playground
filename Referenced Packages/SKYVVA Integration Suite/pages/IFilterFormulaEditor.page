@@ -1,0 +1,117 @@
+<apex:page id="thePage" standardController="skyvvasolutions__IFilter__c" extensions="skyvvasolutions.ClIFilterFormulaEditorController"  action="{!init}">
+
+<style>
+
+    .lblCol{
+        color:#333333;
+        font-size:91%;
+        font-weight:bold;
+        padding:2px 10px 2px 2px;
+        text-align:right;
+    }
+    
+    .lblCol2{}
+    
+</style>
+
+    <script>    
+        
+        var taId ='thePage:theForm:pbFilter:condSection:txtCondition';
+        var idPre='thePage:theForm:pbFilter:';         
+        
+        function getSelectedItem(elementId){           
+                    
+            var textArea=document.getElementById(taId);
+            
+            var cbo=document.getElementById(idPre+elementId);
+            var newStr=cbo.value;          
+            var allStr=textArea.value;
+
+            textArea.value=textArea.value+' ' +newStr;;
+            textArea.focus;            
+        }            
+         
+    </script>
+
+
+    <apex:form id="theForm">
+    
+    <apex:actionStatus id="status">
+        <apex:facet name="start">
+        <c:Load ImageUrl="/img/loading.gif" BackColor="#efefef" borderColor="#336699" borderSize="3" height="50px" width="120px" Message="Loading..."
+             messageStyle="color:darkred;font-size:11pt;font-weight:bold;"/>
+        </apex:facet>
+
+    </apex:actionStatus>
+    
+        <apex:pageBlock id="pbFilter" title="IFilter">
+
+                <center><apex:outputText value="{!error}" rendered="{!NOT(ISNULL(error))}" styleClass="pbError"></apex:outputText></center>
+                <apex:pageBlockSection id="pbsFilterDetail" columns="1">
+                    <apex:panelGrid id="pnlGFilter" columns="2" cellspacing="5" columnClasses="lblCol,lblCol2">
+                      
+                      <apex:outputLabel rendered="{!NOT(ISNULL(skyvvasolutions__IFilter__c.Id))}">Filter Name</apex:outputLabel>
+                      <apex:inputField id="FilterName" value="{!skyvvasolutions__IFilter__c.Name}" rendered="{!NOT(ISNULL(skyvvasolutions__IFilter__c.Id))}"/>
+                      
+                      <apex:outputLabel >Interface</apex:outputLabel>
+                      <apex:inputField id="interf" style="width:160px;" value="{!skyvvasolutions__IFilter__c.skyvvasolutions__Interface__c}"/>
+                      
+                      <apex:outputLabel >Sequence</apex:outputLabel>
+                      <apex:outputText id="txtSequence" value="{!seq}"/>
+                      
+                      <apex:outputLabel >Message</apex:outputLabel>
+                      <apex:inputField id="Message" value="{!skyvvasolutions__IFilter__c.skyvvasolutions__Message__c}"/>
+                      
+                      <apex:outputLabel >Field Name</apex:outputLabel>
+                      <apex:inputField id="Name" value="{!skyvvasolutions__IFilter__c.skyvvasolutions__Fileld_Name__c}"/>
+                      
+                      <apex:outputLabel >Filter Operator</apex:outputLabel>
+                      <apex:inputField id="Operator" value="{!skyvvasolutions__IFilter__c.skyvvasolutions__Operator__c}"/>                      
+                      
+                   </apex:panelGrid>                  
+                </apex:pageBlockSection>
+                
+                <apex:pageBlockSection id="formulaSection" columns="1" title="Condition" collapsible="false">
+                      
+                    <apex:panelGrid columns="4" cellspacing="2" columnClasses="lblCol,lblCol2">                      
+                                                   
+                        <apex:outputLabel >Operators</apex:outputLabel>
+                        <apex:selectList size="1" id="cboOper" onchange="getSelectedItem('formulaSection:cboOper');" 
+                            style="width:160px; margin-right:160px;">
+                            <apex:selectoptions value="{!Operators}"/>
+                        </apex:selectList>
+                        
+                        <apex:outputLabel >Functions</apex:outputLabel>
+                        <apex:selectList size="1" value="{!fDesc}" id="cboFunction" style="width:160px;">                       
+                            <apex:selectoptions value="{!Functions}"/>
+                            <apex:actionsupport event="onchange" action="{!displayDesc}" rerender="functionDesc"/>  
+                        </apex:selectList>
+                        
+                        <apex:outputLabel />
+                        <apex:outputLabel />
+                        <apex:outputLabel />                        
+                        <apex:commandButton value="Insert Function" onclick="getSelectedItem('formulaSection:cboFunction');return false;"/>                        
+                    </apex:panelGrid>
+               </apex:pageBlockSection>
+                    
+               <apex:pageBlockSection id="condSection" columns="1">
+                     <apex:panelGrid columns="3" cellspacing="2" columnClasses="lblCol,lblCol2,lblCol2"> 
+                         <apex:outputLabel >Condition</apex:outputLabel>
+                         <apex:inputText value="{!skyvvasolutions__IFilter__c.skyvvasolutions__Condition__c}" style="width:320px;" id="txtCondition"/>
+                         
+                         <apex:outputLabel value="{!fDesc}" id="functionDesc"/>
+                    </apex:panelGrid>
+                <apex:pageBlockSection columns="1"/>
+               </apex:pageBlockSection>
+
+                
+            <apex:pageBlockButtons >
+                <apex:commandButton id="btnSave" action="{!save}" value="Save" rerender="pbFilter" status="status"
+                oncomplete="if('{!error}'=='' && document.getElementById('thePage:theForm:pbFilter:pbsFilterDetail:pnlGFilter:interf').className!='error') document.location.href='/{!URLENCODE(skyvvasolutions__IFilter__c.skyvvasolutions__Interface__c)}';"
+                />
+                <apex:commandButton action="{!cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+                        
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

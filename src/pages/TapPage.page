@@ -1,0 +1,122 @@
+<apex:page standardController="Store__c" recordSetVar="stores"
+	tabStyle="Account" extensions="StyledComponentController"
+	action="{!initPage}">
+	<!-- Define Tab panel .css styles -->
+
+	<style>
+.activeTab {
+	background-color: #236FBD;
+	color: white;
+	background-image: none
+}
+
+.inactiveTab {
+	background-color: lightgrey;
+	color: black;
+	background-image: none
+}
+</style>
+	<apex:form >
+		<apex:sectionHeader title="sectionHeader.title" subtitle="subTitle!"
+			description="sectionHeader.description"
+			help="http://www.starbucks.com" />
+		<apex:pageMessages />
+		<!-- Create Tab panel -->
+		<p>
+			<apex:tabPanel switchType="client" selectedTab="name2"
+				id="AccountTabPanel" tabClass="activeTab"
+				inactiveTabClass="inactiveTab">
+				<apex:tab label="One" name="name1" id="tabOne">content for tab one</apex:tab>
+				<apex:tab label="Two" name="name2" id="tabTwo">content for tab two</apex:tab>
+			</apex:tabPanel>
+		</p>
+		<p>
+			<apex:pageBlock title="pageBlock.title" helpUrl="www.123.de"
+				helpTitle="hilfe">
+				<apex:pageBlockButtons >
+					<apex:commandButton action="{!save}" value="button 1" />
+					<apex:commandButton action="{!save}" value="button 2"
+						disabled="true" />
+				</apex:pageBlockButtons>
+				<apex:pageBlockTable var="s" value="{!stores}"
+					title="pageBlockTable.title" rows="2">
+					<apex:column value="{!s.name}" />
+					<apex:column value="1 {!s.name}" />
+					<apex:column value="2 {!s.name}" />
+
+				</apex:pageBlockTable>
+				<p />
+				<apex:pageBlockSection title="pageBlockSection.title" columns="2">
+					<apex:pageBlockSectionItem >
+						<apex:outputLabel value="Store Name" for="Store__c.name" />
+						<apex:inputText value="{!Store__c.name}" />
+					</apex:pageBlockSectionItem>
+
+					<apex:pageBlockSectionItem >
+						<apex:outputLabel value="Store type" for="account__site" />
+						<apex:inputText value="{!Store__c.name}" />
+					</apex:pageBlockSectionItem>
+
+				</apex:pageBlockSection>
+			</apex:pageBlock>
+		</p>
+
+		<apex:toolbar id="theToolbar">
+			<apex:outputText value="Sample Toolbar" />
+			<apex:toolbarGroup itemSeparator="line" id="toobarGroupLinks">
+				<apex:outputLink value="http://www.salesforce.com">
+              salesforce
+            </apex:outputLink>
+				<apex:outputLink value="http://developer.salesforce.com">
+             apex developer network
+            </apex:outputLink>
+			</apex:toolbarGroup>
+			<apex:toolbarGroup itemSeparator="line" location="right"
+				id="toobarGroupForm">
+
+				<apex:inputText id="theInputText">Enter Text</apex:inputText>
+				<apex:commandLink value="search" id="theCommandLink" />
+
+			</apex:toolbarGroup>
+
+		</apex:toolbar>
+		<p />
+			</apex:form>
+		<apex:panelBar >
+			<apex:panelBarItem label="listView">
+				<apex:ListViews type="Store__c" />
+			</apex:panelBarItem>
+			<apex:panelBarItem label="Item 2">
+				<apex:dataTable value="{!stores}" var="account" id="theTable"
+					rowClasses="odd,even" styleClass="tableClass">
+					<apex:facet name="caption">table caption</apex:facet>
+					<apex:facet name="header">table header</apex:facet>
+					<apex:facet name="footer">table footer</apex:facet>
+					<apex:column >
+						<apex:facet name="header">Name</apex:facet>
+						<apex:facet name="footer">column footer</apex:facet>
+						<apex:outputText value="{!account.name}" />
+					</apex:column>
+					<apex:column >
+						<apex:facet name="header">Owner</apex:facet>
+						<apex:facet name="footer">column footer</apex:facet>
+						<apex:outputText value="{!account.owner.name}" />
+					</apex:column>
+				</apex:dataTable>
+
+			</apex:panelBarItem>
+			<apex:panelBarItem label="enhancedList">
+				<apex:enhancedList type="Store__c" height="300" rowsPerPage="10"
+					id="LeadList" customizable="False" />
+			</apex:panelBarItem>
+			<apex:panelBarItem label="relatedList">
+				<!-- apex:relatedList list="name" subject="{!store}">
+					<apex:facet name="header">Overide Theader</apex:facet>
+				</apex:relatedList-->
+			</apex:panelBarItem>
+			<apex:panelBarItem label="Detail">
+				<apex:detail subject="{!store}"	relatedList="false"/>
+			</apex:panelBarItem>
+		</apex:panelBar>
+
+</apex:page>

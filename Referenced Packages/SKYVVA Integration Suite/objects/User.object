@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fields>
+        <fullName>CIM_LICENCE_KEY__c</fullName>
+        <deprecated>false</deprecated>
+        <description>Used to store license key for SKYVVA Integration Suite</description>
+        <externalId>false</externalId>
+        <inlineHelpText>Used to store license key for SKYVVA Integration Suite. Please enter a valid license key here</inlineHelpText>
+        <label>SKYVVA LICENSE KEY</label>
+        <length>255</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+</CustomObject>

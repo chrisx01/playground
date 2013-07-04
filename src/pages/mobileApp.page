@@ -1,0 +1,34 @@
+<apex:page showHeader="false"  standardStylesheets="false" cache="false" doctype="html-5.0">
+<c:App debug="true">
+	<apex:composition template="SplitViewTemplate">
+		<apex:define name="menu">
+	<c:Page name="#homePage">
+	<c:Header >
+	<h1 style="font-size: 20px; margin: 0px;">All Contacts</h1>
+	</c:Header>
+	<c:Content >
+	<c:List sobject="employe__c" labelField="Name" subLabelField="Store__r.Name" sortByField="Name" listFilter="true" />
+	</c:Content>
+	    </c:Page>
+        </apex:define>
+        <apex:define name="main">
+	<c:Page name="main">
+<c:Header >
+<h1 style="font-size: 22px; margin: 0px;">Store Details</h1>
+</c:Header>
+<c:Content >
+<c:Detail sobject="employe__c"/>
+</c:Content>
+</c:Page>
+</apex:define>
+
+     <c:Footer >
+                <!--  ,'iconCls':'star' -->
+                <c:Nav elemId="detailPageNav"
+                    pages="[{'page':'#homePage','name':'Home'},{'page':'#listPage','name':'List'}]"/>
+            </c:Footer>
+</apex:composition>
+
+<!-- End Default Content REMOVE THIS -->
+</c:App>
+</apex:page>

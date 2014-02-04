@@ -2,4 +2,5 @@
              standardStylesheets="false" controller="DeviceSwitch"
              action="{!detectDevice}">
   <h1>{!isIPad}</h1>
+  <p>ddd</p>
 </apex:page>

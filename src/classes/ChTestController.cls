@@ -1,11 +1,4 @@
 global class ChTestController {
-	
-	private DesktopController controller;
-	
-	public ChTestController(DesktopController controller) {
-	this.controller = controller;
-	}
-	
     @RemoteAction
     global static String getAllAccounts() //Need to define as a remote action as we will be calling this through javascript
     {

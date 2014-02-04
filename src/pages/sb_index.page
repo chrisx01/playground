@@ -1,0 +1,8 @@
+<apex:page showHeader="false" standardController="Account" >
+	<apex:composition template="sb_template">
+		<apex:define name="header"><apex:include pageName="sb_header"/></apex:define>
+		<apex:define name="body"><apex:include pageName="sb_menu"/></apex:define>
+			<apex:define name="footer"><apex:include pageName="sb_footer"/></apex:define>
+	
+	</apex:composition>
+</apex:page>

@@ -1,0 +1,85 @@
+<apex:page showHeader="false" standardController="Account" >
+<head>
+<apex:stylesheet value="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.23/jquery-ui.min.js"></script>
+
+
+
+
+
+<script type='text/javascript'>
+(function($) {
+// go next slide
+var goForward = function(){
+      $.mobile.changePage("#detail", "slide");
+    return false;
+};
+
+
+// go previous slide
+var goBack = function(){
+   
+    $.mobile.changePage("#home", "slide"  );
+    return false;
+};
+
+
+// Handle arrows and swipe events
+$(document).keydown(function(e) {
+    if(e.keyCode ==39) goForward(); //right
+    else if(e.keyCode ==37) goBack(); //left
+})
+.bind("swiperight", goForward )
+.bind("swipeleft", goBack );
+
+})(jQuery); ;
+
+</script>
+    <script>
+        jQuery.noConflict();
+    </script>
+
+</head>
+<body>
+<div data-role="page" id="home"> 
+   <apex:include pageName="sb_header"/>
+        
+     
+       <div data-role="content">
+        <h3>Account   detail</h3>
+  
+        <p>
+            <ul data-role="listview" data-inset="true" data-theme="c">
+                <li id="listitem" >Swipe Right to List</li>
+            </ul>
+        </p>
+    </div>
+
+<apex:include pageName="sb_footer"/>
+
+</div>    
+    <div data-role="page" id="detail">     
+       <apex:include pageName="sb_header"/>
+          <div data-role="content">
+     
+     
+        <h3>List   detail</h3>
+
+        <p>
+            <ul data-role="listview" data-inset="true" data-theme="c">
+                <li id="back" >Swipe Right home</li>
+            </ul>
+        </p>
+    </div>
+
+
+
+
+<apex:include pageName="sb_footer"/>
+</div>    
+</body>
+
+</apex:page>

@@ -1,0 +1,385 @@
+<apex:page showHeader="false" standardController="Image__c"  extensions="StoreImageController">
+<!-- Begin Default Content REMOVE THIS -->
+<h1>Image Test</h1>
+
+<!-- End Default Content REMOVE THIS -->
+<apex:includeScript value="{!$Resource.JQuery}" />
+<style>
+#dragandrophandler
+{
+border:2px dotted #0B85A1;
+width:400px;
+color:#92AAB0;
+text-align:left;vertical-align:middle;
+padding:10px 10px 10 10px;
+margin-bottom:10px;
+font-size:200%;
+}
+.progressBar {
+    width: 200px;
+    height: 22px;
+    border: 1px solid #ddd;
+    border-radius: 5px; 
+    overflow: hidden;
+    display:inline-block;
+    margin:0px 10px 5px 5px;
+    vertical-align:top;
+}
+ 
+.progressBar div {
+    height: 100%;
+    color: #fff;
+    text-align: right;
+    line-height: 22px; /* same as #progressBar height if we want text middle aligned */
+    width: 0;
+    background-color: #0ba1b5; border-radius: 3px; 
+}
+.statusbar
+{
+    border-top:1px solid #A9CCD1;
+    min-height:25px;
+    width:700px;
+    padding:10px 10px 0px 10px;
+    vertical-align:top;
+}
+.statusbar:nth-child(odd){
+    background:#EBEFF0;
+}
+.filename
+{
+display:inline-block;
+vertical-align:top;
+width:250px;
+}
+.filesize
+{
+display:inline-block;
+vertical-align:top;
+color:#30693D;
+width:100px;
+margin-left:10px;
+margin-right:5px;
+}
+.abort{
+    background-color:#A8352F;
+    -moz-border-radius:4px;
+    -webkit-border-radius:4px;
+    border-radius:4px;display:inline-block;
+    color:#fff;
+    font-family:arial;font-size:13px;font-weight:normal;
+    padding:4px 15px;
+    cursor:pointer;
+    vertical-align:top
+    }
+</style>
+
+ 
+
+<div id="dragandrophandler">Drag  Drop Files Here</div>
+<br/><br/>
+<div id="status1"></div>
+<script>
+//cors
+
+$(document).ready(function()
+{
+   jQuery.support.cors = true;
+  // call your other functions below.....
+ 
+
+})
+
+var RequestHelper = {
+	GatewayURL: "https://na9.salesforce.com/apex/index",
+	Busy: false,
+	sendRequest: function(url,success,$){
+		var protocol = location.protocol;
+		if(window.XDomainRequest){
+			if(protocol == "http:"){
+				if(RequestHelper.Busy){
+					setTimeout(function(){
+						RequestHelper.sendRequest(url,success,$);
+					},50);
+				} else {
+					RequestHelper.Busy = true;
+					$("body").append("<iframe id=\"ajaxProxy\" style=\"display: none;\" src=\"&quot;+RequestHelper.GatewayURL+&quot;\" height=\"240\" width=\"320\"></iframe>");
+					$("#ajaxProxy").load(function(){
+						ajaxProxy.postMessage(url,"*");
+						$(window).bind("message",function(e){
+							$("#ajaxProxy").remove();
+							$(window).unbind("message");
+							RequestHelper.Busy = false;
+							success(e.originalEvent.data);
+						});
+					});
+				}
+			} else {
+				var xdr = new XDomainRequest();
+				
+				xdr.onload = function() {
+				  	var dom = new ActiveXObject("Microsoft.XMLDOM");
+		dom.async = false;
+		dom.loadXML(xdr.responseText);
+				}
+				xdr.open("get", url);
+				xdr.onprogress = function () { };
+				xdr.ontimeout = function () { };
+				xdr.onerror = function () { };
+				
+				setTimeout(function () {xdr.send();}, 0);
+			}
+		} else {
+			$.ajax({
+				type: "GET",
+				url: url,
+				dataType: "html",
+				async:true,
+				success: function (response){
+					success(response);
+				}
+			});
+		}
+	}
+}
+</script>
+<script>
+function sendFileToServer(formData,status)
+{
+    var uploadURL ="https://ch-sf-conn.herokuapp.com/sfdc/getImage"; //Upload URL
+   //  var uploadURL ="http://localhost:8080/S3FileUpload"; //Upload URL
+    
+    var extraData ={}; //Extra Data.
+    var jqXHR=$.ajax({
+            xhr: function() {
+            var xhrobj = $.ajaxSettings.xhr();
+            if (xhrobj.upload) {
+                    xhrobj.upload.addEventListener('progress', function(event) {
+                        var percent = 0;
+                        var position = event.loaded || event.position;
+                        var total = event.total;
+                        if (event.lengthComputable) {
+                            percent = Math.ceil(position / total * 100);
+                        }
+                        //Set progress
+                        status.setProgress(percent);
+                    }, false);
+                }
+            return xhrobj;
+        },
+    url: uploadURL,
+    type: "POST",
+    contentType:false,
+    processData: false,
+        cache: false,
+        data: formData,
+        success: function(data,result){
+            status.setProgress(100);
+ 			console.log(result);
+            $("#status1").append("File upload Done<br>");         
+        },
+         error: function(data,result){
+           callSFRemote(data);
+           console.log(data);
+ 
+            $("#status1").append("File upload error<br>");         
+        }
+    }); 
+ 
+    status.setAbort(jqXHR);
+}
+ 
+var rowCount=0;
+function createStatusbar(obj)
+{
+     rowCount++;
+     var row="odd";
+     if(rowCount %2 ==0) row ="even";
+     this.statusbar = $("<div class='statusbar "+row+"'></div>");
+     this.filename = $("<div class='filename'></div>").appendTo(this.statusbar);
+     this.size = $("<div class='filesize'></div>").appendTo(this.statusbar);
+     this.progressBar = $("<div class='progressBar'><div></div></div>").appendTo(this.statusbar);
+     this.abort = $("<div class='abort'>Abort</div>").appendTo(this.statusbar);
+     obj.after(this.statusbar);
+ 
+    this.setFileNameSize = function(name,size)
+    {
+        var sizeStr="";
+        var sizeKB = size/1024;
+        if(parseInt(sizeKB) > 1024)
+        {
+            var sizeMB = sizeKB/1024;
+            sizeStr = sizeMB.toFixed(2)+" MB";
+        }
+        else
+        {
+            sizeStr = sizeKB.toFixed(2)+" KB";
+        }
+ 
+        this.filename.html(name);
+        this.size.html(sizeStr);
+    }
+    this.setProgress = function(progress)
+    {       
+        var progressBarWidth =progress*this.progressBar.width()/ 100;  
+        this.progressBar.find('div').animate({ width: progressBarWidth }, 10).html(progress + "% ");
+        if(parseInt(progress) >= 100)
+        {
+            this.abort.hide();
+        }
+    }
+    this.setAbort = function(jqxhr)
+    {
+        var sb = this.statusbar;
+        this.abort.click(function()
+        {
+            jqxhr.abort();
+            sb.hide();
+        });
+    }
+}
+function handleFileUpload(files,obj)
+{
+   for (var i = 0; i < files.length; i++) 
+   {
+        var fd = new FormData();
+        fd.append('file', files[i]);
+ 
+        var status = new createStatusbar(obj); //Using this we can set progress.
+        status.setFileNameSize(files[i].name,files[i].size);
+        sendFileToServer(fd,status);
+ 
+   }
+}
+$(document).ready(function()
+{
+var obj = $("#dragandrophandler");
+obj.on('dragenter', function (e) 
+{
+    e.stopPropagation();
+    e.preventDefault();
+    $(this).css('border', '2px solid #0B85A1');
+});
+obj.on('dragover', function (e) 
+{
+     e.stopPropagation();
+     e.preventDefault();
+});
+obj.on('drop', function (e) 
+{
+ 
+     $(this).css('border', '2px dotted #0B85A1');
+     e.preventDefault();
+     var files = e.originalEvent.dataTransfer.files;
+ 
+     //We need to send dropped files to Server
+     handleFileUpload(files,obj);
+});
+$(document).on('dragenter', function (e) 
+{
+    e.stopPropagation();
+    e.preventDefault();
+});
+$(document).on('dragover', function (e) 
+{
+  e.stopPropagation();
+  e.preventDefault();
+  obj.css('border', '2px dotted #0B85A1');
+});
+$(document).on('drop', function (e) 
+{
+    e.stopPropagation();
+    e.preventDefault();
+});
+ 
+});
+
+
+  
+  
+  function callSFRemote() {
+   
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.StoreImageController.saveImageUrl}', 
+        data.url, 
+        function(result, event){
+            if (event.status) {
+            	alert (result);
+                  } else if (event.type === 'exception') {
+                document.getElementById("responseErrors").innerHTML = event.message;
+            } else {
+                document.getElementById("responseErrors").innerHTML = event.message;
+            }
+        }, 
+        {escape: true}
+    );
+}
+    
+  
+  function callSFRemote(data) {
+   
+   data.url ="http://test.com/mygif	"
+    Visualforce.remoting.Manager.invokeAction(
+        '{!$RemoteAction.StoreImageController.saveImageUrl}', 
+        data.url, 
+        function(result, event){
+            if (event.status) {
+            	alert (result);
+                  } else if (event.type === 'exception') {
+                document.getElementById("responseErrors").innerHTML = event.message;
+            } else {
+                document.getElementById("responseErrors").innerHTML = event.message;
+            }
+        }, 
+        {escape: true}
+    );
+}
+</script>
+
+<script>
+
+$.getJSON(url, function(data) {
+    mainfunction(data);
+})
+
+
+var url = "http://api.randomuser.me";
+
+var browser = navigator.userAgent;
+var IEversion = 99; //Give a default value for non-IE browsers
+ 
+if (browser.indexOf("MSIE") > 1) { //Detects if IE
+    IEversion = parseInt(browser.substr(browser.indexOf("MSIE")+5, 5));
+}
+if (IEversion < 10) {                
+   var suc;
+   RequestHelper.sendRequest(url,suc  );
+   /* xdr = new XDomainRequest();   // Creates a new XDR object.
+	
+	xdr.open("get", url);
+	xdr.onprogress = function () { };
+	xdr.ontimeout = function () { };
+	xdr.onerror = function () { };
+	xdr.onload = function() {
+	  success(xdr.responseText);
+	}
+	setTimeout(function () {xdr.send();}, 0);  
+      console.log(xdr.responseText);          
+        callSFRemote($.parseJSON(xdr.responseText));
+        alert ("Done");
+    };    */          
+} else {
+    $.ajax({
+  url: "http://api.randomuser.me/",
+  dataType: "json",
+  success: function(data){
+    console.log(data);
+       callSFRemote(data);
+          alert ("Done");
+  }
+});
+     
+
+}
+</script>
+
+</apex:page>

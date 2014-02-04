@@ -1,0 +1,33 @@
+<apex:page standardController="Merchandise__c" recordSetVar="merch">
+   <apex:pageBlock >
+    <apex:pageBlockTable value="{!merch}" var="rec" id="theTable" >
+
+        <apex:facet name="caption">table caption</apex:facet>
+
+        <apex:facet name="header">table header</apex:facet>
+
+        <apex:facet name="footer">table footer</apex:facet>
+
+        <apex:column >
+
+                <apex:facet name="header">Name</apex:facet>
+
+            <apex:facet name="footer">column footer</apex:facet>
+
+            <apex:outputText value="{!rec.name}"/>
+
+        </apex:column>
+
+        <apex:column >
+
+            <apex:facet name="header">Owner</apex:facet>
+
+            <apex:facet name="footer">column footer</apex:facet>
+
+            <apex:outputText value="{!rec.Description__c}"/>
+
+        </apex:column>
+
+    </apex:pageBlockTable>
+   </apex:pageBlock>   
+</apex:page>

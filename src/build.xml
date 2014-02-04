@@ -1,0 +1,14 @@
+<project default="test" basedir="." xmlns:sf="antlib:com.salesforce">
+
+    <property file="build-ji.properties"/>
+    <property environment="env"/>
+
+	<target name="test">
+      <sf:deploy username="${username}" password="${password}" serverurl="${serverurl}" deployRoot="./" runAllTests="true" />
+    </target>
+
+	<target name="clean">
+      <sf:deploy username="${username}" password="${password}" serverurl="${serverurl}" deployRoot="clean" />
+    </target>
+
+</project>

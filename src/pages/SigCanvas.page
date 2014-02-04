@@ -1,0 +1,5 @@
+<apex:page >
+test app
+
+<apex:canvasApp developerName="MyTestApp" height="800px" width="800px" border="2" namespacePrefix="chx" scrolling="true" parameters="{p1:'Param1',p2:'contact',p3:'limit 10'}"/>
+</apex:page>

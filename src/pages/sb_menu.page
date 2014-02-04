@@ -1,0 +1,42 @@
+<apex:page showHeader="false"  standardController="Account" >
+<div data-role="content">
+        <div class="ui-grid-a" align="center">
+            <div class="ui-block-a">
+           <a data-role="button" data-inline="true" data-theme="b" href="{!$Page.sb_detail}" data-icon="grid"
+        data-iconpos="left">
+            Button
+        </a>
+            </div>
+            <div class="ui-block-b">
+          <a data-role="button" data-inline="true"  data-theme="b" href="#page1" data-icon="grid"
+        data-iconpos="left">
+            Button
+        </a>
+            </div>
+            <div class="ui-block-a">
+             <a data-role="button" data-inline="true" data-theme="b" href="#page1" data-icon="grid"
+        data-iconpos="left">
+            Button
+        </a>
+            </div>
+            <div class="ui-block-b">
+              <a data-role="button" data-inline="true"  data-theme="b" href="#page1" data-icon="grid"
+        data-iconpos="left">
+            Button
+        </a>
+            </div>
+            <div class="ui-block-a">
+           <a data-role="button" data-inline="true" data-theme="b" href="#page1" data-icon="grid"
+        data-iconpos="left">
+            Button
+        </a>
+            </div>
+            <div class="ui-block-b">
+          <a data-role="button" data-inline="true" data-theme="b" href="#page1" data-icon="grid"
+        data-iconpos="left">
+            Button
+        </a>
+            </div>
+        </div>
+        </div>
+</apex:page>

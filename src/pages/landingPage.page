@@ -1,0 +1,48 @@
+<apex:page docType="html-5.0" sidebar="false" showHeader="false" standardStylesheets="false" cache="false" >
+
+<head>
+  <!-- Every version of your webapp should include a list of all
+  versions. -->
+  <link rel="alternate" href="/apex/DesktopPage" id="desktop" media="only screen and (touch-enabled: 0)"/>
+  <link rel="alternate" href="/apex/PhonePage" id="phone" media="only screen and (max-device-width: 640px)"/>
+  <link rel="alternate" href="/apex/TabletPage" id="tablet" media="only screen and (min-device-width: 641px)"/>
+
+  <meta name="viewport" content="width=device-width, user-scalable=no"/>
+  <script src="{!URLFOR($Resource.Device_js)}"/>
+  <script>
+  var device = {
+  detect: function(key) {
+    if(this['_'+key] === undefined) {
+      this['_'+key] = navigator.userAgent.match(new RegExp(key, 'i'));
+    }
+    return this['_'+key];
+  },
+  iDevice: function() {
+    return this.detect('iPhone') || this.detect('iPod');
+  },
+   iPad: function() {
+    return this.detect('iPad');
+  },
+  android: function() {
+    return this.detect('Android');
+  },
+  webOS: function() {
+    return this.detect('webOS');
+  },
+  mobile: function() {
+    return this.iDevice() || this.android() || this.webOS();
+  }
+};
+alert("device"+device);
+  </script>
+  
+</head>
+
+<body>
+  <ul>
+    <li><a href="?device=phone">Phone Version</a></li>
+    <li><a href="?device=tablet">Tablet Version</a></li>
+  </ul>
+  <h1> This is the  landing Desktop Version</h1>
+</body>
+</apex:page>

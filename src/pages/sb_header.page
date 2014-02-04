@@ -1,0 +1,23 @@
+<apex:page showHeader="false"  >
+ <div data-role="header"> 
+ 
+<div data-role="collapsible" data-theme="a" data-content-theme="a" >
+<h3 data-icon="menu" data-rel="dialog">Menu</h3>
+<p>
+<ul data-role="listview" data-inset="true" style="width:180px;" data-theme="b">
+        <li><a data-rel="popup" href="#popupMenuLevel1">Add</a></li>
+        <li><a data-rel="popup" href="#popupMenuLevel1">Edit</a></li>
+        <li><a data-rel="popup" href="#popupMenuLevel1">Manage</a></li>
+        <li><a data-rel="popup" href="#popupMenuLevel1">Delete</a></li>
+    </ul>
+    </p>
+</div>
+ 
+	<h1>Starbucks Store Management</h1> 
+	
+
+   </div> 
+
+
+
+</apex:page>

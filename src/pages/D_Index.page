@@ -1,0 +1,5 @@
+<apex:page docType="html-5.0" sidebar="false" showHeader="false" cache="false"
+             standardStylesheets="false" controller="DeviceSwitch"
+             action="{!detectDevice}">
+  <h1>{!isIPad}</h1>
+</apex:page>

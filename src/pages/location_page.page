@@ -1,7 +1,0 @@
-<apex:page standardController="location__c" recordSetVar="locations__c" >
-  <apex:pageBlock >
-    <apex:pageBlockTable value="{!locations__c}" var="a">
-      <apex:column value="{!a.name}"/>
-    </apex:pageBlockTable>
-  </apex:pageBlock>
-</apex:page>

@@ -1,4 +1,0 @@
-<apex:page sidebar="false" showHeader="false" contentType="text/html" controller="DeviceSelector"  action="{!redirect}">
-
-
-</apex:page>

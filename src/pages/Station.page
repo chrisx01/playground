@@ -1,6 +1,0 @@
-<apex:page standardController="Station__c"  tabStyle="Station__c" >
-<!-- Begin Default Content REMOVE THIS -->
-<h1>Welcome to Station</h1>
-<c:gMap />
-<!-- End Default Content REMOVE THIS -->
-</apex:page>

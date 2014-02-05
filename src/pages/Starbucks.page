@@ -1,9 +1,0 @@
-<apex:page controller="DefaultController">
-	<apex:form >
-
-Coffee Store Name: <apex:inputText value="{!storeName}" />
-		<apex:outputText value="{!storeMsg}" />
-		<apex:commandButton action="{!printMsg}" value="save" />
-
-	</apex:form>
-</apex:page>

@@ -1,6 +1,6 @@
 <apex:page showHeader="false" standardController="Image__c"  extensions="StoreImageController">
 <!-- Begin Default Content REMOVE THIS -->
-<h1>Image me Test</h1>
+<h1>Image me </h1>
 
 <!-- End Default Content REMOVE THIS -->
 <apex:includeScript value="{!$Resource.JQuery}" />
